@@ -1,4 +1,4 @@
-Upda<html>
+<html>
 <head>
     <link rel="stylesheet" href="rwp.css"/>
     <title>Redmond West Little League Practice Scheduler V1.9</title>
@@ -11,8 +11,8 @@ Upda<html>
     <%@ import namespace="System.Drawing.Color" %>
     <%@ import namespace="System.Security.Permissions" %>
     <script runat="server">
-	
- 
+
+
         Dim sqlPwd As String = "sa"
         ' used for connecting to our DB
         Dim masterPwd As String = "detour/2513"
@@ -20,13 +20,13 @@ Upda<html>
         Dim subMasterPwd As String = "detour/4016"
         ' allows logging in as any team but not as administrator
         ' detour = bypass; 23646 = admin; 6676 = norm
-        
+
         Dim sqlStrSorted As String
         Dim sqlStrBase As String
         Dim conClsf As SqlConnection
         Dim cmdMbrs As SqlCommand
         Dim rdrMbrs As SqlDataReader
-        
+
         Dim loggedIn As Boolean = False
         Dim loggedInAsAdmin As Boolean = False
         Dim teamName As String
@@ -35,42 +35,41 @@ Upda<html>
 
         Dim showingReserved As Boolean = True
         Dim showingAvailableByField As Boolean = False
-        Dim DBConn As SqlConnection '  = New SqlConnection(sSqlConnectionString)
-// This line contained a SECRET and was automatically sanitized. This file will probably not compile now. Contact original author for the secret line
-        '   Dim DBConn As SqlConnection = New SqlConnection("server=cacofonix; initial catalog=db0902;trusted_connection=yes")
+        Dim DBConn As SqlConnection
+
         Dim sCurYear As String
-        
-        
+
+
         Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
             Dim sSqlConnectionString As String
             Dim rootWebConfig As System.Configuration.Configuration
-        
+
             sSqlConnectionString = ""
-        
+
             rootWebConfig = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/Rwp2")
-        
+
             Dim connString As System.Configuration.ConnectionStringSettings
-        
+
             If (rootWebConfig.ConnectionStrings.ConnectionStrings.Count > 0) Then
                 connString = rootWebConfig.ConnectionStrings.ConnectionStrings("dbSchedule")
                 If Not (connString Is Nothing) Then
                     sSqlConnectionString = connString.ConnectionString
                 End If
             End If
-        
+
             DBConn = New SqlConnection(sSqlConnectionString)
-            
+
             sCurYear = DateTime.UtcNow.Year
             Message0.Text = "Redmond West Little League Practice Scheduler v1.9 (Server Date = " + DateTime.UtcNow.AddHours(-8).Date + " (" + sCurYear + "))"
             ' ", SQL="+sSqlConnectionString+")"
             Try
                 teamName = teamMenu.SelectedItem.Text
                 teamNameForAvailableSlots = teamMenu.SelectedItem.Text
-            
+
                 ' this teams reservations
                 'sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'00/00/00'"
                 '			DataGrid1.Columns(0).HeaderText = "Release"
- 
+
                 ' ViewState variables
                 ' In every other place where we change any of these vraibles,
                 ' we must set it in ViewState as well.
@@ -81,32 +80,32 @@ Upda<html>
                     sqlStrBase = CStr(ViewState("sqlStrBase"))
                 End If
                 sqlStrSorted = sqlStrBase + ",Date"
-       
+
                 If ViewState("showingReserved") = Nothing Then
                     showingReserved = True
                     ViewState("showingReserved") = True
                 Else
                     showingReserved = CBool(ViewState("showingReserved"))
                 End If
-                
+
                 If ViewState("showingAvailableByField") = Nothing Then
                     showingAvailableByField = False
                 Else
                     showingAvailableByField = CBool(ViewState("showingAvailableByField"))
                 End If
-        
+
                 If ViewState("loggedIn") = Nothing Then
                     loggedIn = False
                 Else
                     loggedIn = CBool(ViewState("loggedIn"))
                 End If
-        
+
                 If ViewState("loggedInAsAdmin") = Nothing Then
                     loggedInAsAdmin = False
                 Else
                     loggedInAsAdmin = CBool(ViewState("loggedInAsAdmin"))
                 End If
-            
+
                 If loggedInAsAdmin Then
                     teamNameForAvailableSlots = "Administrator"
                 End If
@@ -138,7 +137,7 @@ Upda<html>
             Catch ex As Exception
                 Message0.Text = ex.Message
             End Try
-            
+
         End Sub
 
         Sub BindGrid()
@@ -152,8 +151,8 @@ Upda<html>
             cmdMbrs.Dispose()
             DBConn.Close()
         End Sub
-        
-        
+
+
 
         Sub LogOff(ByVal sender As Object, ByVal e As EventArgs)
             Message1.Text = ""
@@ -170,7 +169,7 @@ Upda<html>
         Sub ValidateLogin(ByVal sender As Object, ByVal e As EventArgs)
             Dim sqlStrLogin As String
             Dim temp As String
-     
+
             ViewState("sqlStrBase") = ""
 
             If teamName.Contains("'") Or passwordTextBox.Text.Contains("'") Then
@@ -189,12 +188,12 @@ Upda<html>
                 While rdrMbrs.Read()
                     temp = rdrMbrs(0)
                 End While
-			
+
                 rdrMbrs.Close()
                 cmdMbrs.Dispose()
                 DBConn.Close()
             End If
- 
+
             If temp = "1" Then
                 Message1.Text = "Login successful"
                 loggedIn = True
@@ -221,10 +220,10 @@ Upda<html>
                 ViewState("loggedInAsAdmin") = loggedInAsAdmin
             End If
         End Sub
-   
+
         Sub ShowReserved(ByVal sender As Object, ByVal e As EventArgs)
             Try
-                
+
                 showingReserved = True
                 showingAvailableByField = False
                 ViewState("showingReserved") = showingReserved
@@ -234,7 +233,7 @@ Upda<html>
                 Message0.Text = Message0.Text
             End Try
         End Sub
-        
+
         Sub ShowAvailable(ByVal sender As Object, ByVal e As EventArgs)
             Try
                 showingAvailableByField = False
@@ -246,7 +245,7 @@ Upda<html>
                 Message0.Text = Message0.Text
             End Try
         End Sub
-        
+
         Sub RunQuery(ByVal sender As Object, ByVal e As EventArgs)
             Message2.Text = ""
             If loggedIn Then
@@ -281,7 +280,7 @@ Upda<html>
                         sqlStrBase = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "'," + "''"
                         sqlStrSorted = sqlStrBase + ",Date"
                     End If
-                    
+
                     ViewState("sqlStrBase") = sqlStrBase
                 End If
                 DataGrid1.EditItemIndex = -1
@@ -301,7 +300,7 @@ Upda<html>
                         sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "'," + "''"
                         sqlStrSorted = sqlStrBase + ",Date"
                     End If
-                    
+
                     ViewState("sqlStrBase") = sqlStrBase
                 End If
 
@@ -320,7 +319,7 @@ Upda<html>
             'End If
             BindGrid()
         End Sub
- 
+
 
         Sub DataGrid_Command(ByVal sender As Object, ByVal e As DataGridCommandEventArgs)
             Select Case (CType(e.CommandSource, LinkButton)).CommandName
@@ -339,7 +338,7 @@ Upda<html>
         Sub DataGrid_Edit(ByVal sender As Object, ByVal e As DataGridCommandEventArgs)
             Dim SQLcmd As String
             Dim temp As String
-			
+
             DataGrid1.EditItemIndex = e.Item.ItemIndex
             If DataGrid1.Columns(0).HeaderText = "Release" Then
                 DBConn.Open()
@@ -364,7 +363,7 @@ Upda<html>
                 cmdMbrs.Dispose()
                 DBConn.Close()
             End If
-			
+
             If DataGrid1.Columns(0).HeaderText = "Reserve" Then
                 DBConn.Open()
                 If loggedInAsAdmin Then
@@ -414,7 +413,7 @@ Upda<html>
 
         Sub DeleteItem(ByVal e As DataGridCommandEventArgs)
         End Sub
-        
+
         Sub Item_Bound(ByVal sender As Object, ByVal e As DataGridItemEventArgs)
 
             Dim link As LinkButton
@@ -422,11 +421,11 @@ Upda<html>
             Dim dateField As DateTime
             Dim IsEnabled As Boolean
             Dim IsloggedIn As Boolean
-            
+
             IsloggedIn = Convert.ToBoolean(ViewState("loggedIn"))
-            
+
             If e.Item.Cells(0).Controls.Count > 0 Then
-                
+
                 link = CType(e.Item.Cells(0).Controls(0), LinkButton)
                 strDateField = e.Item.Cells(3).Text
                 dateField = Convert.ToDateTime(strDateField)
@@ -437,28 +436,28 @@ Upda<html>
                     link.ToolTip = e.Item.Cells(1).Text
                 End If
                 '                IsEnabled = Convert.ToBoolean(Convert.ToInt32(e.Item.Cells(1).Text))
-                
+
                 If Not IsloggedIn Then
                     link.Enabled = False
                     link.ToolTip = "Not logged in"
                 End If
-                
+
                 Dim dttmNow As DateTime
-                
-                
+
+
                 If Not IsNothing(link) And DateTime.Compare(dateField, DateTime.UtcNow.AddHours(-8).Date) <= 0 And CBool(ViewState("showingReserved")) Then
                     link.Enabled = False
                     link.ToolTip = "date has passed: " + dateField + " < " + DateTime.UtcNow.AddHours(-8).Date
                 End If
-                
+
                 If Not IsNothing(link) And IsEnabled And Not CBool(ViewState("showingReserved")) Then
                     link.Enabled = False
                 End If
             End If
-            
+
         End Sub
-        
-        
+
+
 
         Sub ShowAvailableByField(sender As Object, e As System.EventArgs)
             Try

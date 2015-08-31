@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -25,8 +26,11 @@ namespace RwpSvc
     static string _sResourceConnString =
         "Server=cantorix;Database=db0902;Trusted_Connection=True;";
 #else
-	    static string _sResourceConnString =
-// This line contained a SECRET and was automatically sanitized. This file will probably not compile now. Contact original author for the secret line
+        static string _sResourceConnString
+        {
+            get { return ConfigurationManager.AppSettings["Thetasoft.Rwp.ConnectionString"]; }
+        }
+
 #endif
     // static string _sResourceConnString = "Data Source=cacofonix;Database=db0902;Trusted_Connection=Yes";
 #endif
