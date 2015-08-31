@@ -13,14 +13,6 @@
     <script runat="server">
 
 
-        Dim sqlPwd As String = "sa"
-        ' used for connecting to our DB
-        Dim masterPwd As String = "detour/2513"
-        ' used for administrator bypass - log in as any team as admin
-        Dim subMasterPwd As String = "detour/4016"
-        ' allows logging in as any team but not as administrator
-        ' detour = bypass; 23646 = admin; 6676 = norm
-
         Dim sqlStrSorted As String
         Dim sqlStrBase As String
         Dim conClsf As SqlConnection
@@ -176,11 +168,7 @@
                 temp = "-1" ' prevent SQL injection; no password contains an apostrophe
             Else
                 DBConn.Open()
-                If passwordTextBox.Text = masterPwd Or passwordTextBox.Text = subMasterPwd Then
-                    sqlStrLogin = "SELECT count(*) as Count from rwllTeams where TeamName = '" + teamName + "'"
-                Else
-                    sqlStrLogin = "SELECT count(*) as Count from rwllTeams where TeamName = '" + teamName + "' and PW = '" + passwordTextBox.Text + "'"
-                End If
+                sqlStrLogin = "SELECT count(*) as Count from rwllTeams where TeamName = '" + teamName + "' and PW = '" + passwordTextBox.Text + "'"
                 cmdMbrs = DBConn.CreateCommand
                 cmdMbrs.CommandText = sqlStrLogin
                 rdrMbrs = cmdMbrs.ExecuteReader
@@ -206,10 +194,6 @@
                 sqlStrSorted = sqlStrBase + ",Date"
                 ViewState("sqlStrBase") = sqlStrBase
                 BindGrid()
-                If passwordTextBox.Text = masterPwd Then
-                    loggedInAsAdmin = True
-                    ViewState("loggedInAsAdmin") = loggedInAsAdmin
-                End If
             Else
                 teamMenu.Enabled = "true"
                 Message1.Text = "Incorrect Password"

@@ -12,6 +12,9 @@
     <div>
         <div class="masthead">release notes</div>
         <ul>
+            <li>8/29/2015@19:02
+                <ul>Internal only changes</ul>
+            </li>
             <li>2/15/2015@19:00
                 <ul>
                     <li>Practice slots through 3/20 are loaded
