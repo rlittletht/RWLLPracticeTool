@@ -9,15 +9,18 @@ using System.Text;
 namespace RwpSvc
 {
 	[DataContract]
-	public class RSRBase : TCore.SRBase	// StatusResponse XML
+	public class RSRBase //   : TCore.SRBase	// StatusResponse XML
 	{
 		[DataMember]
-        public new bool Result { get { return base.Result; } set { base.Result = value; } }
+        public bool Result { get { return fResult; } set { fResult = value; } }
 
 		[DataMember]
-		public new string Reason { get { return base.Reason;} set { base.Reason = value;}}
+		public string Reason { get { return sReason;} set { sReason = value;}}
 
-		public new bool Succeeded { get { return base.Succeeded;}}
+		public bool Succeeded { get { return fResult;}}
+
+        bool fResult;
+        string sReason;
 	}
 
 	[DataContract]

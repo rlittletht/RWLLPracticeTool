@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Rwp.RwpSvc;
+using System.Net;
 
 namespace Rwp
 {
@@ -32,17 +33,48 @@ namespace Rwp
                 }
         }
 
+        public static string GetIP4Address(string sUserHostAddress)
+        {
+            string IP4Address = String.Empty;
+
+            foreach (IPAddress IPA in Dns.GetHostAddresses(sUserHostAddress))
+            {
+                if (IPA.AddressFamily.ToString() == "InterNetwork")
+                {
+                    IP4Address = IPA.ToString();
+                    break;
+                }
+            }
+
+            if (IP4Address != String.Empty)
+            {
+                return IP4Address;
+            }
+
+            foreach (IPAddress IPA in Dns.GetHostAddresses(Dns.GetHostName()))
+            {
+                if (IPA.AddressFamily.ToString() == "InterNetwork")
+                {
+                    IP4Address = IPA.ToString();
+                    break;
+                }
+            }
+
+            return IP4Address;
+        }
+
         SR CheckIP()
         {
             SR sr = new SR();
+            string sAddressForComp = GetIP4Address(Request.UserHostAddress);
 
-            if (String.Compare(Request.UserHostAddress, "50.135.16.218") != 0
-                && String.Compare(Request.UserHostAddress, "::1") != 0
-                && !Request.UserHostAddress.StartsWith("192.168.1."))
+            if (String.Compare(sAddressForComp, "50.135.16.218") != 0
+                && String.Compare(sAddressForComp, "::1") != 0
+                && !sAddressForComp.StartsWith("192.168.1."))
                 {
                 sr.Result = false;
                 sr.Reason = String.Format("admin operations illegal from current ip address: {0}",
-                                          Request.UserHostAddress);
+                                          sAddressForComp);
                 return sr;
                 }
 
@@ -71,7 +103,7 @@ namespace Rwp
             ReportSr(sr, "Delete All Slots");
         }
 
-		protected void DoDelete2012Slots(object sender, EventArgs e)
+		protected void DoDelete2013Slots(object sender, EventArgs e)
 		{
             SR sr = CheckIP();
 
@@ -81,8 +113,8 @@ namespace Rwp
                 return;
                 }
 			// first download the current data...
-			sr = m_rspClient.ClearYear(2012);
-			ReportSr(sr, "Delete 2012 Slots");
+			sr = m_rspClient.ClearYear(2013);
+			ReportSr(sr, "Delete 2013 Slots");
 		}
 
 		protected void DoDeleteTeams(object sender, EventArgs e)

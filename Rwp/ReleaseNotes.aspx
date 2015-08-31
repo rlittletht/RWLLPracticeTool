@@ -12,6 +12,14 @@
     <div>
         <div class="masthead">release notes</div>
         <ul>
+            <li>2/18/2014@21:00
+                <ul>
+                    <li>Fixed reservation logic to correctly reflect enabled/disabled state (and report reasons)
+                </ul>
+            <li>1/18/2014@4:04pm
+                <ul>
+                    <li>Fixed hardcoded 2013 dates to use the current year instead of being hardcoded
+                </ul>
             <li>2/26/2013@11:45pm
                 <ul><li>Fixed server date logic to calculate PST from UTC accurately</li>
                     <li>Fixed release field logic to accurately reflect the fact that you cannot release fields on the same day as the field slot (this matches the TSQL logic in the usp_UpdateSlot stored procedure from previous years</li>

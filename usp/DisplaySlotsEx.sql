@@ -1,6 +1,6 @@
-USE [DB0902]
+USE [THETASOFT]
 GO
-/****** Object:  StoredProcedure [dbo].[usp_DisplaySlotsEx]    Script Date: 03/24/2013 22:55:26 ******/
+/****** Object:  StoredProcedure [dbo].[usp_DisplaySlotsEx]    Script Date: 2/18/2014 9:40:41 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -27,14 +27,23 @@ SET nocount ON
 DECLARE @Division    VARCHAR(10), 
         @FieldStatus INT, 
         @CageStatus  INT, 
-        @SQL         VARCHAR(2000) 
+        @SQL         VARCHAR(2000), 
+		@SQLSuffix   VARCHAR(2000),
+		@SQLPrefixDefaultDisabled VARCHAR(50),
+		@SQLPrefixDefaultEnabled VARCHAR(50)
 
-SELECT @SQL = 'SELECT ' + CHAR(39) + 'default state is disabled' + CHAR(39) + ' as IsEnabled, SlotNo,Week,Status,Venue,Field,convert(varchar(12),Date,111)as Date,Weekday,StartTime, EndTime,Hours,Reserved,Divisions,ReserveDatetime from rwllpractice ' 
+
+SELECT @SQLPrefixDefaultDisabled = 'SELECT ' + CHAR(39) + 'default state is disabled' + CHAR(39);
+SELECT @SQLPrefixDefaultEnabled = 'SELECT ' + CHAR(39) + CHAR(39);
+
+SELECT @SQLSuffix = ' as IsEnabled, SlotNo,Week,Status,Venue,Field,convert(varchar(12),Date,111)as Date,Weekday,StartTime, EndTime,Hours,Reserved,Divisions,ReserveDatetime from rwllpractice ' 
 
 IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team --', '-- Admin --', '-- Baseball --', '-- Softball --' ) 
 	BEGIN 
 		IF @ShowSlots = 1 
 			BEGIN 
+				SELECT @SQL = @SQLPrefixDefaultEnabled + @SQLSuffix
+
 				SELECT @SQL = @SQL + ' where Reserved = ''' + @TeamName + '''' 
 				SELECT @SQL = @SQL + ' order by ' + @Sort 
 
@@ -92,6 +101,14 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 	END 
 ELSE -- else, just do a generic query since this isn't a real team login
 	BEGIN 
+		IF @TeamName = 'Administrator'
+			BEGIN
+				SELECT @SQL = @SQLPrefixDefaultEnabled + @SQLSuffix
+			END
+		ELSE
+			BEGIN
+				SELECT @SQL = @SQLPrefixDefaultDisabled + @SQLSuffix
+			END
 		IF @ShowSlots = 0 
 			BEGIN 
 				IF @VenueName = '' 

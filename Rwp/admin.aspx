@@ -68,10 +68,10 @@
 			</tr>
 			<tr>
 				<td>
-				 <asp:Button ID="btnClearLastYear" runat="server" Text="Delete 2012 Slots" OnClick="DoDelete2012Slots" Enabled="False" />
+				 <asp:Button ID="btnClearLastYear" runat="server" Text="Delete 2013 Slots" OnClick="DoDelete2013Slots" Enabled="False" />
 				</td>
 				<td>
-					<p>Delete all of the slots from 2012.</p>
+					<p>Delete all of the slots from 2013.</p>
 				</td>
 			</tr>
 			<tr>

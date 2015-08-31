@@ -38,7 +38,8 @@
         Dim DBConn As SqlConnection '  = New SqlConnection(sSqlConnectionString)
 // This line contained a SECRET and was automatically sanitized. This file will probably not compile now. Contact original author for the secret line
         '   Dim DBConn As SqlConnection = New SqlConnection("server=cacofonix; initial catalog=db0902;trusted_connection=yes")
-
+        Dim sCurYear As String
+        
         
         Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
             Dim sSqlConnectionString As String
@@ -59,7 +60,9 @@
         
             DBConn = New SqlConnection(sSqlConnectionString)
             
-            Message0.Text = "Redmond West Little League Practice Scheduler v1.9 (Server Date = " + DateTime.UtcNow.AddHours(-8).Date + ")"
+            sCurYear = DateTime.UtcNow.Year
+            Message0.Text = "Redmond West Little League Practice Scheduler v1.9 (Server Date = " + DateTime.UtcNow.AddHours(-8).Date + " (" + sCurYear + "))"
+            ' ", SQL="+sSqlConnectionString+")"
             Try
                 teamName = teamMenu.SelectedItem.Text
                 teamNameForAvailableSlots = teamMenu.SelectedItem.Text
@@ -200,7 +203,7 @@
                 Message1.ForeColor = System.Drawing.Color.Green
                 Message2.Text = ""
                 DataGrid1.Columns(0).HeaderText = "Release"
-                sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'2013-01-01'," + "''"
+                sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'" + sCurYear + "-01-01'," + "''"
                 sqlStrSorted = sqlStrBase + ",Date"
                 ViewState("sqlStrBase") = sqlStrBase
                 BindGrid()
@@ -259,7 +262,7 @@
                     '*********************************                    
                     'DBConn.Open()
                     'cmdMbrs = DBConn.CreateCommand
-                    'cmdMbrs.CommandText = "exec usp_ReservedByDate '" + teamName + "','" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/2013'"
+                    'cmdMbrs.CommandText = "exec usp_ReservedByDate '" + teamName + "','" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/"+sCurYear+"'"
                     'Dim i As Integer
                     'i = Convert.ToInt32(cmdMbrs.ExecuteScalar())
                     'cmdMbrs.Dispose()
@@ -272,10 +275,10 @@
                     '*********************************
                     If showingAvailableByField Then
                         ViewState("showingAvailableByField") = True
-                        sqlStrBase = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/2013','" + fieldMenu.SelectedItem.Value + "'"
+                        sqlStrBase = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "','" + fieldMenu.SelectedItem.Value + "'"
                         sqlStrSorted = sqlStrBase + ",Date"
                     Else
-                        sqlStrBase = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/2013'," + "''"
+                        sqlStrBase = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "'," + "''"
                         sqlStrSorted = sqlStrBase + ",Date"
                     End If
                     
@@ -292,10 +295,10 @@
                     ' show available slots for a given day
                     DataGrid1.Columns(0).HeaderText = ""
                     If showingAvailableByField Then
-                        sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/2013','" + fieldMenu.SelectedItem.Value + "'"
+                        sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "','" + fieldMenu.SelectedItem.Value + "'"
                         sqlStrSorted = sqlStrBase + ",Date"
                     Else
-                        sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/2013'," + "''"
+                        sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "'," + "''"
                         sqlStrSorted = sqlStrBase + ",Date"
                     End If
                     
@@ -313,7 +316,7 @@
             'If showingReserved Then
             '   sqlStrSorted = "exec usp_DisplaySlotsEx '" + teamName + "',1,'00/00/00'," + e.SortExpression
             'Else
-            '   sqlStrSorted = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/2013'," + e.SortExpression
+            '   sqlStrSorted = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/"+sCurYear+"'," + e.SortExpression
             'End If
             BindGrid()
         End Sub
@@ -616,9 +619,10 @@
     <div class="notice">
         <h1>NOTICES:  </h1>
         <ul>
-        <li>Everyone is allowed to reserve 2 fields per day. Yes, there are ways to <b>cheat</b> the system. Please don't do this. If you exceed the 2 fields per day booking rules you are at risk of losing these fields arbitrarily.</li>
-            <li>School fields are available for reservations</li>
+        <li>For H5 and H6, A and B fields: A is the infield first, B is the outfield first. 
         <li>For information on the latest changes, click on "Release Notes" above.</li>
+        <li>2014 practice slots are loaded. You can begin reserving slots on 2/19!</li>
+        <li>Everyone is allowed to reserve 2 fields per day. Yes, there are ways to <b>cheat</b> the system. Please don't do this. If you exceed the 2 fields per day booking rules you are at risk of losing these fields arbitrarily.</li>
         </ul>
     </div>
 </body>

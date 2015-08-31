@@ -23,7 +23,7 @@ namespace RwpSvc
 #else
 #if STAGING
     static string _sResourceConnString =
-        "Server=cacofonix;Database=db0902;Trusted_Connection=True;";
+        "Server=cantorix;Database=db0902;Trusted_Connection=True;";
 #else
 	    static string _sResourceConnString =
 // This line contained a SECRET and was automatically sanitized. This file will probably not compile now. Contact original author for the secret line
