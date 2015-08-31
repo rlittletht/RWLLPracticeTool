@@ -20,7 +20,7 @@ namespace Rwp
 	    {
 	        SR sr = new SR();
 
-	        if (String.Compare(Request.UserHostAddress, "50.135.16.218") != 0
+	        if (String.Compare(Request.UserHostAddress, "50.135.102.97") != 0
 	            && String.Compare(Request.UserHostAddress, "::1") != 0
 	            && !Request.UserHostAddress.StartsWith("192.168.1."))
 	            {

@@ -68,7 +68,7 @@ namespace Rwp
             SR sr = new SR();
             string sAddressForComp = GetIP4Address(Request.UserHostAddress);
 
-            if (String.Compare(sAddressForComp, "50.135.16.218") != 0
+            if (String.Compare(sAddressForComp, "50.135.102.97") != 0
                 && String.Compare(sAddressForComp, "::1") != 0
                 && !sAddressForComp.StartsWith("192.168.1."))
                 {
@@ -103,7 +103,7 @@ namespace Rwp
             ReportSr(sr, "Delete All Slots");
         }
 
-		protected void DoDelete2013Slots(object sender, EventArgs e)
+		protected void DoDelete2014Slots(object sender, EventArgs e)
 		{
             SR sr = CheckIP();
 
@@ -113,8 +113,8 @@ namespace Rwp
                 return;
                 }
 			// first download the current data...
-			sr = m_rspClient.ClearYear(2013);
-			ReportSr(sr, "Delete 2013 Slots");
+			sr = m_rspClient.ClearYear(2014);
+			ReportSr(sr, "Delete 2014 Slots");
 		}
 
 		protected void DoDeleteTeams(object sender, EventArgs e)

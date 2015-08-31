@@ -12,6 +12,11 @@
     <div>
         <div class="masthead">release notes</div>
         <ul>
+            <li>2/15/2015@19:00
+                <ul>
+                    <li>Practice slots through 3/20 are loaded
+                    <li>Team logins created and distributed
+                </ul>
             <li>2/18/2014@21:00
                 <ul>
                     <li>Fixed reservation logic to correctly reflect enabled/disabled state (and report reasons)

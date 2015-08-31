@@ -1,4 +1,4 @@
-<html>
+Upda<html>
 <head>
     <link rel="stylesheet" href="rwp.css"/>
     <title>Redmond West Little League Practice Scheduler V1.9</title>
@@ -621,7 +621,7 @@
         <ul>
         <li>For H5 and H6, A and B fields: A is the infield first, B is the outfield first. 
         <li>For information on the latest changes, click on "Release Notes" above.</li>
-        <li>2014 practice slots are loaded. You can begin reserving slots on 2/19!</li>
+        <li>2015 practice slots are loaded. You can begin reserving slots on 2/16!</li>
         <li>Everyone is allowed to reserve 2 fields per day. Yes, there are ways to <b>cheat</b> the system. Please don't do this. If you exceed the 2 fields per day booking rules you are at risk of losing these fields arbitrarily.</li>
         </ul>
     </div>
