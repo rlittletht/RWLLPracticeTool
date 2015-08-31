@@ -1,0 +1,78 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RwpSvc", "RwpSvc\RwpSvc.csproj", "{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rwp", "Rwp\Rwp.csproj", "{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sql", "..\liblet\cs\sql\sql.csproj", "{D2383C17-0D82-41B0-8C18-A14253C050C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatusResult", "..\liblet\cs\StatusResult\StatusResult.csproj", "{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		AzureDebug|Any CPU = AzureDebug|Any CPU
+		AzureStagingDebug|Any CPU = AzureStagingDebug|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		IxStaging|Any CPU = IxStaging|Any CPU
+		ObelixStaging|Any CPU = ObelixStaging|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.AzureDebug|Any CPU.ActiveCfg = AzureDebug|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.AzureDebug|Any CPU.Build.0 = AzureDebug|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.AzureStagingDebug|Any CPU.ActiveCfg = AzureStagingDebug|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.AzureStagingDebug|Any CPU.Build.0 = AzureStagingDebug|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.IxStaging|Any CPU.ActiveCfg = IxStaging|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.IxStaging|Any CPU.Build.0 = IxStaging|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.IxStaging|Any CPU.Deploy.0 = IxStaging|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.ObelixStaging|Any CPU.ActiveCfg = ObelixStaging|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.ObelixStaging|Any CPU.Build.0 = ObelixStaging|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.AzureDebug|Any CPU.ActiveCfg = AzureDebug|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.AzureDebug|Any CPU.Build.0 = AzureDebug|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.AzureStagingDebug|Any CPU.ActiveCfg = AzureStagingDebug|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.AzureStagingDebug|Any CPU.Build.0 = AzureStagingDebug|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.IxStaging|Any CPU.ActiveCfg = IxStaging|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.IxStaging|Any CPU.Build.0 = IxStaging|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.IxStaging|Any CPU.Deploy.0 = IxStaging|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.ObelixStaging|Any CPU.ActiveCfg = ObelixStaging|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.ObelixStaging|Any CPU.Build.0 = ObelixStaging|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.AzureDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.AzureDebug|Any CPU.Build.0 = Debug|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.AzureStagingDebug|Any CPU.ActiveCfg = AzureStagingDebug|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.AzureStagingDebug|Any CPU.Build.0 = AzureStagingDebug|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.IxStaging|Any CPU.ActiveCfg = Release|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.IxStaging|Any CPU.Build.0 = Release|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.ObelixStaging|Any CPU.ActiveCfg = Release|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.ObelixStaging|Any CPU.Build.0 = Release|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.AzureDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.AzureDebug|Any CPU.Build.0 = Debug|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.AzureStagingDebug|Any CPU.ActiveCfg = AzureStagingDebug|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.AzureStagingDebug|Any CPU.Build.0 = AzureStagingDebug|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.IxStaging|Any CPU.ActiveCfg = Release|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.IxStaging|Any CPU.Build.0 = Release|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.ObelixStaging|Any CPU.ActiveCfg = Release|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.ObelixStaging|Any CPU.Build.0 = Release|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
