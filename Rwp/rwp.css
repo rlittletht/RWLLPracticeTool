@@ -1,0 +1,30 @@
+﻿body 
+{
+}
+
+.masthead {
+    font-family: "Segoe UI", "Tahoma", "Arial";
+    font-size: 48pt;
+}
+
+.notice {
+    font-family: "Segoe UI", "Tahoma", "Arial";
+    width: 70%;
+    background: lightyellow;
+    border: 1pt solid black;
+    padding: 4pt;
+}
+
+.notice h1 {
+    font-size: 16pt;
+    margin: 0;
+}
+
+.notice h2 {
+    font-size: 14pt;
+}
+
+.notice p {
+    margin: 0;
+    margin-left: .25in;
+}
