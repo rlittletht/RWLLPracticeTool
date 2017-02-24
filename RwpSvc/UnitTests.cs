@@ -23,5 +23,4 @@ namespace RwpSvc
             Assert.AreEqual(8, sPW.Length);
         }
     }
-    
 }

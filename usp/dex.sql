@@ -1,10 +1,13 @@
-USE [THETASOFT]
+USE [thetasoft]
 GO
-/****** Object:  StoredProcedure [dbo].[usp_DisplaySlotsEx]    Script Date: 2/18/2014 9:40:41 PM ******/
+
+/****** Object:  StoredProcedure [dbo].[usp_DisplaySlotsEx]    Script Date: 2/20/2017 1:18:16 PM ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 /* Params: */
 /* @TeamName - the name of the team (as stored in table [rwllteams] 
@@ -15,7 +18,7 @@ GO
    @Sort	  - how should this be sorted? ("StartTime" | ... ) 
 */
 
-ALTER PROC [dbo].[usp_DisplaySlotsEx] (@TeamName  VARCHAR(50), 
+CREATE PROC [dbo].[usp_DisplaySlotsEx] (@TeamName  VARCHAR(50), 
                                        @ShowSlots TINYINT, 
                                        @ShowDate  VARCHAR(10), 
                                        @VenueName NVARCHAR(255) = '', 
@@ -30,11 +33,8 @@ DECLARE @Division    VARCHAR(10),
         @SQL         VARCHAR(2000), 
 		@SQLSuffix   VARCHAR(2000),
 		@SQLPrefixDefaultDisabled VARCHAR(50),
-		@SQLPrefixDefaultEnabled VARCHAR(50),
-		@TeamNameSafe VARCHAR(75)
+		@SQLPrefixDefaultEnabled VARCHAR(50)
 
-
-SELECT @TeamNameSafe = REPLACE(@TeamName, '''', '''''')
 
 SELECT @SQLPrefixDefaultDisabled = 'SELECT ' + CHAR(39) + 'default state is disabled' + CHAR(39);
 SELECT @SQLPrefixDefaultEnabled = 'SELECT ' + CHAR(39) + CHAR(39);
@@ -47,7 +47,7 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 			BEGIN 
 				SELECT @SQL = @SQLPrefixDefaultEnabled + @SQLSuffix
 
-				SELECT @SQL = @SQL + ' where Reserved = ''' + @TeamNameSafe + '''' 
+				SELECT @SQL = @SQL + ' where Reserved = ''' + @TeamName + '''' 
 				SELECT @SQL = @SQL + ' order by ' + @Sort 
 
 				--  SELECT @SQL 
@@ -148,5 +148,8 @@ ELSE -- else, just do a generic query since this isn't a real team login
 		--  SELECT @SQL 
 		EXEC (@SQL) 
 	END  
+
+
+GO
 
 

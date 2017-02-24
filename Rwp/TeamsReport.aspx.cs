@@ -16,9 +16,9 @@ namespace Rwp
     		DoReport();
 		}
 
-	    private SR CheckIP()
+	    private RSR CheckIP()
 	    {
-	        SR sr = new SR();
+	        RSR sr = new RSR();
 
 	        if (String.Compare(Request.UserHostAddress, "50.135.102.97") != 0
 	            && String.Compare(Request.UserHostAddress, "::1") != 0

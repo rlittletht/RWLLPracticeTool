@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Data.Sql;
+using NUnit.Framework;
 using TCore;
 
 // ================================================================================
@@ -21,14 +22,117 @@ namespace RwpSvc
         // ================================================================================
          // S L O T S
         // ================================================================================
-        public class Slots : TCore.IQueryResult
+        public class RwpSlots : TCore.IQueryResult
         {
             List<RwpSlot> m_plrwps;
 
-    		// ================================================================================
-    		 // R W P  S L O T S
-    		// ================================================================================
-    		public class RwpSlot
+            public RwpSlots()
+            {
+                m_plrwps = new List<RwpSlot>();
+            }
+            public List<RwpSlot> Slots { get { return m_plrwps; } }
+
+            /*----------------------------------------------------------------------------
+                %%Function: StartTimeFromDateAndTime
+                %%Qualified: RwpSvc.Practice.RwpSlots.RwpSlot.StartTimeFromDateAndTime
+                %%Contact: rlittle
+
+                FUTURE: The timezone handling is DUMB! We should store the timezone
+                offset in the database so we don't have to guess about it here. Just
+                add "-0800" for PST and "-0700" for PDT and so on into a single column.
+                This could be taken care of at slot upload time and it solves this whole
+                problem
+
+                We aren't doing this now because the database is LIVE and I just don't 
+                want to deal with changing the format while its live.  But the exception
+                below will be hit if I don't remember to fix this in the offseason.
+            ----------------------------------------------------------------------------*/
+            public static DateTime StartTimeFromDateAndTime(DateTime dttmStartDate, string sTime)
+            {
+                if (dttmStartDate < DateTime.Parse("12/1/2016")
+                    || dttmStartDate > DateTime.Parse("11/21/2017"))
+                    throw new Exception("cannot handle timezone conversion. did you forget to add the 'TimeZone' column in the offseason?!?");
+
+                // now, convert this to UTC
+                int nHours = 0;
+
+                if (dttmStartDate >= DateTime.Parse("3/12/2017"))
+                    nHours = -7;
+                else
+                    nHours = -8;
+
+                DateTime dttmParse = DateTime.Parse(String.Format("{0} {1}", dttmStartDate.ToString("d"), sTime));
+                DateTime dttmUTC = new DateTime(dttmParse.Year, dttmParse.Month, dttmParse.Day, dttmParse.Hour, dttmParse.Minute, 0, DateTimeKind.Utc);
+
+                return dttmUTC.AddHours(-nHours);
+            }
+
+            [Test]
+            [TestCase("2/18/2017", "07:30:00 PM", "Sun, 19 Feb 2017 03:30:00 GMT")] // before PDT
+            [TestCase("3/18/2017", "07:30:00 PM", "Sun, 19 Mar 2017 02:30:00 GMT")] // after PDT
+            public static void TestStartTimeFromDateAndTime(string sStartDate, string sTime, string sExpected)
+            {
+                DateTime dttmStart = DateTime.Parse(sStartDate);
+                DateTime dttmActual = RwpSlots.StartTimeFromDateAndTime(dttmStart, sTime);
+
+                Assert.AreEqual(sExpected, dttmActual.ToString("r"));
+            }
+
+            public static RSR_CalItems GetCalendarItemsForTeam(string sTeam)
+            {
+                SqlWhere sw = new SqlWhere();
+                RSR rsr;
+                RSR_CalItems rci;
+                RwpSlots slots = new RwpSlots();
+
+                sw.AddAliases(RwpSlot.s_mpAliases);
+                try
+                    {
+                    sw.Add(String.Format("$$rwllpractice$$.Reserved = '{0}'", Sql.Sqlify(sTeam)), SqlWhere.Op.And);
+
+                    rsr = RSR.FromSR(Sql.ExecuteQuery(null, sw.GetWhere(RwpSlot.s_sSqlQueryString), slots, _sResourceConnString));
+
+                    if (!rsr.Succeeded)
+                        {
+                        rci = RSR_CalItems.FromRSR(rsr);
+                        rci.Reason = String.Format("{0} {1}", rci.Reason, _sResourceConnString);
+                        return rci;
+                        }
+
+                    rci = RSR_CalItems.FromRSR(RSR.FromSR(SR.Success()));
+
+                    List<CalItem> plci = new List<CalItem>();
+
+                    if (slots.Slots != null)
+                        {
+                        foreach (RwpSlot slot in slots.Slots)
+                            {
+                            CalItem ci = new CalItem();
+
+                            ci.Start = StartTimeFromDateAndTime(slot.SlotDate, slot.StartTime);
+                            ci.End = StartTimeFromDateAndTime(slot.SlotDate, slot.EndTime);
+                            ci.Location = String.Format("{0}: {1}", slot.Venue, slot.Field);
+                            ci.Title = String.Format("Team Practice: {0}", slot.Reserved);
+                            ci.Description = String.Format("Redmond West Little League team practice at {0} ({1}), for team {2}", slot.Venue, slot.Field, slot.Reserved);
+                            ci.UID = String.Format("{0}-rwllpractice-{1}", slot.Slot, slot.SlotDate.ToString("yyyyMMdd"));
+                            plci.Add(ci);
+                            }
+                        }
+                    rci.TheValue = plci;
+                    return rci;
+                    }
+                catch (Exception e)
+                    {
+                    rci = RSR_CalItems.FromRSR(RSR.Failed(e));
+                    rci.Reason = String.Format("{0} ({1})", rci.Reason, sTeam);
+                    return rci;
+                    }
+            }
+
+            // ================================================================================
+            // R W P  S L O T S
+            // ================================================================================
+            public class RwpSlot
 			{
     			int m_nSlot;
     			double m_flWeek;
@@ -88,7 +192,7 @@ namespace RwpSvc
     			/* R W P  S L O T */
     			/*----------------------------------------------------------------------------
     				%%Function: RwpSlot
-    				%%Qualified: RwpSvc.Practice:Slots:RwpSlot.RwpSlot
+    				%%Qualified: RwpSvc.Practice:RwpSlots:RwpSlot.RwpSlot
     				%%Contact: rlittle
 
     			----------------------------------------------------------------------------*/
@@ -201,7 +305,8 @@ namespace RwpSvc
 					return RSR.Failed(s);
 				}
 
-				public static List<string> s_plsWeekdays = new List<string>
+
+            	public static List<string> s_plsWeekdays = new List<string>
 				{
         			"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
 				};
@@ -272,7 +377,7 @@ namespace RwpSvc
                 /* C S V  M A K E */
                 /*----------------------------------------------------------------------------
                 	%%Function: CsvMake
-                	%%Qualified: RwpSvc.Practice:Slots:CsvSlots.CsvMake
+                	%%Qualified: RwpSvc.Practice:RwpSlots:CsvSlots.CsvMake
                 	%%Contact: rlittle
 
                 ----------------------------------------------------------------------------*/
@@ -303,7 +408,7 @@ namespace RwpSvc
                 /* L O A D  R W P T  F R O M  C S V */
                 /*----------------------------------------------------------------------------
                 	%%Function: LoadRwptFromCsv
-                	%%Qualified: RwpSvc.Practice:Slots:CsvSlots.LoadRwptFromCsv
+                	%%Qualified: RwpSvc.Practice:RwpSlots:CsvSlots.LoadRwptFromCsv
                 	%%Contact: rlittle
 
                 ----------------------------------------------------------------------------*/
@@ -366,7 +471,7 @@ namespace RwpSvc
             /* F  A D D  R E S U L T  R O W */
             /*----------------------------------------------------------------------------
             	%%Function: FAddResultRow
-            	%%Qualified: RwpSvc.Practice:Slots.FAddResultRow
+            	%%Qualified: RwpSvc.Practice:RwpSlots.FAddResultRow
             	%%Contact: rlittle
 
             ----------------------------------------------------------------------------*/
@@ -379,7 +484,7 @@ namespace RwpSvc
     		/* G E T  C S V */
     		/*----------------------------------------------------------------------------
     			%%Function: GetCsv
-    			%%Qualified: RwpSvc.Practice:Slots.GetCsv
+    			%%Qualified: RwpSvc.Practice:RwpSlots.GetCsv
     			%%Contact: rlittle
 
     		----------------------------------------------------------------------------*/
@@ -405,7 +510,7 @@ namespace RwpSvc
             /* I M P O R T  C S V */
             /*----------------------------------------------------------------------------
             	%%Function: ImportCsv
-            	%%Qualified: RwpSvc.Practice:Slots.ImportCsv
+            	%%Qualified: RwpSvc.Practice:RwpSlots.ImportCsv
             	%%Contact: rlittle
 
             ----------------------------------------------------------------------------*/

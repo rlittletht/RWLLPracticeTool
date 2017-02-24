@@ -56,6 +56,12 @@
   <wsdl:message name="Practice_GetCsvSlots_OutputMessage">
     <wsdl:part name="parameters" element="GetCsvSlotsResponse" />
   </wsdl:message>
+  <wsdl:message name="Practice_GetCalendarForTeam_InputMessage">
+    <wsdl:part name="parameters" element="GetCalendarForTeam" />
+  </wsdl:message>
+  <wsdl:message name="Practice_GetCalendarForTeam_OutputMessage">
+    <wsdl:part name="parameters" element="GetCalendarForTeamResponse" />
+  </wsdl:message>
   <wsdl:message name="Practice_ImportCsvSlots_InputMessage">
     <wsdl:part name="parameters" element="ImportCsvSlots" />
   </wsdl:message>
@@ -94,6 +100,10 @@
     <wsdl:operation name="GetCsvSlots">
       <wsdl:input wsaw:Action="urn:Practice/GetCsvSlots" message="Practice_GetCsvSlots_InputMessage" />
       <wsdl:output wsaw:Action="urn:Practice/GetCsvSlotsResponse" message="Practice_GetCsvSlots_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCalendarForTeam">
+      <wsdl:input wsaw:Action="urn:Practice/GetCalendarForTeam" message="Practice_GetCalendarForTeam_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Practice/GetCalendarForTeamResponse" message="Practice_GetCalendarForTeam_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="ImportCsvSlots">
       <wsdl:input wsaw:Action="urn:Practice/ImportCsvSlots" message="Practice_ImportCsvSlots_InputMessage" />

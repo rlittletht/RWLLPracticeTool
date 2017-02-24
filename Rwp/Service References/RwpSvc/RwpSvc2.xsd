@@ -50,7 +50,7 @@
   <xs:element name="ImportCsvTeamsResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ImportCsvTeamsResult" nillable="true" type="q3:SR" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ImportCsvTeamsResult" nillable="true" type="q3:RSR" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -62,7 +62,7 @@
   <xs:element name="ClearTeamsResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ClearTeamsResult" nillable="true" type="q4:SR" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ClearTeamsResult" nillable="true" type="q4:RSR" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -74,7 +74,7 @@
   <xs:element name="ClearSlotsResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ClearSlotsResult" nillable="true" type="q5:SR" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ClearSlotsResult" nillable="true" type="q5:RSR" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -88,7 +88,7 @@
   <xs:element name="ClearYearResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ClearYearResult" nillable="true" type="q6:SR" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ClearYearResult" nillable="true" type="q6:RSR" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -104,17 +104,31 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="GetCalendarForTeam">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sTeamName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCalendarForTeamResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="GetCalendarForTeamResult" nillable="true" type="q8:RSR_CalItems" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="ImportCsvSlots">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q8="http://schemas.microsoft.com/Message" name="stmCsv" type="q8:StreamBody" />
+        <xs:element xmlns:q9="http://schemas.microsoft.com/Message" name="stmCsv" type="q9:StreamBody" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="ImportCsvSlotsResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ImportCsvSlotsResult" nillable="true" type="q9:SR" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ImportCsvSlotsResult" nillable="true" type="q10:RSR" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

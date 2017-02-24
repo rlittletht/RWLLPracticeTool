@@ -12,6 +12,21 @@
     <div>
         <div class="masthead">release notes</div>
         <ul>
+            <li>2/19/2017@15:32</li>
+                <ul><li>Implemented iCalendar feed</li></ul>
+            <li>2/18/2017@12:30
+                <ul><li>Moved to new host, practice slots released</li></ul>
+            </li>
+            <li>2/21/2016@13:11
+                <ul>
+                    <li>Added reserved date/time to the main grid</li>
+                </ul>
+            </li>
+            <li>2/20/2016@20:04
+                <ul>
+                    <li>Practice slots for ALL 60' fields are loaded and available signup</li>
+                </ul>
+            </li>
             <li>8/29/2015@19:02
                 <ul>Internal only changes</ul>
             </li>

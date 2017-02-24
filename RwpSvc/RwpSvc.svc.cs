@@ -28,7 +28,7 @@ namespace RwpSvc
 #else
         static string _sResourceConnString
         {
-            get { return ConfigurationManager.AppSettings["Thetasoft.Rwp.ConnectionString"]; }
+            get { return ConfigurationManager.AppSettings["Thetasoft.Azure.ConnectionString"]; }
         }
 
 #endif
@@ -93,14 +93,14 @@ namespace RwpSvc
 		[WebGet]
 		public RSR ClearSlots()
 		{
-			return Slots.ClearAll();
+			return RwpSlots.ClearAll();
 		}
 
 		[OperationContract]
 		[WebGet]
 		public RSR ClearYear(int nYear)
 		{
-			return Slots.ClearYear(nYear);
+			return RwpSlots.ClearYear(nYear);
 		}
 
         [OperationContract]
@@ -109,7 +109,7 @@ namespace RwpSvc
         {
             Stream stm = new MemoryStream(4096);
 
-            Slots slots = new Slots();
+            RwpSlots slots = new RwpSlots();
 
             slots.GetCsv(stm);
             stm.Flush();
@@ -118,10 +118,17 @@ namespace RwpSvc
         }
 
         [OperationContract]
+        [WebGet]
+        public RSR_CalItems GetCalendarForTeam(string sTeamName)
+        {
+            return RwpSlots.GetCalendarItemsForTeam(sTeamName);
+        }
+
+        [OperationContract]
 		[WebGet]
 		public RSR ImportCsvSlots(Stream stmCsv)
 		{
-            return Slots.ImportCsv(stmCsv);
+            return RwpSlots.ImportCsv(stmCsv);
 		}
     }
 }
