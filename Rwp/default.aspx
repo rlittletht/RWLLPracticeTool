@@ -661,7 +661,7 @@
         <ul>
         <li>For H5 and H6, A and B fields: A is the infield first, B is the outfield first. 
         <li>For information on the latest changes, click on "Release Notes" above.</li>
-        <li>2017 practice slots are loaded. School fields are NOT available yet.</li>
+        <li>2017 practice slots are loaded. School fields through March 17th are now available.</li>
         <li>Everyone is allowed to reserve 2 fields per day. Yes, there are ways to <b>cheat</b> the system. Please don't do this. If you exceed the 2 fields per day booking rules you are at risk of losing these fields arbitrarily.</li>
         </ul>
     </div>

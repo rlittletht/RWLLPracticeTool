@@ -68,12 +68,12 @@ namespace Rwp
             RSR sr = new RSR();
             string sAddressForComp = GetIP4Address(Request.UserHostAddress);
 
-            if (String.Compare(sAddressForComp, "50.135.102.97") != 0
+            if (String.Compare(sAddressForComp, "73.83.16.112") != 0
                 && String.Compare(sAddressForComp, "::1") != 0
                 && !sAddressForComp.StartsWith("192.168.1."))
                 {
                 sr.Result = false;
-                sr.Reason = String.Format("admin operations illegal from current ip address: {0}",
+                sr.Reason = String.Format("Admin operations illegal from current ip address: {0}",
                                           sAddressForComp);
                 return sr;
                 }

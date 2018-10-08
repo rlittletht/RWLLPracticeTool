@@ -12,6 +12,10 @@
     <div>
         <div class="masthead">release notes</div>
         <ul>
+            <li>2/26/2017@13:45</li>
+                <ul><li>Updated front page to reflect school slots available</li></ul>
+            <li>2/25/2017</li>
+                <ul><li>Pointed services to thetasoft2</li></ul>
             <li>2/19/2017@15:32</li>
                 <ul><li>Implemented iCalendar feed</li></ul>
             <li>2/18/2017@12:30
