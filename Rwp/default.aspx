@@ -15,17 +15,21 @@
     <script src="Scripts/jquery-2.1.1.js"></script>
     <script src="Scripts/jquery-2.1.1.intellisense.js"></script>
     <script src="MSAL-support.js" type="text/javascript"></script>
+    <script src="MSAL-ref.js" type="text/javascript"></script>
     
     <script type="text/javascript">
         ((d) => {
             var appConfig = {
                 clientID: "24be322a-bc35-4a13-9b7d-f2ae799707c6",
                 graphEndpoint: "https://graph.microsoft.com/v1.0/me",
-                graphScopes: ["user.read"],
-                idSignInButton: "SignIn"
+                graphScopes: ["user.read"]
                 };
+            var appRefConfig = {
+                idSignInButton: "SignIn"
+            };
 
-            TCore_MSAL.initialize(d, appConfig);
+            let appClient = new TCore_MSAL_RefImpl(appConfig, appRefConfig);
+            TCore_MSAL.initialize(d, appClient);
         })(document);
     </script>
 

@@ -1,22 +1,29 @@
 ﻿declare var Msal: any;
 
-interface IMsalAppClient
+interface AppConfig
 {
     clientID: string;
     graphScopes: string[];
     graphEndpoint: string;
-    idSignInButton: string;
+}
+
+interface IMsalAppClient
+{
+    appConfig: AppConfig;
+
+    bindMsal(msal: TCore_MSAL);
+    onSignInSuccess();
 }
 
 class TCore_MSAL
 {
     m_myMSALObj: any;
-    m_appConfig: IMsalAppClient;
+    m_appClient: IMsalAppClient;
 
-    constructor(appConfig: IMsalAppClient)
+    constructor(appClient: IMsalAppClient)
     {
-        this.m_appConfig = appConfig;
-        this.m_myMSALObj = new Msal.UserAgentApplication(appConfig.clientID,
+        this.m_appClient = appClient;
+        this.m_myMSALObj = new Msal.UserAgentApplication(appClient.appConfig.clientID,
             null,
             this.acquireTokenRedirectCallBack,
             { storeAuthStateInCookie: true, cacheLocation: "localStorage" });
@@ -29,12 +36,12 @@ class TCore_MSAL
 
     signIn()
     {
-        this.m_myMSALObj.loginPopup(this.m_appConfig.graphScopes)
+        this.m_myMSALObj.loginPopup(this.m_appClient.appConfig.graphScopes)
             .then((idToken) =>
             {
                 //Login Success
-                this.showWelcomeMessage();
-                this.acquireTokenPopupAndCallMSGraph();
+                this.m_appClient.onSignInSuccess();
+                this.acquireTokenPopupAndCallMSGraph(); // this probably is only a ref impl thing...don't always want to call the graph on successful login
             },
             (error) =>
             {
@@ -58,10 +65,10 @@ class TCore_MSAL
     acquireTokenPopupAndCallMSGraph()
     {
         //Call acquireTokenSilent (iframe) to obtain a token for Microsoft Graph
-        this.m_myMSALObj.acquireTokenSilent(this.m_appConfig.graphScopes)
+        this.m_myMSALObj.acquireTokenSilent(this.m_appClient.appConfig.graphScopes)
             .then((accessToken) =>
             {
-                this.callMSGraph(this.m_appConfig.graphEndpoint, accessToken, this.graphAPICallback);
+                this.callMSGraph(this.m_appClient.appConfig.graphEndpoint, accessToken, this.graphAPICallback);
             },
             (error) =>
             {
@@ -71,10 +78,10 @@ class TCore_MSAL
                     || error.indexOf("interaction_required") !== -1
                     || error.indexOf("login_required") !== -1)
                 {
-                    this.m_myMSALObj.acquireTokenPopup(this.m_appConfig.graphScopes)
+                    this.m_myMSALObj.acquireTokenPopup(this.m_appClient.appConfig.graphScopes)
                         .then((accessToken) =>
                         {
-                            this.callMSGraph(this.m_appConfig.graphEndpoint, accessToken, this.graphAPICallback);
+                            this.callMSGraph(this.m_appClient.appConfig.graphEndpoint, accessToken, this.graphAPICallback);
                         },
                         (error) =>
                         {
@@ -92,42 +99,31 @@ class TCore_MSAL
         document.getElementById("json").innerHTML = JSON.stringify(data, null, 2);
     }
 
-    configureForLogout()
+    logout()
     {
-        $("#" + this.m_appConfig.idSignInButton)
-            .html("Sign Out")
-            .click((e) =>
-            {
-                e.preventDefault();
-                this.m_myMSALObj.logout();
-                console.log("sign out requested");
-            });
+        this.m_myMSALObj.logout();
     }
 
-    showWelcomeMessage()
-    {
-        var divWelcome = document.getElementById('WelcomeMessage');
-        divWelcome.innerHTML += 'Welcome ' + this.m_myMSALObj.getUser().name;
-        document.getElementById("SignIn").onclick = () => {
-            console.log("in SignIn.onclick()");
-            this.m_myMSALObj.loginRedirect(this.m_appConfig.graphScopes);
-        };
-
-        this.configureForLogout();
-
-//        var loginbutton = document.getElementById('SignIn');
-        //loginbutton.innerHTML = 'Sign Out';
-        //loginbutton.setAttribute('onclick', 'signOut();');
-    }
+    //showWelcomeMessage()
+    //{
+        //var divWelcome = document.getElementById('WelcomeMessage');
+        //divWelcome.innerHTML += 'Welcome ' + this.m_myMSALObj.getUser().name;
+        //document.getElementById("SignIn").onclick = () => {
+            //console.log("in SignIn.onclick()");
+            //this.m_myMSALObj.loginRedirect(this.m_appClient.appConfig.graphScopes);
+        //};
+//
+        //this.configureForLogout();
+    //}
 
     // This function can be removed if you do not need to support IE
     acquireTokenRedirectAndCallMSGraph()
     {
         //Call acquireTokenSilent (iframe) to obtain a token for Microsoft Graph
-        this.m_myMSALObj.acquireTokenSilent(this.m_appConfig.graphScopes)
+        this.m_myMSALObj.acquireTokenSilent(this.m_appClient.appConfig.graphScopes)
             .then((accessToken) =>
             {
-                this.callMSGraph(this.m_appConfig.graphEndpoint, accessToken, this.graphAPICallback);
+                this.callMSGraph(this.m_appClient.appConfig.graphEndpoint, accessToken, this.graphAPICallback);
             },
             (error) =>
             {
@@ -137,7 +133,7 @@ class TCore_MSAL
                     || error.indexOf("interaction_required") !== -1
                     || error.indexOf("login_required") !== -1)
                 {
-                    this.m_myMSALObj.acquireTokenRedirect(this.m_appConfig.graphScopes);
+                    this.m_myMSALObj.acquireTokenRedirect(this.m_appClient.appConfig.graphScopes);
                 }
             });
     }
@@ -146,7 +142,7 @@ class TCore_MSAL
     {
         if (tokenType === "access_token")
         {
-            this.callMSGraph(this.m_appConfig.graphEndpoint, token, this.graphAPICallback);
+            this.callMSGraph(this.m_appClient.appConfig.graphEndpoint, token, this.graphAPICallback);
         }
         else
         {
@@ -154,7 +150,7 @@ class TCore_MSAL
         }
     }
 
-    static initialize(document, appConfig: IMsalAppClient): TCore_MSAL
+    static initialize(document, appClient: IMsalAppClient): TCore_MSAL
     {
         // Browser check variables
         let ua: string = window.navigator.userAgent;
@@ -164,7 +160,9 @@ class TCore_MSAL
         let isIE: boolean = msie > 0 || msie11 > 0;
         let isEdge: boolean = msedge > 0;
 
-        let msal: TCore_MSAL = new TCore_MSAL(appConfig);
+        let msal: TCore_MSAL = new TCore_MSAL(appClient);
+        appClient.bindMsal(msal);
+
         console.log("in initialize");
         //If you support IE, our recommendation is that you sign-in using Redirect APIs
         //If you as a developer are testing using Edge InPrivate mode, please add "isEdge" to the if check
@@ -183,12 +181,12 @@ class TCore_MSAL
                     document.getElementById("SignIn").onclick = function()
                     {
                         console.log("in SignIn.onclick()");
-                        msal.MSAL().loginRedirect(appConfig.graphScopes);
+                        msal.MSAL().loginRedirect(appClient.appConfig.graphScopes);
                     };
 
                     if (msal.MSAL().getUser() && !msal.MSAL().isCallback(window.location.hash))
                     { // avoid duplicate code execution on page load in case of iframe and popup window.
-                        msal.showWelcomeMessage();
+                        msal.m_appClient.onSignInSuccess();
                         msal.acquireTokenRedirectAndCallMSGraph();
                     }
                 });
