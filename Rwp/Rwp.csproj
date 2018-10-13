@@ -212,6 +212,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="MSAL-support.ts" />
+    <TypeScriptCompile Include="MSAL-ref.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
   </ItemGroup>
   <ItemGroup>

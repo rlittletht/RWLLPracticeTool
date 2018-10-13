@@ -1,6 +1,6 @@
 ﻿declare var Msal: any;
 
-interface AppConfig
+interface IMsalAppClient
 {
     clientID: string;
     graphScopes: string[];
@@ -11,9 +11,9 @@ interface AppConfig
 class TCore_MSAL
 {
     m_myMSALObj: any;
-    m_appConfig: AppConfig;
+    m_appConfig: IMsalAppClient;
 
-    constructor(appConfig: AppConfig)
+    constructor(appConfig: IMsalAppClient)
     {
         this.m_appConfig = appConfig;
         this.m_myMSALObj = new Msal.UserAgentApplication(appConfig.clientID,
@@ -154,7 +154,7 @@ class TCore_MSAL
         }
     }
 
-    static initialize(document, appConfig: AppConfig): TCore_MSAL
+    static initialize(document, appConfig: IMsalAppClient): TCore_MSAL
     {
         // Browser check variables
         let ua: string = window.navigator.userAgent;
