@@ -1,7 +1,20 @@
+<!doctype html>
 <html>
 <head>
     <link rel="stylesheet" href="rwp.css"/>
     <title>Redmond West Little League Practice Scheduler V1.9</title>
+    
+    <script type ="text/javascript">
+    </script>
+    
+    <!-- Integrate with Azure AD v2 authentication - MSAL.js -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>
+    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/0.2.3/js/msal.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="Scripts/jquery-2.1.1.js"></script>
+    <script src="Scripts/jquery-2.1.1.intellisense.js"></script>
+    <script src="MSAL-support.js" type="text/javascript"></script>
 
     <%@ page language="VB" autoeventwireup="True" debug="true" %>
 
@@ -656,6 +669,11 @@
     </asp:DataGrid></form>
 </center>
 <br><br><br>
+<h2>Welcome to MSAL.js Quickstart</h2><br/>
+<h4 id="WelcomeMessage"></h4>
+<button id="SignIn" onclick="signIn()">Sign In</button><br/><br/>
+<pre id="json"></pre>
+
     <div class="notice">
         <h1>NOTICES:  </h1>
         <ul>
