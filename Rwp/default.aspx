@@ -15,6 +15,19 @@
     <script src="Scripts/jquery-2.1.1.js"></script>
     <script src="Scripts/jquery-2.1.1.intellisense.js"></script>
     <script src="MSAL-support.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+        ((d) => {
+            var appConfig = {
+                clientID: "24be322a-bc35-4a13-9b7d-f2ae799707c6",
+                graphEndpoint: "https://graph.microsoft.com/v1.0/me",
+                graphScopes: ["user.read"],
+                idSignInButton: "SignIn"
+                };
+
+            TCore_MSAL.initialize(d, appConfig);
+        })(document);
+    </script>
 
     <%@ page language="VB" autoeventwireup="True" debug="true" %>
 
@@ -668,10 +681,10 @@
         </Columns>
     </asp:DataGrid></form>
 </center>
-<br><br><br>
+<br/><br/><br/>
 <h2>Welcome to MSAL.js Quickstart</h2><br/>
 <h4 id="WelcomeMessage"></h4>
-<button id="SignIn" onclick="signIn()">Sign In</button><br/><br/>
+<button id="SignIn">Sign In</button><br/><br/>
 <pre id="json"></pre>
 
     <div class="notice">

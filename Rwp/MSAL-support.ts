@@ -5,17 +5,9 @@ interface AppConfig
     clientID: string;
     graphScopes: string[];
     graphEndpoint: string;
+    idSignInButton: string;
 }
 
-class foo
-{
-    m_a: number;
-
-    constructor()
-    {
-        this.m_a = 1;
-    }
-}
 class TCore_MSAL
 {
     m_myMSALObj: any;
@@ -53,7 +45,7 @@ class TCore_MSAL
     callMSGraph(theUrl: string, accessToken: string, callback: any)
     {
         let xmlHttp: any = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function () 
+        xmlHttp.onreadystatechange = function()
         {
             if (this.readyState == 4 && this.status == 200)
                 callback(JSON.parse(this.responseText));
@@ -100,13 +92,32 @@ class TCore_MSAL
         document.getElementById("json").innerHTML = JSON.stringify(data, null, 2);
     }
 
+    configureForLogout()
+    {
+        $("#" + this.m_appConfig.idSignInButton)
+            .html("Sign Out")
+            .click((e) =>
+            {
+                e.preventDefault();
+                this.m_myMSALObj.logout();
+                console.log("sign out requested");
+            });
+    }
+
     showWelcomeMessage()
     {
         var divWelcome = document.getElementById('WelcomeMessage');
         divWelcome.innerHTML += 'Welcome ' + this.m_myMSALObj.getUser().name;
-        var loginbutton = document.getElementById('SignIn');
-        loginbutton.innerHTML = 'Sign Out';
-        loginbutton.setAttribute('onclick', 'signOut();');
+        document.getElementById("SignIn").onclick = () => {
+            console.log("in SignIn.onclick()");
+            this.m_myMSALObj.loginRedirect(this.m_appConfig.graphScopes);
+        };
+
+        this.configureForLogout();
+
+//        var loginbutton = document.getElementById('SignIn');
+        //loginbutton.innerHTML = 'Sign Out';
+        //loginbutton.setAttribute('onclick', 'signOut();');
     }
 
     // This function can be removed if you do not need to support IE
@@ -142,48 +153,47 @@ class TCore_MSAL
             console.log("token type is:" + tokenType);
         }
     }
-};
 
-((d) => {
-    // Browser check variables
-    let ua: string = window.navigator.userAgent;
-    let msie: number = ua.indexOf('MSIE ');
-    let msie11: number = ua.indexOf('Trident/');
-    let msedge: number = ua.indexOf('Edge/');
-    let isIE: boolean = msie > 0 || msie11 > 0;
-    let isEdge: boolean = msedge > 0;
-
-    let appConfig: AppConfig = {
-        clientID: "24be322a-bc35-4a13-9b7d-f2ae799707c6",
-        graphEndpoint: "https://graph.microsoft.com/v1.0/me",
-        graphScopes: ["user.read"]
-        };
-
-    let msal: TCore_MSAL = new TCore_MSAL(appConfig);
-
-    //If you support IE, our recommendation is that you sign-in using Redirect APIs
-    //If you as a developer are testing using Edge InPrivate mode, please add "isEdge" to the if check
-    //if (!isIE) {
-        //if (msal.MSAL().getUser()) { // avoid duplicate code execution on page load in case of iframe and popup window.
-            //msal.showWelcomeMessage();
-            //msal.acquireTokenPopupAndCallMSGraph();
-        //}
-    //}
-    //else 
+    static initialize(document, appConfig: AppConfig): TCore_MSAL
     {
-        $(d)
-            .ready(() =>
-            {
-                d.getElementById("SignIn").onclick = function()
-                {
-                    msal.MSAL().loginRedirect(appConfig.graphScopes);
-                };
-                if (msal.MSAL().getUser() && !msal.MSAL().isCallback(window.location.hash))
-                { // avoid duplicate code execution on page load in case of iframe and popup window.
-                    msal.showWelcomeMessage();
-                    msal.acquireTokenRedirectAndCallMSGraph();
-                }
-            });
-    }
-})(document);
+        // Browser check variables
+        let ua: string = window.navigator.userAgent;
+        let msie: number = ua.indexOf('MSIE ');
+        let msie11: number = ua.indexOf('Trident/');
+        let msedge: number = ua.indexOf('Edge/');
+        let isIE: boolean = msie > 0 || msie11 > 0;
+        let isEdge: boolean = msedge > 0;
 
+        let msal: TCore_MSAL = new TCore_MSAL(appConfig);
+        console.log("in initialize");
+        //If you support IE, our recommendation is that you sign-in using Redirect APIs
+        //If you as a developer are testing using Edge InPrivate mode, please add "isEdge" to the if check
+        //if (!isIE) {
+        //if (msal.MSAL().getUser()) { // avoid duplicate code execution on page load in case of iframe and popup window.
+        //msal.showWelcomeMessage();
+        //msal.acquireTokenPopupAndCallMSGraph();
+        //}
+        //}
+        //else 
+        {
+            $(document)
+                .ready(() =>
+                {
+                    console.log("in document.ready()");
+                    document.getElementById("SignIn").onclick = function()
+                    {
+                        console.log("in SignIn.onclick()");
+                        msal.MSAL().loginRedirect(appConfig.graphScopes);
+                    };
+
+                    if (msal.MSAL().getUser() && !msal.MSAL().isCallback(window.location.hash))
+                    { // avoid duplicate code execution on page load in case of iframe and popup window.
+                        msal.showWelcomeMessage();
+                        msal.acquireTokenRedirectAndCallMSGraph();
+                    }
+                });
+        }
+
+        return msal;
+    }
+}
