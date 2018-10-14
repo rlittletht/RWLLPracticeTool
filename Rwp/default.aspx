@@ -12,8 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>
     <script src="https://secure.aadcdn.microsoftonline-p.com/lib/0.2.3/js/msal.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="Scripts/jquery-2.1.1.js"></script>
-    <script src="Scripts/jquery-2.1.1.intellisense.js"></script>
     <script src="MSAL-support.js" type="text/javascript"></script>
     <script src="MSAL-ref.js" type="text/javascript"></script>
     
@@ -688,7 +686,7 @@
 <br/><br/><br/>
 <h2>Welcome to MSAL.js Quickstart</h2><br/>
 <h4 id="WelcomeMessage"></h4>
-<img src="signin.png" id="SignIn"/>
+<img src="signin.png" id="SignIn" style="cursor: pointer"/>
 <button id="aSignIn">Sign In</button><br/><br/>
 <pre id="json"></pre>
 

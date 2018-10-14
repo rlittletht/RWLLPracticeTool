@@ -38,13 +38,29 @@ class TCore_MSAL_RefImpl implements IMsalAppClient
         this.m_msal = msal;
     }
 
-    configureForLogout() {
+    configureForLogout()
+    {
         $("#" + this.m_appClientConfig.idSignInButton)
-            .html("Sign Out")
-            .click((e) => {
+            .attr("src", "signout.png")
+            .unbind("click")
+            .click((e) =>
+            {
                 e.preventDefault();
                 this.m_msal.logout();
                 console.log("sign out requested");
+            });
+    }
+
+    configureForLogin()
+    {
+        $("#" + this.m_appClientConfig.idSignInButton)
+            .attr("src", "signin.png")
+            .unbind("click")
+            .click((e) =>
+            {
+                e.preventDefault();
+                this.m_msal.signInRedirect();
+                console.log("sign inrequested");
             });
     }
 
@@ -53,20 +69,26 @@ class TCore_MSAL_RefImpl implements IMsalAppClient
         var divWelcome = document.getElementById(this.m_sIdWelcome);
 
         divWelcome.innerHTML += 'Welcome ' + this.m_msal.MSAL().getUser().name;
-        document.getElementById("SignIn").onclick = () => {
-            console.log("in SignIn.onclick()");
-            this.m_msal.MSAL().loginRedirect(this.appConfig.graphScopes);
-        };
-
         this.configureForLogout();
+    }
 
-        //        var loginbutton = document.getElementById('SignIn');
-        //loginbutton.innerHTML = 'Sign Out';
-        //loginbutton.setAttribute('onclick', 'signOut();');
+    // for the reference implementation, just dump whatever we got back into the welcome message
+    // (in real implementations, this is where you would deal with the results of the graph call)
+
+    // also, there's no need for there to be a single callback function -- whenever you call
+    // the graph, you can supply a new one...
+    // (UNLESS you are using redirect???)
+    graphAPICallback(data: any)
+    {
+        //Display user data on DOM
+        var divWelcome = document.getElementById('WelcomeMessage');
+        divWelcome.innerHTML += " to Microsoft Graph API!!";
+        document.getElementById("json").innerHTML = JSON.stringify(data, null, 2);
     }
 
     onSignInSuccess()
     {
         this.showWelcomeMessage();
+        this.m_msal.acquireTokenAndCallGraphAPI(this.appConfig.graphEndpoint, this.graphAPICallback, false);
     }
 }
