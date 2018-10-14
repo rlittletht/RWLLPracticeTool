@@ -688,7 +688,8 @@
 <br/><br/><br/>
 <h2>Welcome to MSAL.js Quickstart</h2><br/>
 <h4 id="WelcomeMessage"></h4>
-<button id="SignIn">Sign In</button><br/><br/>
+<img src="signin.png" id="SignIn"/>
+<button id="aSignIn">Sign In</button><br/><br/>
 <pre id="json"></pre>
 
     <div class="notice">

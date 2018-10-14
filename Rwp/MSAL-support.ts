@@ -1,5 +1,6 @@
 ﻿declare var Msal: any;
 
+// this is the configuration of this MSAL Application
 interface AppConfig
 {
     clientID: string;
@@ -7,6 +8,8 @@ interface AppConfig
     graphEndpoint: string;
 }
 
+// Client callbacks for this client application. This is where you
+// get to customize your experience
 interface IMsalAppClient
 {
     appConfig: AppConfig;
@@ -17,13 +20,17 @@ interface IMsalAppClient
 
 class TCore_MSAL
 {
-    m_myMSALObj: any;
+    msalUserAgent: any;
     m_appClient: IMsalAppClient;
 
+    /*----------------------------------------------------------------------------
+    	%%Function: constructor
+    	%%Contact: rlittle
+    ----------------------------------------------------------------------------*/
     constructor(appClient: IMsalAppClient)
     {
         this.m_appClient = appClient;
-        this.m_myMSALObj = new Msal.UserAgentApplication(appClient.appConfig.clientID,
+        this.msalUserAgent = new Msal.UserAgentApplication(appClient.appConfig.clientID,
             null,
             this.acquireTokenRedirectCallBack,
             { storeAuthStateInCookie: true, cacheLocation: "localStorage" });
@@ -31,17 +38,24 @@ class TCore_MSAL
 
     MSAL(): any
     {
-        return this.m_myMSALObj;
+        return this.msalUserAgent;
     }
 
+    /*----------------------------------------------------------------------------
+	    %%Function: signIn
+	    %%Contact: rlittle
+
+        prompts the users for signin	    
+    ----------------------------------------------------------------------------*/
     signIn()
     {
-        this.m_myMSALObj.loginPopup(this.m_appClient.appConfig.graphScopes)
+        this.msalUserAgent.loginPopup(this.m_appClient.appConfig.graphScopes)
             .then((idToken) =>
             {
                 //Login Success
                 this.m_appClient.onSignInSuccess();
-                this.acquireTokenPopupAndCallMSGraph(); // this probably is only a ref impl thing...don't always want to call the graph on successful login
+                // this probably is only a ref impl thing...don't always want to call the graph on successful login
+                this.acquireTokenPopupAndCallMSGraph(); 
             },
             (error) =>
             {
@@ -49,7 +63,13 @@ class TCore_MSAL
             });
     }
 
-    callMSGraph(theUrl: string, accessToken: string, callback: any)
+    /*----------------------------------------------------------------------------
+	    %%Function: callGraphAPI
+	    %%Contact: rlittle
+
+        make a call to the graph. invokes callback when the trasnfer is complete.
+    ----------------------------------------------------------------------------*/
+    callGraphAPI(theUrl: string, accessToken: string, callback: any)
     {
         let xmlHttp: any = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function()
@@ -64,31 +84,77 @@ class TCore_MSAL
 
     acquireTokenPopupAndCallMSGraph()
     {
+        this.acquireTokenAndCallMSGraph(this.m_appClient.appConfig.graphEndpoint, this.graphAPICallback, false/*fRedirect*/);
+    }
+
+    acquireTokenPopupAndCallMSGraphOrig()
+    {
         //Call acquireTokenSilent (iframe) to obtain a token for Microsoft Graph
-        this.m_myMSALObj.acquireTokenSilent(this.m_appClient.appConfig.graphScopes)
+        this.msalUserAgent.acquireTokenSilent(this.m_appClient.appConfig.graphScopes)
             .then((accessToken) =>
-            {
-                this.callMSGraph(this.m_appClient.appConfig.graphEndpoint, accessToken, this.graphAPICallback);
-            },
-            (error) =>
-            {
-                console.log(error);
-                // Call acquireTokenPopup (popup window) in case of acquireTokenSilent failure due to consent or interaction required ONLY
-                if (error.indexOf("consent_required") !== -1
-                    || error.indexOf("interaction_required") !== -1
-                    || error.indexOf("login_required") !== -1)
                 {
-                    this.m_myMSALObj.acquireTokenPopup(this.m_appClient.appConfig.graphScopes)
-                        .then((accessToken) =>
+                this.callGraphAPI(this.m_appClient.appConfig.graphEndpoint, accessToken, this.graphAPICallback);
+                },
+                (error) =>
+                {
+                    console.log(error);
+                    // Call acquireTokenPopup (popup window) in case of acquireTokenSilent failure due to consent or interaction required ONLY
+                    if (error.indexOf("consent_required") !== -1
+                        || error.indexOf("interaction_required") !== -1
+                        || error.indexOf("login_required") !== -1)
+                    {
+                        this.msalUserAgent.acquireTokenPopup(this.m_appClient.appConfig.graphScopes)
+                            .then((accessToken) =>
+                                {
+                                    this.callGraphAPI(this.m_appClient.appConfig.graphEndpoint,
+                                        accessToken,
+                                        this.graphAPICallback);
+                                },
+                                (error) =>
+                                {
+                                    console.log(error);
+                                });
+                    }
+                });
+    }
+
+    acquireTokenAndCallMSGraph(sEndpoint: string, callback: any, fRedirect: boolean)
+    {
+        this.msalUserAgent.acquireTokenSilent(this.m_appClient.appConfig.graphScopes)
+            .then(
+                (accessToken) =>
+                {
+                    this.callGraphAPI(sEndpoint, accessToken, callback);
+                },
+                (error) =>
+                {
+                    console.log(error);
+                    // Call in case of acquireTokenSilent failure due to consent or interaction required ONLY
+                    if (error.indexOf("consent_required") !== -1
+                        || error.indexOf("interaction_required") !== -1
+                        || error.indexOf("login_required") !== -1)
+                    {
+                        if (!fRedirect)
                         {
-                            this.callMSGraph(this.m_appClient.appConfig.graphEndpoint, accessToken, this.graphAPICallback);
-                        },
-                        (error) =>
+                            this.msalUserAgent.acquireTokenPopup(this.m_appClient.appConfig.graphScopes)
+                                .then(
+                                    (accessToken) => { this.callGraphAPI(sEndpoint, accessToken, callback); },
+                                    (error) => { console.log(error); }
+                                );
+                        }
+                        else // we need to use redirect instead of popup (just a UI choice...or accommodating IE)
                         {
-                            console.log(error);
-                        });
-                }
-            });
+                            //Call acquireTokenRedirect in case of acquireToken Failure
+                            if (error.indexOf("consent_required") !== -1
+                                || error.indexOf("interaction_required") !== -1
+                                || error.indexOf("login_required") !== -1)
+                            {
+                                // HOW does this call the graph API??
+                                this.msalUserAgent.acquireTokenRedirect(this.m_appClient.appConfig.graphScopes);
+                            }
+                        }
+                    }
+                });
     }
 
     graphAPICallback(data: any)
@@ -101,16 +167,16 @@ class TCore_MSAL
 
     logout()
     {
-        this.m_myMSALObj.logout();
+        this.msalUserAgent.logout();
     }
 
     //showWelcomeMessage()
     //{
         //var divWelcome = document.getElementById('WelcomeMessage');
-        //divWelcome.innerHTML += 'Welcome ' + this.m_myMSALObj.getUser().name;
+        //divWelcome.innerHTML += 'Welcome ' + this.msalUserAgent.getUser().name;
         //document.getElementById("SignIn").onclick = () => {
             //console.log("in SignIn.onclick()");
-            //this.m_myMSALObj.loginRedirect(this.m_appClient.appConfig.graphScopes);
+            //this.msalUserAgent.loginRedirect(this.m_appClient.appConfig.graphScopes);
         //};
 //
         //this.configureForLogout();
@@ -119,11 +185,16 @@ class TCore_MSAL
     // This function can be removed if you do not need to support IE
     acquireTokenRedirectAndCallMSGraph()
     {
+        this.acquireTokenAndCallMSGraph(this.m_appClient.appConfig.graphEndpoint, this.graphAPICallback, true/*fRedirect*/);
+    }
+
+    acquireTokenRedirectAndCallMSGraphOrig()
+    {
         //Call acquireTokenSilent (iframe) to obtain a token for Microsoft Graph
-        this.m_myMSALObj.acquireTokenSilent(this.m_appClient.appConfig.graphScopes)
+        this.msalUserAgent.acquireTokenSilent(this.m_appClient.appConfig.graphScopes)
             .then((accessToken) =>
             {
-                this.callMSGraph(this.m_appClient.appConfig.graphEndpoint, accessToken, this.graphAPICallback);
+                this.callGraphAPI(this.m_appClient.appConfig.graphEndpoint, accessToken, this.graphAPICallback);
             },
             (error) =>
             {
@@ -133,7 +204,7 @@ class TCore_MSAL
                     || error.indexOf("interaction_required") !== -1
                     || error.indexOf("login_required") !== -1)
                 {
-                    this.m_myMSALObj.acquireTokenRedirect(this.m_appClient.appConfig.graphScopes);
+                    this.msalUserAgent.acquireTokenRedirect(this.m_appClient.appConfig.graphScopes);
                 }
             });
     }
@@ -142,7 +213,7 @@ class TCore_MSAL
     {
         if (tokenType === "access_token")
         {
-            this.callMSGraph(this.m_appClient.appConfig.graphEndpoint, token, this.graphAPICallback);
+            this.callGraphAPI(this.m_appClient.appConfig.graphEndpoint, token, this.graphAPICallback);
         }
         else
         {
