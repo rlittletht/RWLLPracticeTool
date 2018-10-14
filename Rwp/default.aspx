@@ -32,6 +32,17 @@
         Dim sCurYear As String
 
 
+        Function Sqlify(s as String) as String
+            Sqlify = s.Replace("'", "''")
+        End Function
+
+        Sub FillInCalendarLink()
+            dim s as String
+
+            s = teamMenu.Text.Replace(" ", "%20")
+
+            txtCalendarFeedLink.Text = "http://rwllpractice.azurewebsites.net/icsfeed.aspx?Team=" + s
+        End Sub
         Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
             Dim sSqlConnectionString As String
             Dim rootWebConfig As System.Configuration.Configuration
@@ -52,14 +63,14 @@
             DBConn = New SqlConnection(sSqlConnectionString)
 
             sCurYear = DateTime.UtcNow.Year
-            Message0.Text = "Redmond West Little League Practice Scheduler v1.9 (Server Date = " + DateTime.UtcNow.AddHours(-8).Date + " (" + sCurYear + "))"
+            Message0.Text = "Redmond West Little League Practice Scheduler v1.9 (Server DateTime = " + DateTime.UtcNow.AddHours(-8) + " (" + sCurYear + "))"
             ' ", SQL="+sSqlConnectionString+")"
             Try
                 teamName = teamMenu.SelectedItem.Text
                 teamNameForAvailableSlots = teamMenu.SelectedItem.Text
 
                 ' this teams reservations
-                'sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'00/00/00'"
+                'sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00/00/00'"
                 '			DataGrid1.Columns(0).HeaderText = "Release"
 
                 ' ViewState variables
@@ -67,7 +78,7 @@
                 ' we must set it in ViewState as well.
 
                 If ViewState("sqlStrBase") = Nothing Or CStr(ViewState("sqlStrBase")) = "" Then
-                    sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'00/00/00'," + "''"
+                    sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00/00/00'," + "''"
                 Else
                     sqlStrBase = CStr(ViewState("sqlStrBase"))
                 End If
@@ -91,6 +102,12 @@
                 Else
                     loggedIn = CBool(ViewState("loggedIn"))
                 End If
+
+                If ViewState("showingCalLink") = Nothing Then
+                    ViewState("showingCalLink") = False
+                End If
+
+                divCalendarFeedLink.Visible = ViewState("showingCalLink")
 
                 If ViewState("loggedInAsAdmin") = Nothing Then
                     loggedInAsAdmin = False
@@ -126,6 +143,9 @@
                     cmdMbrs.Dispose()
                     DBConn.Close()
                 End If
+                FillInCalendarLink
+
+
             Catch ex As Exception
                 Message0.Text = ex.Message
             End Try
@@ -164,23 +184,20 @@
 
             ViewState("sqlStrBase") = ""
 
-            If teamName.Contains("'") Or passwordTextBox.Text.Contains("'") Then
-                temp = "-1" ' prevent SQL injection; no password contains an apostrophe
-            Else
-                DBConn.Open()
-                sqlStrLogin = "SELECT count(*) as Count from rwllTeams where TeamName = '" + teamName + "' and PW = '" + passwordTextBox.Text + "'"
-                cmdMbrs = DBConn.CreateCommand
-                cmdMbrs.CommandText = sqlStrLogin
-                rdrMbrs = cmdMbrs.ExecuteReader
-                temp = "-1"
-                While rdrMbrs.Read()
-                    temp = rdrMbrs(0)
-                End While
 
-                rdrMbrs.Close()
-                cmdMbrs.Dispose()
-                DBConn.Close()
-            End If
+            DBConn.Open()
+            sqlStrLogin = "SELECT count(*) as Count from rwllTeams where TeamName = '" + Sqlify(teamName) + "' and PW = '" + Sqlify(passwordTextBox.Text) + "'"
+            cmdMbrs = DBConn.CreateCommand
+            cmdMbrs.CommandText = sqlStrLogin
+            rdrMbrs = cmdMbrs.ExecuteReader
+            temp = "-1"
+            While rdrMbrs.Read()
+                temp = rdrMbrs(0)
+            End While
+
+            rdrMbrs.Close()
+            cmdMbrs.Dispose()
+            DBConn.Close()
 
             If temp = "1" Then
                 Message1.Text = "Login successful"
@@ -190,7 +207,7 @@
                 Message1.ForeColor = System.Drawing.Color.Green
                 Message2.Text = ""
                 DataGrid1.Columns(0).HeaderText = "Release"
-                sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'" + sCurYear + "-01-01'," + "''"
+                sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," + "''"
                 sqlStrSorted = sqlStrBase + ",Date"
                 ViewState("sqlStrBase") = sqlStrBase
                 BindGrid()
@@ -203,6 +220,18 @@
                 loggedInAsAdmin = False
                 ViewState("loggedInAsAdmin") = loggedInAsAdmin
             End If
+        End Sub
+
+        Sub ShowICalFeedLink(ByVal sender As Object, ByVal e As EventArgs)
+            divCalendarFeedLink.Visible = True
+            ViewState("showingCalLink") = True
+            ' RunQuery(sender, e)
+        End Sub
+
+        Sub HideCalendarFeedLink(ByVal sender As Object, ByVal e As EventArgs)
+            divCalendarFeedLink.Visible = False
+            ViewState("showingCalLink") = False
+            ' RunQuery(sender, e)
         End Sub
 
         Sub ShowReserved(ByVal sender As Object, ByVal e As EventArgs)
@@ -236,7 +265,7 @@
                 If showingReserved Then
                     DataGrid1.Columns(0).HeaderText = "Release"
                     ViewState("showingReserved") = True
-                    sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'00/00/00'," + "''"
+                    sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00/00/00'," + "''"
                     sqlStrSorted = sqlStrBase + ",Date"
                     ViewState("sqlStrBase") = sqlStrBase
                 Else
@@ -245,7 +274,7 @@
                     '*********************************                    
                     'DBConn.Open()
                     'cmdMbrs = DBConn.CreateCommand
-                    'cmdMbrs.CommandText = "exec usp_ReservedByDate '" + teamName + "','" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/"+sCurYear+"'"
+                    'cmdMbrs.CommandText = "exec usp_ReservedByDate '" + Sqlify(teamName) + "','" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/"+sCurYear+"'"
                     'Dim i As Integer
                     'i = Convert.ToInt32(cmdMbrs.ExecuteScalar())
                     'cmdMbrs.Dispose()
@@ -258,10 +287,10 @@
                     '*********************************
                     If showingAvailableByField Then
                         ViewState("showingAvailableByField") = True
-                        sqlStrBase = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "','" + fieldMenu.SelectedItem.Value + "'"
+                        sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamNameForAvailableSlots) + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "','" + fieldMenu.SelectedItem.Value + "'"
                         sqlStrSorted = sqlStrBase + ",Date"
                     Else
-                        sqlStrBase = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "'," + "''"
+                        sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamNameForAvailableSlots) + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "'," + "''"
                         sqlStrSorted = sqlStrBase + ",Date"
                     End If
 
@@ -271,14 +300,14 @@
             Else
                 If showingReserved And Not teamName.Contains("--") Then
                     DataGrid1.Columns(0).HeaderText = ""
-                    sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'00/00/00'," + "''"
+                    sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00/00/00'," + "''"
                     sqlStrSorted = sqlStrBase + ",Date"
                     ViewState("sqlStrBase") = sqlStrBase
                 Else
                     ' show available slots for a given day
                     DataGrid1.Columns(0).HeaderText = ""
                     If showingAvailableByField Then
-                        sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "','" + fieldMenu.SelectedItem.Value + "'"
+                        sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "','" + Sqlify(fieldMenu.SelectedItem.Value) + "'"
                         sqlStrSorted = sqlStrBase + ",Date"
                     Else
                         sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear + "'," + "''"
@@ -297,9 +326,9 @@
         Sub SortCommand(ByVal sender As Object, ByVal e As DataGridSortCommandEventArgs)
             sqlStrSorted = sqlStrBase + "," + e.SortExpression
             'If showingReserved Then
-            '   sqlStrSorted = "exec usp_DisplaySlotsEx '" + teamName + "',1,'00/00/00'," + e.SortExpression
+            '   sqlStrSorted = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00/00/00'," + e.SortExpression
             'Else
-            '   sqlStrSorted = "exec usp_DisplaySlotsEx '" + teamNameForAvailableSlots + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/"+sCurYear+"'," + e.SortExpression
+            '   sqlStrSorted = "exec usp_DisplaySlotsEx '" + Sqlify(teamNameForAvailableSlots) + "',2,'" + monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/"+sCurYear+"'," + e.SortExpression
             'End If
             BindGrid()
         End Sub
@@ -326,7 +355,7 @@
             DataGrid1.EditItemIndex = e.Item.ItemIndex
             If DataGrid1.Columns(0).HeaderText = "Release" Then
                 DBConn.Open()
-                SQLcmd = "exec usp_UpdateSlots 'Rel', '" + teamName + "','" + e.Item.Cells(2).Text + "'" '+ "','" + e.Item.Cells(4).Text + "','" + e.Item.Cells(1).Text + "','" + e.Item.Cells(5).Text + "'"
+                SQLcmd = "exec usp_UpdateSlots 'Rel', '" + Sqlify(teamName) + "','" + Sqlify(e.Item.Cells(2).Text) + "'" '+ "','" + Sqlify(e.Item.Cells(4).Text) + "','" + Sqlify(e.Item.Cells(1).Text) + "','" + Sqlify(e.Item.Cells(5).Text) + "'"
                 cmdMbrs = DBConn.CreateCommand
                 cmdMbrs.CommandText = SQLcmd
                 rdrMbrs = cmdMbrs.ExecuteReader
@@ -355,7 +384,7 @@
                 Else
                     SQLcmd = "exec usp_UpdateSlots 'Res'"
                 End If
-                SQLcmd = SQLcmd + ", '" + teamName + "','" + e.Item.Cells(2).Text + "'" '+ "','" + e.Item.Cells(4).Text + "','" + e.Item.Cells(2).Text + "','" + e.Item.Cells(5).Text + "'"
+                SQLcmd = SQLcmd + ", '" + Sqlify(teamName) + "','" + Sqlify(e.Item.Cells(2).Text) + "'" '+ "','" + Sqlify(e.Item.Cells(4).Text) + "','" + Sqlify(e.Item.Cells(2).Text) + "','" + Sqlify(e.Item.Cells(5).Text) + "'"
                 cmdMbrs = DBConn.CreateCommand
                 cmdMbrs.CommandText = SQLcmd
                 rdrMbrs = cmdMbrs.ExecuteReader
@@ -385,7 +414,7 @@
                 DataGrid1.EditItemIndex = -1
                 ' return to list of reserved fields
                 DataGrid1.Columns(0).HeaderText = "Release"
-                sqlStrBase = "exec usp_DisplaySlotsEx '" + teamName + "',1,'00/00/00'," + "''"
+                sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00/00/00'," + "''"
                 sqlStrSorted = sqlStrBase + ",Date"
                 ViewState("sqlStrBase") = sqlStrBase
                 rdrMbrs.Close()
@@ -479,65 +508,88 @@
         <asp:Label ID="Message1" align="Center" Width="10%" runat="server" />
     </font>
      
-<center><table border="1" cellpadding="3" cellspacing="0" bordercolor="black" bgcolor="#acacac"><tr>
-	<td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
-        <font face="Verdana" size="2">
-            <asp:Button OnClick="ShowReserved" autopostback="true" Text="Show Reserved" Font-Bold="true"
-                ID="ShowReservedButton" runat="server" />
-     &nbsp;&nbsp;&nbsp;&nbsp;</td><td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
-        <font face="Verdana" size="2">Month:</font>
-        <asp:DropDownList runat="server" Height="25px" Width="100px" ID="monthMenu">
-            <asp:ListItem Value="02">February</asp:ListItem>
-            <asp:ListItem Value="03">March</asp:ListItem>
-            <asp:ListItem Value="04">April</asp:ListItem>
-            <asp:ListItem Value="05">May</asp:ListItem>
-            <asp:ListItem Value="06">June</asp:ListItem>
-        </asp:DropDownList>
-        <font face="Verdana" size="2">Day:</font>
-        <asp:DropDownList runat="server" Height="25px" Width="50px" ID="dayMenu">
-            <asp:ListItem Value="01">1</asp:ListItem>
-            <asp:ListItem Value="02">2</asp:ListItem>
-            <asp:ListItem Value="03">3</asp:ListItem>
-            <asp:ListItem Value="04">4</asp:ListItem>
-            <asp:ListItem Value="05">5</asp:ListItem>
-            <asp:ListItem Value="06">6</asp:ListItem>
-            <asp:ListItem Value="07">7</asp:ListItem>
-            <asp:ListItem Value="08">8</asp:ListItem>
-            <asp:ListItem Value="09">9</asp:ListItem>
-            <asp:ListItem Value="10">10</asp:ListItem>
-            <asp:ListItem Value="11">11</asp:ListItem>
-            <asp:ListItem Value="12">12</asp:ListItem>
-            <asp:ListItem Value="13">13</asp:ListItem>
-            <asp:ListItem Value="14">14</asp:ListItem>
-            <asp:ListItem Value="15">15</asp:ListItem>
-            <asp:ListItem Value="16">16</asp:ListItem>
-            <asp:ListItem Value="17">17</asp:ListItem>
-            <asp:ListItem Value="18">18</asp:ListItem>
-            <asp:ListItem Value="19">19</asp:ListItem>
-            <asp:ListItem Value="20">20</asp:ListItem>
-            <asp:ListItem Value="21">21</asp:ListItem>
-            <asp:ListItem Value="22">22</asp:ListItem>
-            <asp:ListItem Value="23">23</asp:ListItem>
-            <asp:ListItem Value="24">24</asp:ListItem>
-            <asp:ListItem Value="25">25</asp:ListItem>
-            <asp:ListItem Value="26">26</asp:ListItem>
-            <asp:ListItem Value="27">27</asp:ListItem>
-            <asp:ListItem Value="28">28</asp:ListItem>
-            <asp:ListItem Value="29">29</asp:ListItem>
-            <asp:ListItem Value="30">30</asp:ListItem>
-            <asp:ListItem Value="31">31</asp:ListItem>
-        </asp:DropDownList>
-        <asp:Button OnClick="ShowAvailable" autopostback="true" Text="Show Available By Date"
-            Font-Bold="true" ID="ShowAvailableButton" runat="server" />
-     &nbsp;&nbsp;&nbsp;&nbsp;</td><td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
-            <font face="Verdana" size="2">Field:</font>
-        <asp:DropDownList runat="server" Height="25px" Width="180px" ID="fieldMenu">
-            <asp:ListItem Value="">-- Select Field --</asp:ListItem>
-        </asp:DropDownList>
-        <asp:Button OnClick="ShowAvailableByField" autopostback="true" Text="Show Available By Field"
-            Font-Bold="true" ID="ShowAvaliableByFieldButton" runat="server" />
-     &nbsp;&nbsp;&nbsp;&nbsp;</td>
-</tr></table></center><br><br>
+<center>
+    <table border="0">
+        <tr>
+            <td>
+                <table border="1" cellpadding="3" cellspacing="0" bordercolor="black" bgcolor="#acacac">
+                    <tr>
+	                    <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
+                            <font face="Verdana" size="2">
+                            <asp:Button OnClick="ShowReserved" autopostback="true" Text="Show Reserved" Font-Bold="true" ID="ShowReservedButton" runat="server" />&nbsp;&nbsp;
+                            <asp:Button OnClick="ShowICalFeedLink" autopostback="true" Text="Get iCal Feed" Font-Bold="true" ID="ShowICalFeedLinkButton" runat="server"/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                        </td>
+                        <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
+                            <font face="Verdana" size="2">Month:</font>
+                            <asp:DropDownList runat="server" Height="25px" Width="100px" ID="monthMenu">
+                                <asp:ListItem Value="02">February</asp:ListItem>
+                                <asp:ListItem Value="03">March</asp:ListItem>
+                                <asp:ListItem Value="04">April</asp:ListItem>
+                                <asp:ListItem Value="05">May</asp:ListItem>
+                                <asp:ListItem Value="06">June</asp:ListItem>
+                            </asp:DropDownList>
+                            <font face="Verdana" size="2">Day:</font>
+                            <asp:DropDownList runat="server" Height="25px" Width="50px" ID="dayMenu">
+                                <asp:ListItem Value="01">1</asp:ListItem>
+                                <asp:ListItem Value="02">2</asp:ListItem>
+                                <asp:ListItem Value="03">3</asp:ListItem>
+                                <asp:ListItem Value="04">4</asp:ListItem>
+                                <asp:ListItem Value="05">5</asp:ListItem>
+                                <asp:ListItem Value="06">6</asp:ListItem>
+                                <asp:ListItem Value="07">7</asp:ListItem>
+                                <asp:ListItem Value="08">8</asp:ListItem>
+                                <asp:ListItem Value="09">9</asp:ListItem>
+                                <asp:ListItem Value="10">10</asp:ListItem>
+                                <asp:ListItem Value="11">11</asp:ListItem>
+                                <asp:ListItem Value="12">12</asp:ListItem>
+                                <asp:ListItem Value="13">13</asp:ListItem>
+                                <asp:ListItem Value="14">14</asp:ListItem>
+                                <asp:ListItem Value="15">15</asp:ListItem>
+                                <asp:ListItem Value="16">16</asp:ListItem>
+                                <asp:ListItem Value="17">17</asp:ListItem>
+                                <asp:ListItem Value="18">18</asp:ListItem>
+                                <asp:ListItem Value="19">19</asp:ListItem>
+                                <asp:ListItem Value="20">20</asp:ListItem>
+                                <asp:ListItem Value="21">21</asp:ListItem>
+                                <asp:ListItem Value="22">22</asp:ListItem>
+                                <asp:ListItem Value="23">23</asp:ListItem>
+                                <asp:ListItem Value="24">24</asp:ListItem>
+                                <asp:ListItem Value="25">25</asp:ListItem>
+                                <asp:ListItem Value="26">26</asp:ListItem>
+                                <asp:ListItem Value="27">27</asp:ListItem>
+                                <asp:ListItem Value="28">28</asp:ListItem>
+                                <asp:ListItem Value="29">29</asp:ListItem>
+                                <asp:ListItem Value="30">30</asp:ListItem>
+                                <asp:ListItem Value="31">31</asp:ListItem>
+                            </asp:DropDownList>
+                            <asp:Button OnClick="ShowAvailable" autopostback="true" Text="Show Available By Date" Font-Bold="true" ID="ShowAvailableButton" runat="server" />
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                        </td>
+                        <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
+                            <font face="Verdana" size="2">Field:</font>
+                            <asp:DropDownList runat="server" Height="25px" Width="180px" ID="fieldMenu">
+                                <asp:ListItem Value="">-- Select Field --</asp:ListItem>
+                            </asp:DropDownList>
+                            <asp:Button OnClick="ShowAvailableByField" autopostback="true" Text="Show Available By Field" Font-Bold="true" ID="ShowAvaliableByFieldButton" runat="server" />
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div runat="server" ID="divCalendarFeedLink" style="padding-left: 5pt; padding-right: 5pt; border: black 1pt solid; background: lightgray;">
+                    <p>To subscripe to your calendar, you will need to the internet address for the iCalendar feed ("ics" or "iCal" feed).</p>
+                    <p>Copy and paste this internet address as your iCalendar feed: <br /><asp:TextBox ID="txtCalendarFeedLink" runat="server" Width="768"/></p>
+                    <p>If you need information on adding an internet calendar feed to Outlook 2016, click <a href="icsfeed_howto.html" target="_blank">here</a></p>
+                    <p style="text-align:right"><asp:Button OnClick="HideCalendarFeedLink" ID="HideCalendarFeedLinkBotton" runat="server" Text="Got it!" /></p>
+                </div>
+            </td>
+        </tr>
+    </table>
+</center><br><br>
 <center>
     <font face="Times" size="4">
         <asp:Label ID="Message2" align="Center" Font-Bold="True" Width="98%" runat="server" />
@@ -595,6 +647,11 @@
                 <ItemStyle HorizontalAlign="left"></ItemStyle>
                 <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
             </asp:BoundColumn>
+            <asp:BoundColumn HeaderText="Reserved on" ReadOnly="True" SortExpression="ReservedTime"
+                DataField="ReserveDatetime">
+                <ItemStyle HorizontalAlign="left"></ItemStyle>
+                <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+            </asp:BoundColumn>
         </Columns>
     </asp:DataGrid></form>
 </center>
@@ -604,7 +661,7 @@
         <ul>
         <li>For H5 and H6, A and B fields: A is the infield first, B is the outfield first. 
         <li>For information on the latest changes, click on "Release Notes" above.</li>
-        <li>2015 practice slots are loaded. You can begin reserving slots on 2/16!</li>
+        <li>2017 practice slots are loaded. School fields through March 17th are now available.</li>
         <li>Everyone is allowed to reserve 2 fields per day. Yes, there are ways to <b>cheat</b> the system. Please don't do this. If you exceed the 2 fields per day booking rules you are at risk of losing these fields arbitrarily.</li>
         </ul>
     </div>

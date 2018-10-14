@@ -20,7 +20,7 @@ namespace Rwp
             m_rspClient = new PracticeClient("BasicHttpBinding_Practice");
         }
 
-        private void ReportSr(RwpSvc.SR sr, string sOperation)
+        private void ReportSr(RwpSvc.RSR sr, string sOperation)
         {
             if (!sr.Result)
                 {
@@ -63,17 +63,17 @@ namespace Rwp
             return IP4Address;
         }
 
-        SR CheckIP()
+        RSR CheckIP()
         {
-            SR sr = new SR();
+            RSR sr = new RSR();
             string sAddressForComp = GetIP4Address(Request.UserHostAddress);
 
-            if (String.Compare(sAddressForComp, "50.135.102.97") != 0
+            if (String.Compare(sAddressForComp, "73.83.16.112") != 0
                 && String.Compare(sAddressForComp, "::1") != 0
                 && !sAddressForComp.StartsWith("192.168.1."))
                 {
                 sr.Result = false;
-                sr.Reason = String.Format("admin operations illegal from current ip address: {0}",
+                sr.Reason = String.Format("Admin operations illegal from current ip address: {0}",
                                           sAddressForComp);
                 return sr;
                 }
@@ -91,7 +91,7 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         protected void DoDeleteSlots(object sender, EventArgs e)
         {
-            SR sr = CheckIP();
+            RSR sr = CheckIP();
 
             if (!sr.Result)
                 {
@@ -105,7 +105,7 @@ namespace Rwp
 
 		protected void DoDelete2014Slots(object sender, EventArgs e)
 		{
-            SR sr = CheckIP();
+            RSR sr = CheckIP();
 
             if (!sr.Result)
                 {
@@ -119,7 +119,7 @@ namespace Rwp
 
 		protected void DoDeleteTeams(object sender, EventArgs e)
 		{
-            SR sr = CheckIP();
+            RSR sr = CheckIP();
 
 		    if (!sr.Result)
 		        {
@@ -133,7 +133,7 @@ namespace Rwp
 
         protected void DoUploadTeams(object sender, EventArgs e)
         {
-            SR sr = CheckIP();
+            RSR sr = CheckIP();
 
             if (!sr.Result)
                 {
@@ -154,7 +154,7 @@ namespace Rwp
                 }
             else
                 {
-                sr = new SR();
+                sr = new RSR();
                 sr.Result = false;
                 sr.Reason = String.Format("Upload of file failed!");
                 }
@@ -164,7 +164,7 @@ namespace Rwp
 
         protected void DoUploadSlots(object sender, EventArgs e)
         {
-            SR sr = CheckIP();
+            RSR sr = CheckIP();
 
             if (!sr.Result)
                 {
@@ -184,7 +184,7 @@ namespace Rwp
                 }
             else
                 {
-                sr = new SR();
+                sr = new RSR();
                 sr.Result = false;
                 sr.Reason = String.Format("Upload of file failed!");
                 }
@@ -194,7 +194,7 @@ namespace Rwp
 
         protected void EnableClearItems(object sender, EventArgs e)
         {
-            SR sr = CheckIP();
+            RSR sr = CheckIP();
 
             if (!sr.Result)
                 {
@@ -207,7 +207,7 @@ namespace Rwp
 
 		protected void EnableDeleteSlots(object sender, EventArgs e)
 		{
-            SR sr = CheckIP();
+            RSR sr = CheckIP();
 
 		    if (!sr.Result)
 		        {

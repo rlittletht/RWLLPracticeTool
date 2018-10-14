@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -13,13 +13,15 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Rwp</RootNamespace>
     <AssemblyName>Rwp</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
+    <TargetFrameworkProfile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,6 +42,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="nunit.framework, Version=3.6.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.6.0\lib\net45\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.DynamicData" />
@@ -48,26 +55,28 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AddInternetCalendar.png" />
     <Content Include="admin.aspx" />
     <Content Include="default.aspx" />
+    <Content Include="icsfeed.aspx" />
+    <Content Include="icsfeed_howto.html" />
+    <Content Include="NewCalendarDialog.png" />
     <Content Include="ReleaseNotes.aspx" />
-    <Content Include="Service References\RwpSvc\Rwp.RwpSvc.SR.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
+    <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\IxStaging.pubxml" />
     <None Include="Properties\PublishProfiles\ObelixStaging.pubxml" />
+    <None Include="Properties\PublishProfiles\rwllpractice - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\rwllpractice - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - Web Deploy %282%29.pubxml" />
@@ -75,13 +84,20 @@
     <Content Include="SecretSettings.config" />
     <None Include="Service References\RwpSvc\configuration91.svcinfo" />
     <None Include="Service References\RwpSvc\configuration.svcinfo" />
-    <Content Include="Service References\RwpSvc\Practice.wsdl" />
+    <None Include="Service References\RwpSvc\Practice.wsdl" />
     <None Include="Service References\RwpSvc\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <Content Include="rwp.css" />
-    <Content Include="Service References\RwpSvc\RwpSvc.disco" />
+    <Content Include="SelectCalendar.png" />
+    <Content Include="Service References\RwpSvc\Rwp.RwpSvc.RSR.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\RwpSvc\Rwp.RwpSvc.RSR_CalItems.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\RwpSvc\RwpSvc.disco" />
     <Content Include="SlotsReport.aspx" />
     <Content Include="TeamsReport.aspx" />
     <Content Include="Web.config">
@@ -97,6 +113,13 @@
     </Compile>
     <Compile Include="admin.aspx.designer.cs">
       <DependentUpon>admin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="icsfeed.aspx.cs">
+      <DependentUpon>icsfeed.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="icsfeed.aspx.designer.cs">
+      <DependentUpon>icsfeed.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReleaseNotes.aspx.cs">
@@ -127,7 +150,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Service References\RwpSvc\RwpSvc.wsdl" />
+    <None Include="Service References\RwpSvc\RwpSvc.wsdl" />
     <None Include="Service References\RwpSvc\RwpSvc.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -155,6 +178,9 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <None Include="Web.ObelixStaging.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release-Thetasoft2.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <None Include="Web.Release.config">
@@ -214,6 +240,15 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-Thetasoft2|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>

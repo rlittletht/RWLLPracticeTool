@@ -22,13 +22,13 @@
     <MetadataSource Address="http://www.thetasoft.com/rwpsvc/rwpsvc.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="RwpSvc.xsd" MetadataType="Schema" ID="01ce71ba-f946-4073-b00f-ba95ac741b26" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?xsd=xsd3" />
-    <MetadataFile FileName="RwpSvc1.xsd" MetadataType="Schema" ID="2681983d-c5b5-4ede-a584-151a1169180e" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?xsd=xsd1" />
-    <MetadataFile FileName="RwpSvc.wsdl" MetadataType="Wsdl" ID="7c468175-0d3d-475e-acd1-0c1eedb96d75" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?wsdl=wsdl0" />
-    <MetadataFile FileName="RwpSvc2.xsd" MetadataType="Schema" ID="8bc1e955-0076-41be-aa8d-02104ef20f39" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?xsd=xsd0" />
-    <MetadataFile FileName="Practice.wsdl" MetadataType="Wsdl" ID="9dd5ad3b-04e7-4c69-9dab-4778ff5bb147" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?wsdl" />
-    <MetadataFile FileName="RwpSvc3.xsd" MetadataType="Schema" ID="d9f46fc0-b49c-4600-a77b-7382249d86e6" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?xsd=xsd2" />
-    <MetadataFile FileName="RwpSvc.disco" MetadataType="Disco" ID="b961d884-3425-4555-a311-2f08051bf8a3" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?disco" />
+    <MetadataFile FileName="RwpSvc.xsd" MetadataType="Schema" ID="33f92eab-562e-4c4a-8d72-d733f536aa10" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?xsd=xsd3" />
+    <MetadataFile FileName="RwpSvc1.xsd" MetadataType="Schema" ID="009d160e-612f-4dbc-bdba-ac270b0ee7c5" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?xsd=xsd1" />
+    <MetadataFile FileName="RwpSvc.wsdl" MetadataType="Wsdl" ID="ecd78b1e-7261-456f-ba7c-140c8abacda6" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="RwpSvc2.xsd" MetadataType="Schema" ID="56435a17-9cd7-4239-9b5f-9d176665c0b8" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?xsd=xsd0" />
+    <MetadataFile FileName="Practice.wsdl" MetadataType="Wsdl" ID="515002f8-cb55-4745-a237-40b44468869a" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?wsdl" />
+    <MetadataFile FileName="RwpSvc3.xsd" MetadataType="Schema" ID="fcab2aab-84c6-494e-9ee2-c498bccb996d" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?xsd=xsd2" />
+    <MetadataFile FileName="RwpSvc.disco" MetadataType="Disco" ID="e5e4e044-e4b9-4eb1-ae11-1987e181156c" SourceId="1" SourceUrl="http://www.thetasoft.com/rwpsvc/RwpSvc.svc?disco" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

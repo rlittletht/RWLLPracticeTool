@@ -76,6 +76,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetCalendarForTeam">
+      <soap:operation soapAction="urn:Practice/GetCalendarForTeam" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="ImportCsvSlots">
       <soap:operation soapAction="urn:Practice/ImportCsvSlots" style="document" />
       <wsdl:input>
@@ -153,6 +162,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetCsvSlots">
       <soap:operation soapAction="urn:Practice/GetCsvSlots" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCalendarForTeam">
+      <soap:operation soapAction="urn:Practice/GetCalendarForTeam" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
