@@ -35,7 +35,7 @@ class TCore_MSAL
         this.msalUserAgent = new Msal.UserAgentApplication(appClient.appConfig.clientID,
             null,
             this.acquireTokenRedirectCallBack,
-            { storeAuthStateInCookie: true, cacheLocation: "localStorage" });
+            { storeAuthStateInCookie: true, cacheLocation: "sessionStorage" });
     }
 
     MSAL(): any
