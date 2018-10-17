@@ -1,11 +1,21 @@
 ﻿using System;
+using Microsoft.Owin;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.EnterpriseServices;
 using System.Linq;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.OpenIdConnect;
+using System.Threading.Tasks;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using System.Web;
+using Microsoft.Owin.Security.Notifications;
+using Owin;
 using TCore;
 
 namespace Rwp
@@ -38,6 +48,30 @@ namespace Rwp
         private bool showingAvailableByField = false;
         private string sCurYear;
 
+        /// <summary>
+        /// Send an OpenID Connect sign-in request.
+        /// Alternatively, you can just decorate the SignIn method with the [Authorize] attribute
+        /// </summary>
+        public void SignIn()
+        {
+            if (!Request.IsAuthenticated)
+            {
+                HttpContext.Current.GetOwinContext().Authentication.Challenge(
+                    new AuthenticationProperties { RedirectUri = "/" },
+                    OpenIdConnectAuthenticationDefaults.AuthenticationType);
+            }
+        }
+
+        /// <summary>
+        /// Send an OpenID Connect sign-out request.
+        /// </summary>
+        public void SignOut()
+        {
+            HttpContext.Current.GetOwinContext().Authentication.SignOut(
+                OpenIdConnectAuthenticationDefaults.AuthenticationType,
+                CookieAuthenticationDefaults.AuthenticationType);
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
@@ -46,6 +80,8 @@ namespace Rwp
             DBConn = new SqlConnection(sSqlConnectionString);
 
             sCurYear = DateTime.UtcNow.Year.ToString();
+            string sIdentity = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
+            LoginInfo.Text = sIdentity ?? "Please login to contiue";
 
             Message0.Text =
                 $"Redmond West Little League Practice Scheduler v1.9 (Server DateTime = {DateTime.UtcNow.AddHours(-8)} ({sCurYear})";
@@ -103,6 +139,9 @@ namespace Rwp
 
                 if (loggedInAsAdmin)
                     teamNameForAvailableSlots = "Administrator";
+
+                if (sIdentity != null)
+                    LoadPrivs(sIdentity);
 
                 if (!IsPostBack)
                 {
@@ -163,9 +202,10 @@ namespace Rwp
             ViewState["loggedInAsAdmin"] = loggedInAsAdmin;
             ViewState["sqlStrBase"] = "";
             RunQuery(sender, e);
+            SignOut();
         }
 
-        protected void ValidateLogin(object sender, EventArgs e)
+        void LoadPrivs(string sIdentity)
         {
             string sqlStrLogin;
             int temp;
@@ -173,31 +213,36 @@ namespace Rwp
             ViewState["sqlStrBase"] = "";
 
             DBConn.Open();
-            sqlStrLogin = "SELECT count(*) as Count from rwllTeams where TeamName = '" + Sql.Sqlify(teamName) +
-                          "' and PW = '" + Sql.Sqlify(passwordTextBox.Text) + "'";
+            // don't need to validate a password -- once we have an authenticated identity, just get its privileges
+            sqlStrLogin = $"SELECT TeamName as Count from rwllTeams where Email1 = '{Sql.Sqlify(sIdentity)}'";
             cmdMbrs = DBConn.CreateCommand();
             cmdMbrs.CommandText = sqlStrLogin;
             rdrMbrs = cmdMbrs.ExecuteReader();
             temp = -1;
+            teamName = null;
+
             while (rdrMbrs.Read())
             {
-                temp = rdrMbrs.GetInt32(0);
+                teamName = rdrMbrs.GetString(0);
             }
 
             rdrMbrs.Close();
             cmdMbrs.Dispose();
             DBConn.Close();
 
-            if (temp == 1)
+            if (teamName != null)
             {
-                Message1.Text = "Login successful";
+                Message1.Text = $"Welcome to RedmondWest Practice Tool ({sIdentity})...";
                 loggedIn = true;
                 ViewState["loggedIn"] = loggedIn;
+                teamMenu.SelectedValue = teamName;
+
                 teamMenu.Enabled = false;
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
                 DataGrid1.Columns[0].HeaderText = "Release";
-                sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," + "''";
+                sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," +
+                             "''";
                 sqlStrSorted = sqlStrBase + ",Date";
                 ViewState["sqlStrBase"] = sqlStrBase;
                 BindGrid();
@@ -205,13 +250,19 @@ namespace Rwp
             else
             {
                 teamMenu.Enabled = true;
-                Message1.Text = "Incorrect Password";
+                Message1.Text = $"User '{sIdentity} not authorized!";
                 loggedIn = false;
                 ViewState["loggedIn"] = loggedIn;
                 Message1.ForeColor = System.Drawing.Color.Red;
                 loggedInAsAdmin = false;
                 ViewState["loggedInAsAdmin"] = loggedInAsAdmin;
             }
+
+        }
+
+        protected void ValidateLogin(object sender, EventArgs e)
+        {
+            SignIn();
         }
 
         protected void ShowICalFeedLink(object sender, EventArgs e)
@@ -263,7 +314,7 @@ namespace Rwp
         protected void RunQuery(object sender, EventArgs e)
         {
             Message2.Text = "";
-            if (loggedIn)
+            if (loggedIn && teamName != null)
             {
                 if (showingReserved)
                 {
@@ -300,6 +351,7 @@ namespace Rwp
 
                 DataGrid1.EditItemIndex = -1;
             }
+#if no // nothing to do if not logged in
             else
             {
                 if (showingReserved && !teamName.Contains("--"))
@@ -333,7 +385,7 @@ namespace Rwp
                 Message2.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "You must login to reserve fields.";
             }
-
+#endif
             BindGrid();
         }
 

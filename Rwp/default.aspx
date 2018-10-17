@@ -26,6 +26,7 @@
 <body style="height: 244">
 <form id="Form1" runat="server" style="text-align: center" enctype="multipart/form-data">
     <p>
+        <asp:Label ID="LoginInfo" runat="server" Text="Label"></asp:Label>
         <font face="Times" size="4">
             <asp:Label ID="Message0" align="Center" Font-Bold="True" BackColor="gold" Width="100%"
                 runat="server" />
