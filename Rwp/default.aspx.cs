@@ -131,7 +131,6 @@ namespace Rwp
 
             sCurYear = DateTime.UtcNow.Year.ToString();
             string sIdentity = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
-            LoginInfo.Text = sIdentity ?? "Please login to contiue";
 
             Message0.Text =
                 $"Redmond West Little League Practice Scheduler v1.9 (Server DateTime = {DateTime.UtcNow.AddHours(-8)} ({sCurYear})";
@@ -192,6 +191,8 @@ namespace Rwp
             {
                 Message0.Text = exc.Message;
             }
+
+            SetupLoginLogout();
         }
 
         protected void BindGrid()
@@ -217,7 +218,6 @@ namespace Rwp
 
         void SetLoggedOff()
         {
-            Message1.Text = "";
             IsLoggedIn = false;
             teamMenu.Enabled = false;
             // teamMenu.SelectedValue = "-- Select Team --";
@@ -225,12 +225,6 @@ namespace Rwp
             SqlBase = "";
         }
 
-        protected void LogOff(object sender, EventArgs e)
-        {
-            SetLoggedOff();
-            RunQuery(sender, e);
-            SignOut();
-        }
 
         void LoadPrivs(string sIdentity)
         {
@@ -280,6 +274,32 @@ namespace Rwp
             }
 
         }
+
+        void SetupLoginLogout()
+        {
+            if (Request.IsAuthenticated)
+            {
+                LoginOutButton.Click -= ValidateLogin;
+                LoginOutButton.Click += LogOff;
+                LoginOutButton.ImageUrl = "signout.png";
+            }
+            else
+            {
+                LoginOutButton.Click -= LogOff;
+                LoginOutButton.Click += ValidateLogin;
+                LoginOutButton.ImageUrl = "signin.png";
+            }
+        }
+
+
+        protected void LogOff(object sender, EventArgs e)
+        {
+            Message1.Text = "";
+            SetLoggedOff();
+            RunQuery(sender, e);
+            SignOut();
+        }
+
 
         protected void ValidateLogin(object sender, EventArgs e)
         {

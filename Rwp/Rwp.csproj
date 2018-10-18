@@ -146,6 +146,8 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Service References\RwpSvc\RwpSvc.disco" />
+    <Content Include="signin.png" />
+    <Content Include="signout.png" />
     <Content Include="SlotsReport.aspx" />
     <Content Include="TeamsReport.aspx" />
     <Content Include="Web.config">

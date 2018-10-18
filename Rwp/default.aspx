@@ -21,12 +21,18 @@
     margin: 0;
 }
 
+.loginButton {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+}
     </style>
 </head>
 <body style="height: 244">
 <form id="Form1" runat="server" style="text-align: center" enctype="multipart/form-data">
     <p>
-        <asp:Label ID="LoginInfo" runat="server" Text="Label"></asp:Label>
+        <asp:ImageButton ID="LoginOutButton" runat="server" OnClick="ValidateLogin" ImageUrl="signin.png" CssClass="loginButton" />
+
         <font face="Times" size="4">
             <asp:Label ID="Message0" align="Center" Font-Bold="True" BackColor="gold" Width="100%"
                 runat="server" />
@@ -35,14 +41,12 @@
     <asp:DropDownList runat="server" Height="25px" Width="180px" ID="teamMenu">
         <asp:ListItem Value="">-- Select Team --</asp:ListItem>
     </asp:DropDownList>
-    <font face="Verdana" size="2">&nbsp; &nbsp; &nbsp; Login:</font>
-    <asp:TextBox ID="passwordTextBox" TextMode="password" Columns="9" runat="server" />
-    &nbsp;
-    <asp:Button OnClick="ValidateLogin" autopostback="true" Text="Login" Font-Bold="true"
-        ID="loginButton" runat="server" />
+
+
     <asp:Button OnClick="LogOff" autopostback="true" Text="Logoff" Font-Bold="true" ID="logoffButton"
         runat="server" />
            <a href="ReleaseNotes.aspx" target="_Blank">release notes</a>
+    <br/>
     <font face="Verdana" size="3">
         <asp:Label ID="Message1" align="Center" Width="10%" runat="server" />
     </font>
