@@ -33,19 +33,52 @@ namespace Rwp
 
         private SqlConnection DBConn;
         private string sqlStrSorted;
-        private string sqlStrBase;
+
+        private string SqlBase
+        {
+            get { return TGetState<string>("sqlStrBase", null); }
+            set { SetState("sqlStrBase", value); }
+        }
+
+
         private SqlConnection conClsf;
         private SqlCommand cmdMbrs;
         private SqlDataReader rdrMbrs;
 
-        private bool loggedIn = false;
-        private bool loggedInAsAdmin = false;
         private string teamName;
         private string teamNameForAvailableSlots;
         
         // team name used to query for reserved and available slots
-        private bool showingReserved = true;
-        private bool showingAvailableByField = false;
+        private bool ShowingReserved
+        {
+            get { return TGetState("showingReserved", true); }
+            set { SetState("showingReserved", value); }
+        }
+
+        private bool IsLoggedIn
+        {
+            get { return TGetState("isLoggedIn", false); }
+            set { SetState("isLoggedIn", value); }
+        }
+
+        private bool ShowingAvailableByField
+        {
+            get { return TGetState("showingAvailableByField", false); }
+            set { SetState("showingAvailableByField", value); }
+        }
+
+        private bool ShowingCalLink
+        {
+            get { return TGetState("showingCalLink", false); }
+            set { SetState("showingCalLink", value); }
+        }
+
+        private bool LoggedInAsAdmin
+        {
+            get { return TGetState("loggedInAsAdmin", false); }
+            set { SetState("loggedInAsAdmin", value); }
+        }
+
         private string sCurYear;
 
         /// <summary>
@@ -72,6 +105,23 @@ namespace Rwp
                 CookieAuthenticationDefaults.AuthenticationType);
         }
 
+        T TGetState<T>(string sState, T tDefault)
+        {
+            T tValue = tDefault;
+
+            if (ViewState[sState] == null)
+                ViewState[sState] = tValue;
+            else
+                tValue = (T)ViewState[sState];
+
+            return tValue;
+        }
+
+        void SetState<T>(string sState, T tValue)
+        {
+            ViewState[sState] = tValue;
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
@@ -95,53 +145,19 @@ namespace Rwp
                 //sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00 / 00 / 00'"
                 //			DataGrid1.Columns(0).HeaderText = "Release"
 
-                // ViewState variables
-                // In every other place where we change any of these vraibles,
-                // we must set it in ViewState as well.
+                if (!String.IsNullOrEmpty(SqlBase))
+                    sqlStrSorted = SqlBase + ",Date";
 
-                if (String.IsNullOrEmpty((string) ViewState["sqlStrBase"]))
-                    sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
-                else
-                    sqlStrBase = (string) ViewState["sqlStrBase"];
+                divCalendarFeedLink.Visible = ShowingCalLink;
 
-                sqlStrSorted = sqlStrBase + ",Date";
-
-                if (ViewState["showingReserved"] == null)
-                {
-                    showingReserved = true;
-                    ViewState["showingReserved"] = true;
-                }
-                else
-                {
-                    showingReserved = (bool) ViewState["showingReserved"];
-                }
-
-                if (ViewState["showingAvailableByField"] == null)
-                    showingAvailableByField = false;
-                else
-                    showingAvailableByField = (bool) ViewState["showingAvailableByField"];
-
-                if (ViewState["loggedIn"] == null)
-                    loggedIn = false;
-                else
-                    loggedIn = (bool) ViewState["loggedIn"];
-
-                if (ViewState["showingCalLink"] == null)
-                    ViewState["showingCalLink"] = false;
-
-
-                divCalendarFeedLink.Visible = (bool)ViewState["showingCalLink"];
-
-                if (ViewState["loggedInAsAdmin"] == null)
-                    loggedInAsAdmin = false;
-                else
-                    loggedInAsAdmin = (bool) ViewState["loggedInAsAdmin"];
-
-                if (loggedInAsAdmin)
+                if (LoggedInAsAdmin)
                     teamNameForAvailableSlots = "Administrator";
 
                 if (sIdentity != null)
                     LoadPrivs(sIdentity);
+
+                if (!IsLoggedIn)
+                    SetLoggedOff();
 
                 if (!IsPostBack)
                 {
@@ -180,27 +196,38 @@ namespace Rwp
 
         protected void BindGrid()
         {
-            DBConn.Open();
-            cmdMbrs = DBConn.CreateCommand();
-            cmdMbrs.CommandText = sqlStrSorted;
-            rdrMbrs = cmdMbrs.ExecuteReader();
-            DataGrid1.DataSource = rdrMbrs;
-            DataGrid1.DataBind();
-            rdrMbrs.Close();
-            cmdMbrs.Dispose();
-            DBConn.Close();
+            if (String.IsNullOrEmpty(sqlStrSorted))
+            {
+                DataGrid1.DataSource = null;
+                DataGrid1.DataBind();
+            }
+            else
+            {
+                DBConn.Open();
+                cmdMbrs = DBConn.CreateCommand();
+                cmdMbrs.CommandText = sqlStrSorted;
+                rdrMbrs = cmdMbrs.ExecuteReader();
+                DataGrid1.DataSource = rdrMbrs;
+                DataGrid1.DataBind();
+                rdrMbrs.Close();
+                cmdMbrs.Dispose();
+                DBConn.Close();
+            }
+        }
+
+        void SetLoggedOff()
+        {
+            Message1.Text = "";
+            IsLoggedIn = false;
+            teamMenu.Enabled = false;
+            // teamMenu.SelectedValue = "-- Select Team --";
+            LoggedInAsAdmin = false;
+            SqlBase = "";
         }
 
         protected void LogOff(object sender, EventArgs e)
         {
-            Message1.Text = "";
-            loggedIn = false;
-            ViewState["loggedIn"] = loggedIn;
-            passwordTextBox.Text = "";
-            teamMenu.Enabled = true;
-            loggedInAsAdmin = false;
-            ViewState["loggedInAsAdmin"] = loggedInAsAdmin;
-            ViewState["sqlStrBase"] = "";
+            SetLoggedOff();
             RunQuery(sender, e);
             SignOut();
         }
@@ -210,7 +237,7 @@ namespace Rwp
             string sqlStrLogin;
             int temp;
 
-            ViewState["sqlStrBase"] = "";
+            SqlBase = "";
 
             DBConn.Open();
             // don't need to validate a password -- once we have an authenticated identity, just get its privileges
@@ -233,29 +260,23 @@ namespace Rwp
             if (teamName != null)
             {
                 Message1.Text = $"Welcome to RedmondWest Practice Tool ({sIdentity})...";
-                loggedIn = true;
-                ViewState["loggedIn"] = loggedIn;
+                IsLoggedIn = true;
                 teamMenu.SelectedValue = teamName;
-
                 teamMenu.Enabled = false;
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
                 DataGrid1.Columns[0].HeaderText = "Release";
-                sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," +
+                SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," +
                              "''";
-                sqlStrSorted = sqlStrBase + ",Date";
-                ViewState["sqlStrBase"] = sqlStrBase;
+                if (!String.IsNullOrEmpty(SqlBase))
+                    sqlStrSorted = SqlBase + ",Date";
                 BindGrid();
             }
             else
             {
-                teamMenu.Enabled = true;
+                SetLoggedOff();
                 Message1.Text = $"User '{sIdentity} not authorized!";
-                loggedIn = false;
-                ViewState["loggedIn"] = loggedIn;
                 Message1.ForeColor = System.Drawing.Color.Red;
-                loggedInAsAdmin = false;
-                ViewState["loggedInAsAdmin"] = loggedInAsAdmin;
             }
 
         }
@@ -268,14 +289,14 @@ namespace Rwp
         protected void ShowICalFeedLink(object sender, EventArgs e)
         {
             divCalendarFeedLink.Visible = true;
-            ViewState["showingCalLink"] = true;
+            ShowingCalLink = true;
             // RunQuery(sender, e)
         }
 
         protected void HideCalendarFeedLink(object sender, EventArgs e)
         {
             divCalendarFeedLink.Visible = false;
-            ViewState["showingCalLink"] = false;
+            ShowingCalLink = false;
             // RunQuery(sender, e)
         }
 
@@ -283,10 +304,8 @@ namespace Rwp
         {
             try
             {
-                showingReserved = true;
-                showingAvailableByField = false;
-                ViewState["showingReserved"] = showingReserved;
-                ViewState["showingAvailableByField"] = showingAvailableByField;
+                ShowingReserved = true;
+                ShowingAvailableByField = false;
                 RunQuery(sender, e);
             }
             catch (Exception ex)
@@ -299,10 +318,8 @@ namespace Rwp
         {
             try
             {
-                showingAvailableByField = false;
-                showingReserved = false;
-                ViewState["showingReserved"] = showingReserved;
-                ViewState["showingAvailableByField"] = showingAvailableByField;
+                ShowingAvailableByField = false;
+                ShowingReserved = false;
                 RunQuery(sender, e);
             }
             catch (Exception ex)
@@ -314,39 +331,33 @@ namespace Rwp
         protected void RunQuery(object sender, EventArgs e)
         {
             Message2.Text = "";
-            if (loggedIn && teamName != null)
+            if (IsLoggedIn && teamName != null)
             {
-                if (showingReserved)
+                if (ShowingReserved)
                 {
                     DataGrid1.Columns[0].HeaderText = "Release";
-                    ViewState["showingReserved"] = true;
-                    sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
-                    sqlStrSorted = sqlStrBase + ",Date";
-                    ViewState["sqlStrBase"] = sqlStrBase;
+                    SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
+                    sqlStrSorted = SqlBase + ",Date";
                 }
                 else
                 {
                     DataGrid1.Columns[0].HeaderText = "Reserve";
-                    ViewState["showingReserved"] = false;
-                    if (showingAvailableByField)
+                    if (ShowingAvailableByField)
                     {
-                        ViewState["showingAvailableByField"] = true;
-                        sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamNameForAvailableSlots) + "',2,'" +
+                        SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamNameForAvailableSlots) + "',2,'" +
                                      monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear +
                                      "','" +
                                      fieldMenu.SelectedItem.Value + "'";
-                        sqlStrSorted = sqlStrBase + ",Date";
+                        sqlStrSorted = SqlBase + ",Date";
                     }
                     else
                     {
-                        sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamNameForAvailableSlots) + "',2,'" +
+                        SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamNameForAvailableSlots) + "',2,'" +
                                      monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear +
                                      "'," +
                                      "''";
-                        sqlStrSorted = sqlStrBase + ",Date";
+                        sqlStrSorted = SqlBase + ",Date";
                     }
-
-                    ViewState["sqlStrBase"] = sqlStrBase;
                 }
 
                 DataGrid1.EditItemIndex = -1;
@@ -391,7 +402,7 @@ namespace Rwp
 
         protected void SortCommand(object sender, DataGridSortCommandEventArgs e)
         {
-            sqlStrSorted = sqlStrBase + "," + e.SortExpression;
+            sqlStrSorted = SqlBase + "," + e.SortExpression;
             BindGrid();
         }
 
@@ -442,7 +453,7 @@ namespace Rwp
             if (DataGrid1.Columns[0].HeaderText == "Reserve")
             {
                 DBConn.Open();
-                if (loggedInAsAdmin)
+                if (LoggedInAsAdmin)
                     SQLcmd = "exec usp_UpdateSlots 'ResAdmin'";
                 else
                     SQLcmd = "exec usp_UpdateSlots 'Res'";
@@ -489,9 +500,8 @@ namespace Rwp
                 DataGrid1.EditItemIndex = -1;
                 // return to list of reserved fields
                 DataGrid1.Columns[0].HeaderText = "Release";
-                sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
-                sqlStrSorted = sqlStrBase + ",Date";
-                ViewState["sqlStrBase"] = sqlStrBase;
+                SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
+                sqlStrSorted = SqlBase + ",Date";
                 rdrMbrs.Close();
                 cmdMbrs.Dispose();
                 DBConn.Close();
@@ -508,9 +518,6 @@ namespace Rwp
             string strDateField;
             DateTime dateField;
             bool IsEnabled;
-            bool IsloggedIn;
-
-            IsloggedIn = (bool)(ViewState["loggedIn"] ?? false);
 
             if (e.Item.Cells[0].Controls.Count > 0)
             {
@@ -525,7 +532,7 @@ namespace Rwp
                     link.ToolTip = e.Item.Cells[1].Text;
                 }
 
-                if (!IsloggedIn)
+                if (!IsLoggedIn)
                 {
                     link.Enabled = false;
                     link.ToolTip = "Not logged in";
@@ -535,14 +542,14 @@ namespace Rwp
 
                 if (link != null
                     && DateTime.Compare(dateField, DateTime.UtcNow.AddHours(-8).Date) <= 0
-                    && (bool) ViewState["showingReserved"])
+                    && (bool) ShowingReserved)
                 {
                     link.Enabled = false;
                     link.ToolTip = "date has passed: " + dateField + " < " + DateTime.UtcNow.AddHours(-8).Date;
                 }
 
                 if (link != null
-                    && IsEnabled && !(bool) ViewState["showingReserved"])
+                    && IsEnabled && !(bool) ShowingReserved)
                 {
                     link.Enabled = false;
                 }
@@ -553,10 +560,8 @@ namespace Rwp
         {
             try
             {
-                showingReserved = false;
-                showingAvailableByField = true;
-                ViewState["showingReserved"] = showingReserved;
-                ViewState["showingAvailableByField"] = showingAvailableByField;
+                ShowingReserved = false;
+                ShowingAvailableByField = true;
                 RunQuery(sender, e);
             }
             catch (Exception ex)
