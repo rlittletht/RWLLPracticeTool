@@ -26,6 +26,10 @@
     top: 4px;
     right: 4px;
 }
+.textField {
+    padding: 2pt;
+    padding-bottom: 3pt;
+}
     </style>
 </head>
 <body style="height: 244">
@@ -38,17 +42,8 @@
                 runat="server" />
         </font>
     </p>
-    <asp:DropDownList runat="server" Height="25px" Width="180px" ID="teamMenu">
-        <asp:ListItem Value="">-- Select Team --</asp:ListItem>
-    </asp:DropDownList>
-
-
-    <asp:Button OnClick="LogOff" autopostback="true" Text="Logoff" Font-Bold="true" ID="logoffButton"
-        runat="server" />
-           <a href="ReleaseNotes.aspx" target="_Blank">release notes</a>
-    <br/>
     <font face="Verdana" size="3">
-        <asp:Label ID="Message1" align="Center" Width="10%" runat="server" />
+        <asp:Label ID="Message1" align="Center" runat="server" />
     </font>
      
 <center>
@@ -59,12 +54,11 @@
                     <tr>
 	                    <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
                             <font face="Verdana" size="2">
-                            <asp:Button OnClick="ShowReserved" autopostback="true" Text="Show Reserved" Font-Bold="true" ID="ShowReservedButton" runat="server" />&nbsp;&nbsp;
+                            <asp:Button OnClick="ShowReserved" autopostback="true" Text="Show Reserved" Font-Bold="true" ID="ShowReservedButton" runat="server" />&nbsp;
                             <asp:Button OnClick="ShowICalFeedLink" autopostback="true" Text="Get iCal Feed" Font-Bold="true" ID="ShowICalFeedLinkButton" runat="server"/>
-                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            Team: <asp:Label ID="lblTeamName" CssClass="textField" runat="Server" BackColor="White" ForeColor="Black"/>&nbsp;&nbsp;&nbsp;
                         </td>
                         <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
-                            <font face="Verdana" size="2">Month:</font>
                             <asp:DropDownList runat="server" Height="25px" Width="100px" ID="monthMenu">
                                 <asp:ListItem Value="02">February</asp:ListItem>
                                 <asp:ListItem Value="03">March</asp:ListItem>
@@ -72,7 +66,6 @@
                                 <asp:ListItem Value="05">May</asp:ListItem>
                                 <asp:ListItem Value="06">June</asp:ListItem>
                             </asp:DropDownList>
-                            <font face="Verdana" size="2">Day:</font>
                             <asp:DropDownList runat="server" Height="25px" Width="50px" ID="dayMenu">
                                 <asp:ListItem Value="01">1</asp:ListItem>
                                 <asp:ListItem Value="02">2</asp:ListItem>
@@ -110,15 +103,17 @@
                             &nbsp;&nbsp;&nbsp;&nbsp;
                         </td>
                         <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
-                            <font face="Verdana" size="2">Field:</font>
-                            <asp:DropDownList runat="server" Height="25px" Width="180px" ID="fieldMenu">
-                                <asp:ListItem Value="">-- Select Field --</asp:ListItem>
+                            <asp:DropDownList runat="server" Height="25px" Width="80px" ID="fieldMenu">
+                                <asp:ListItem Value="">----</asp:ListItem>
                             </asp:DropDownList>
                             <asp:Button OnClick="ShowAvailableByField" autopostback="true" Text="Show Available By Field" Font-Bold="true" ID="ShowAvaliableByFieldButton" runat="server" />
                             &nbsp;&nbsp;&nbsp;&nbsp;
                         </td>
                     </tr>
                 </table>
+                <p style="text-align:center"><a href="ReleaseNotes.aspx" target="_Blank">release notes</a>
+                </p>
+
             </td>
         </tr>
         <tr>
@@ -132,7 +127,7 @@
             </td>
         </tr>
     </table>
-</center><br><br>
+</center>
 <center>
     <font face="Times" size="4">
         <asp:Label ID="Message2" align="Center" Font-Bold="True" Width="98%" runat="server" />

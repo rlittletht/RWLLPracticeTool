@@ -40,24 +40,6 @@ namespace Rwp {
         protected global::System.Web.UI.WebControls.Label Message0;
         
         /// <summary>
-        /// teamMenu control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList teamMenu;
-        
-        /// <summary>
-        /// logoffButton control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button logoffButton;
-        
-        /// <summary>
         /// Message1 control.
         /// </summary>
         /// <remarks>
@@ -83,6 +65,15 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button ShowICalFeedLinkButton;
+        
+        /// <summary>
+        /// lblTeamName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTeamName;
         
         /// <summary>
         /// monthMenu control.

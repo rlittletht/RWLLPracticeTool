@@ -2,6 +2,7 @@
 using Microsoft.Owin;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.EnterpriseServices;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace Rwp
         {
             string s;
 
-            s = teamMenu.Text.Replace(" ", "%20");
+            s = lblTeamName.Text.Replace(" ", "%20");
 
             txtCalendarFeedLink.Text = $"http://rwllpractice.azurewebsites.net/icsfeed.aspx?Team={s}";
         }
@@ -137,8 +138,8 @@ namespace Rwp
 
             try
             {
-                teamName = teamMenu.SelectedItem.Text;
-                teamNameForAvailableSlots = teamMenu.SelectedItem.Text;
+                teamName = lblTeamName.Text;
+                teamNameForAvailableSlots = teamName;
 
                 // this teams reservations
                 //sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00 / 00 / 00'"
@@ -160,29 +161,8 @@ namespace Rwp
 
                 if (!IsPostBack)
                 {
-                    DBConn.Open();
-                    cmdMbrs = DBConn.CreateCommand();
-                    // populate the teamMenu
-                    sqlStrSorted = "exec usp_PopulateTeamList";
-                    cmdMbrs.CommandText = sqlStrSorted;
-                    rdrMbrs = cmdMbrs.ExecuteReader();
-                    teamMenu.DataSource = rdrMbrs;
-                    teamMenu.DataTextField = "TeamName";
-                    teamMenu.DataValueField = "TeamName";
-                    teamMenu.DataBind();
-                    rdrMbrs.Close();
-                    // populate the fieldMenu
-                    sqlStrSorted = "exec usp_PopulateFieldList";
-
-                    cmdMbrs.CommandText = sqlStrSorted;
-                    rdrMbrs = cmdMbrs.ExecuteReader();
-                    fieldMenu.DataSource = rdrMbrs;
-                    fieldMenu.DataTextField = "Field";
-                    fieldMenu.DataValueField = "Field";
-                    fieldMenu.DataBind();
-                    rdrMbrs.Close();
-                    cmdMbrs.Dispose();
-                    DBConn.Close();
+                    BindTeamDropdown();
+                    BindFieldDropdown();
                 }
 
                 FillInCalendarLink();
@@ -195,6 +175,27 @@ namespace Rwp
             SetupLoginLogout();
         }
 
+        void BindFieldDropdown()
+        {
+            DBConn.Open();
+            // populate the fieldMenu
+            sqlStrSorted = "exec usp_PopulateFieldList";
+            cmdMbrs = DBConn.CreateCommand();
+
+            cmdMbrs.CommandText = sqlStrSorted;
+            rdrMbrs = cmdMbrs.ExecuteReader();
+            fieldMenu.DataSource = rdrMbrs;
+            fieldMenu.DataTextField = "Field";
+            fieldMenu.DataValueField = "Field";
+            fieldMenu.DataBind();
+            rdrMbrs.Close();
+            cmdMbrs.Dispose();
+            DBConn.Close();
+        }
+
+        void BindTeamDropdown()
+        {
+        }
         protected void BindGrid()
         {
             if (String.IsNullOrEmpty(sqlStrSorted))
@@ -219,8 +220,6 @@ namespace Rwp
         void SetLoggedOff()
         {
             IsLoggedIn = false;
-            teamMenu.Enabled = false;
-            // teamMenu.SelectedValue = "-- Select Team --";
             LoggedInAsAdmin = false;
             SqlBase = "";
         }
@@ -255,8 +254,7 @@ namespace Rwp
             {
                 Message1.Text = $"Welcome to RedmondWest Practice Tool ({sIdentity})...";
                 IsLoggedIn = true;
-                teamMenu.SelectedValue = teamName;
-                teamMenu.Enabled = false;
+                lblTeamName.Text = teamName;
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
                 DataGrid1.Columns[0].HeaderText = "Release";
@@ -269,7 +267,7 @@ namespace Rwp
             else
             {
                 SetLoggedOff();
-                Message1.Text = $"User '{sIdentity} not authorized!";
+                Message1.Text = $"User '{sIdentity} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
                 Message1.ForeColor = System.Drawing.Color.Red;
             }
 
