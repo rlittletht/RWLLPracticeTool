@@ -111,9 +111,26 @@
                         </td>
                     </tr>
                 </table>
-                <p style="text-align:center"><a href="ReleaseNotes.aspx" target="_Blank">release notes</a>
-                </p>
-
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div runat="server" ID="divAdminFunctions">
+                    <table cellspacing="0" bordercolor="black" bgcolor="#acacac">
+                        <tr>
+                            <td style="padding-right: .5in">
+                                Administrative Functions</td>
+                            <td>Act As: 
+                                <asp:DropDownList runat="server" Height="25px" Width="180px" ID="actAsMenu">
+                                    <asp:ListItem Value="">-- Select Login --</asp:ListItem>
+                                </asp:DropDownList>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: center">
+                <a href="ReleaseNotes.aspx" target="_Blank">release notes</a>
             </td>
         </tr>
         <tr>

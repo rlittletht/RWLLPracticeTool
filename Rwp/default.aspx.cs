@@ -46,7 +46,10 @@ namespace Rwp
         private SqlCommand cmdMbrs;
         private SqlDataReader rdrMbrs;
 
-        private string teamName;
+        private string teamName
+        {
+            get { return GetTeamName(); }
+        }
         private string teamNameForAvailableSlots;
         
         // team name used to query for reserved and available slots
@@ -138,7 +141,6 @@ namespace Rwp
 
             try
             {
-                teamName = lblTeamName.Text;
                 teamNameForAvailableSlots = teamName;
 
                 // this teams reservations
@@ -150,8 +152,8 @@ namespace Rwp
 
                 divCalendarFeedLink.Visible = ShowingCalLink;
 
-                if (LoggedInAsAdmin)
-                    teamNameForAvailableSlots = "Administrator";
+//                if (LoggedInAsAdmin)
+//                    teamNameForAvailableSlots = "Administrator";
 
                 if (sIdentity != null)
                     LoadPrivs(sIdentity);
@@ -161,7 +163,7 @@ namespace Rwp
 
                 if (!IsPostBack)
                 {
-                    BindTeamDropdown();
+                    BindActAsDropdown();
                     BindFieldDropdown();
                 }
 
@@ -179,10 +181,10 @@ namespace Rwp
         {
             DBConn.Open();
             // populate the fieldMenu
-            sqlStrSorted = "exec usp_PopulateFieldList";
+            string sql= "exec usp_PopulateFieldList";
             cmdMbrs = DBConn.CreateCommand();
 
-            cmdMbrs.CommandText = sqlStrSorted;
+            cmdMbrs.CommandText = sql;
             rdrMbrs = cmdMbrs.ExecuteReader();
             fieldMenu.DataSource = rdrMbrs;
             fieldMenu.DataTextField = "Field";
@@ -193,8 +195,30 @@ namespace Rwp
             DBConn.Close();
         }
 
-        void BindTeamDropdown()
+        void BindActAsDropdown()
         {
+            if (!LoggedInAsAdmin)
+            {
+                divAdminFunctions.Visible = false;
+                return;
+            }
+
+            divAdminFunctions.Visible = true;
+
+            DBConn.Open();
+            cmdMbrs = DBConn.CreateCommand();
+            // populate the teamMenu
+            string sql = "exec usp_PopulateTeamList";
+            cmdMbrs.CommandText = sql;
+            rdrMbrs = cmdMbrs.ExecuteReader();
+            actAsMenu.DataSource = rdrMbrs;
+            actAsMenu.DataTextField = "TeamName";
+            actAsMenu.DataValueField = "TeamName";
+            actAsMenu.DataBind();
+            rdrMbrs.Close();
+
+            actAsMenu.SelectedValue = "Administrator";
+            DBConn.Close();
         }
         protected void BindGrid()
         {
@@ -239,11 +263,11 @@ namespace Rwp
             cmdMbrs.CommandText = sqlStrLogin;
             rdrMbrs = cmdMbrs.ExecuteReader();
             temp = -1;
-            teamName = null;
+            lblTeamName.Text = null;
 
             while (rdrMbrs.Read())
             {
-                teamName = rdrMbrs.GetString(0);
+                lblTeamName.Text = rdrMbrs.GetString(0);
             }
 
             rdrMbrs.Close();
@@ -254,7 +278,9 @@ namespace Rwp
             {
                 Message1.Text = $"Welcome to RedmondWest Practice Tool ({sIdentity})...";
                 IsLoggedIn = true;
-                lblTeamName.Text = teamName;
+                if (teamName == "Administrator")
+                    LoggedInAsAdmin = true;
+
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
                 DataGrid1.Columns[0].HeaderText = "Release";
@@ -262,6 +288,7 @@ namespace Rwp
                              "''";
                 if (!String.IsNullOrEmpty(SqlBase))
                     sqlStrSorted = SqlBase + ",Date";
+                BindActAsDropdown();
                 BindGrid();
             }
             else
@@ -271,6 +298,14 @@ namespace Rwp
                 Message1.ForeColor = System.Drawing.Color.Red;
             }
 
+        }
+
+        string GetTeamName()
+        {
+            if (LoggedInAsAdmin && actAsMenu.SelectedValue != "Administrator")
+                return actAsMenu.SelectedValue;
+
+            return lblTeamName.Text;
         }
 
         void SetupLoginLogout()
