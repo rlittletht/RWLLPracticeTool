@@ -7,6 +7,8 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using System.Text.RegularExpressions;
+using NUnit.Framework;
 
 namespace RwpSvc
 {
@@ -15,25 +17,16 @@ namespace RwpSvc
     [ServiceContract(Namespace = "")]
     public partial class Practice : System.Web.Services.WebService
     {
-#if PRODUCTION
-#if AZURE
-// This line contained a SECRET and was automatically sanitized. This file will probably not compile now. Contact original author for the secret line
-#else
-// This line contained a SECRET and was automatically sanitized. This file will probably not compile now. Contact original author for the secret line
-#endif
-#else
-#if STAGING
-    static string _sResourceConnString =
-        "Server=cantorix;Database=db0902;Trusted_Connection=True;";
-#else
+#if PRODDATA
         static string _sResourceConnString
         {
             get { return ConfigurationManager.AppSettings["Thetasoft.Azure.ConnectionString"]; }
         }
+#else
+    static string _sResourceConnString =
+        "Server=cantorix;Database=db0902;Trusted_Connection=True;";
+#endif
 
-#endif
-    // static string _sResourceConnString = "Data Source=cacofonix;Database=db0902;Trusted_Connection=Yes";
-#endif
         [OperationContract]
         [WebGet]
         public string GetData(int value)
@@ -130,5 +123,33 @@ namespace RwpSvc
 		{
             return RwpSlots.ImportCsv(stmCsv);
 		}
+
+        static string ExtractServerNameFromConnection(string sConnection)
+        {
+            Regex rex = new Regex(".*server[ \t]*=[ \t]*([^;]*)[ \t]*;.*", RegexOptions.IgnoreCase);
+
+            Match m = rex.Match(sConnection);
+       
+            return m.Groups[1].Value;
+        }
+
+        [TestCase("Server=foo;", "foo")]
+        [TestCase("server=tcp:foo.bar.com; initial catalog=barfoo;uid=someone@nowhere.com;pwd=pass.word", "tcp:foo.bar.com")]
+        [Test]
+        public static void TestExtractServerNameFromConnection(string sIn, string sExpected)
+        {
+            Assert.AreEqual(sExpected.ToUpper(), ExtractServerNameFromConnection(sIn)?.ToUpper());
+        }
+        [OperationContract]
+        [WebGet]
+        public ServerInfo GetServerInfo()
+        {
+            ServerInfo si = new ServerInfo();
+
+            si.sServerName = System.Net.Dns.GetHostName();
+
+            si.sSqlServerHash = ExtractServerNameFromConnection(_sResourceConnString);
+            return si;
+        }
     }
 }

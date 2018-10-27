@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="31702962-9ecd-4668-936c-dca2808268e4" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://dogmatix/rwpsvc/rwpsvc.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="Practice.wsdl" MetadataType="Wsdl" ID="b69797ac-9e92-4a6f-93df-c8a09e8c9ef6" SourceId="1" SourceUrl="http://dogmatix/RwpSvc/RwpSvc.svc?wsdl" />
+    <MetadataFile FileName="RwpSvc.xsd" MetadataType="Schema" ID="f5a74089-4887-4352-b6de-f9d11a768536" SourceId="1" SourceUrl="http://dogmatix/RwpSvc/RwpSvc.svc?xsd=xsd1" />
+    <MetadataFile FileName="RwpSvc.disco" MetadataType="Disco" ID="1c0154c8-38da-46d3-99c8-4a11608922e3" SourceId="1" SourceUrl="http://dogmatix/RwpSvc/RwpSvc.svc?disco" />
+    <MetadataFile FileName="RwpSvc1.xsd" MetadataType="Schema" ID="e3b06a44-1255-410d-8a89-1200f8bb0879" SourceId="1" SourceUrl="http://dogmatix/RwpSvc/RwpSvc.svc?xsd=xsd2" />
+    <MetadataFile FileName="RwpSvc2.xsd" MetadataType="Schema" ID="c6b878f6-307a-4118-a98d-9b8be4d0a263" SourceId="1" SourceUrl="http://dogmatix/RwpSvc/RwpSvc.svc?xsd=xsd3" />
+    <MetadataFile FileName="RwpSvc3.xsd" MetadataType="Schema" ID="d2d1746f-889c-4592-a57c-9c960105ceaf" SourceId="1" SourceUrl="http://dogmatix/RwpSvc/RwpSvc.svc?xsd=xsd0" />
+    <MetadataFile FileName="RwpSvc.wsdl" MetadataType="Wsdl" ID="0398be9f-77ce-4aa4-a4ad-f77e26b9cbab" SourceId="1" SourceUrl="http://dogmatix/RwpSvc/RwpSvc.svc?wsdl=wsdl0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

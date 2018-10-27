@@ -5,45 +5,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
-    <style type="text/css">
-
-
-.notice {
-    font-family: "Segoe UI", "Tahoma", "Arial";
-    width: 70%;
-    background: lightyellow;
-    border: 1pt solid black;
-    padding: 4pt;
-}
-
-.notice h1 {
-    font-size: 16pt;
-    margin: 0;
-}
-
-    </style>
+    <link rel="stylesheet" href="rwp.css"/>
 </head>
 <body style="height: 244">
 <form id="Form1" runat="server" style="text-align: center" enctype="multipart/form-data">
-    <p>
+    <p style="display: table-cell; vertical-align: middle; height: 30pt; width: 24in; background: gold;">
+        <asp:ImageButton ID="LoginOutButton" runat="server" ImageUrl="signin.png" CssClass="loginButton" />
+
         <font face="Times" size="4">
             <asp:Label ID="Message0" align="Center" Font-Bold="True" BackColor="gold" Width="100%"
                 runat="server" />
         </font>
     </p>
-    <asp:DropDownList runat="server" Height="25px" Width="180px" ID="teamMenu">
-        <asp:ListItem Value="">-- Select Team --</asp:ListItem>
-    </asp:DropDownList>
-    <font face="Verdana" size="2">&nbsp; &nbsp; &nbsp; Login:</font>
-    <asp:TextBox ID="passwordTextBox" TextMode="password" Columns="9" runat="server" />
-    &nbsp;
-    <asp:Button OnClick="ValidateLogin" autopostback="true" Text="Login" Font-Bold="true"
-        ID="loginButton" runat="server" />
-    <asp:Button OnClick="LogOff" autopostback="true" Text="Logoff" Font-Bold="true" ID="logoffButton"
-        runat="server" />
-           <a href="ReleaseNotes.aspx" target="_Blank">release notes</a>
     <font face="Verdana" size="3">
-        <asp:Label ID="Message1" align="Center" Width="10%" runat="server" />
+        <asp:Label ID="Message1" align="Center" runat="server" />
     </font>
      
 <center>
@@ -54,20 +29,24 @@
                     <tr>
 	                    <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
                             <font face="Verdana" size="2">
-                            <asp:Button OnClick="ShowReserved" autopostback="true" Text="Show Reserved" Font-Bold="true" ID="ShowReservedButton" runat="server" />&nbsp;&nbsp;
+                            <asp:Button OnClick="ShowReserved" autopostback="true" Text="Show Reserved" Font-Bold="true" ID="ShowReservedButton" runat="server" />&nbsp;
                             <asp:Button OnClick="ShowICalFeedLink" autopostback="true" Text="Get iCal Feed" Font-Bold="true" ID="ShowICalFeedLinkButton" runat="server"/>
-                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            Team: <asp:Label ID="lblTeamName" CssClass="textField" runat="Server" BackColor="White" ForeColor="Black"/>&nbsp;&nbsp;&nbsp;
                         </td>
                         <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
-                            <font face="Verdana" size="2">Month:</font>
                             <asp:DropDownList runat="server" Height="25px" Width="100px" ID="monthMenu">
                                 <asp:ListItem Value="02">February</asp:ListItem>
                                 <asp:ListItem Value="03">March</asp:ListItem>
                                 <asp:ListItem Value="04">April</asp:ListItem>
                                 <asp:ListItem Value="05">May</asp:ListItem>
                                 <asp:ListItem Value="06">June</asp:ListItem>
+                                <asp:ListItem Value="07">July</asp:ListItem>
+                                <asp:ListItem Value="08">Aug</asp:ListItem>
+                                <asp:ListItem Value="09">Sep</asp:ListItem>
+                                <asp:ListItem Value="10">Oct</asp:ListItem>
+                                <asp:ListItem Value="11">Nov</asp:ListItem>
+                                <asp:ListItem Value="12">Dec</asp:ListItem>
                             </asp:DropDownList>
-                            <font face="Verdana" size="2">Day:</font>
                             <asp:DropDownList runat="server" Height="25px" Width="50px" ID="dayMenu">
                                 <asp:ListItem Value="01">1</asp:ListItem>
                                 <asp:ListItem Value="02">2</asp:ListItem>
@@ -105,15 +84,35 @@
                             &nbsp;&nbsp;&nbsp;&nbsp;
                         </td>
                         <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
-                            <font face="Verdana" size="2">Field:</font>
-                            <asp:DropDownList runat="server" Height="25px" Width="180px" ID="fieldMenu">
-                                <asp:ListItem Value="">-- Select Field --</asp:ListItem>
+                            <asp:DropDownList runat="server" Height="25px" Width="80px" ID="fieldMenu">
+                                <asp:ListItem Value="">----</asp:ListItem>
                             </asp:DropDownList>
                             <asp:Button OnClick="ShowAvailableByField" autopostback="true" Text="Show Available By Field" Font-Bold="true" ID="ShowAvaliableByFieldButton" runat="server" />
                             &nbsp;&nbsp;&nbsp;&nbsp;
                         </td>
                     </tr>
                 </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div runat="server" ID="divAdminFunctions">
+                    <table cellspacing="0" bordercolor="black" bgcolor="#acacac">
+                        <tr>
+                            <td style="padding-right: .5in">
+                                Administrative Functions</td>
+                            <td>Act As: 
+                                <asp:DropDownList runat="server" Height="25px" Width="180px" ID="actAsMenu">
+                                    <asp:ListItem Value="">-- Select Login --</asp:ListItem>
+                                </asp:DropDownList>
+                            <td><a href="admin.aspx">Admin functions</a></td>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: center">
+                <a href="ReleaseNotes.aspx" target="_Blank">release notes</a>
             </td>
         </tr>
         <tr>
@@ -127,7 +126,7 @@
             </td>
         </tr>
     </table>
-</center><br><br>
+</center>
 <center>
     <font face="Times" size="4">
         <asp:Label ID="Message2" align="Center" Font-Bold="True" Width="98%" runat="server" />

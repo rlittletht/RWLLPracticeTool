@@ -42,12 +42,52 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.IdentityModel.Logging, Version=5.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Logging.5.2.1\lib\net451\Microsoft.IdentityModel.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Protocols, Version=5.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Protocols.5.2.1\lib\net451\Microsoft.IdentityModel.Protocols.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect, Version=5.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Protocols.OpenIdConnect.5.2.1\lib\net451\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Tokens, Version=5.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Tokens.5.2.1\lib\net451\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.0.0\lib\net451\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.0.0\lib\net451\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.4.0.0\lib\net451\Microsoft.Owin.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.4.0.0\lib\net451\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OpenIdConnect, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.OpenIdConnect.4.0.0\lib\net451\Microsoft.Owin.Security.OpenIdConnect.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.6.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.6.0\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.IdentityModel.Tokens.Jwt, Version=5.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.5.2.1\lib\net451\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.6\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -60,6 +100,12 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Http, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.6\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.Owin, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Owin.5.2.6\lib\net45\System.Web.Http.Owin.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
@@ -76,7 +122,7 @@
     <Content Include="ReleaseNotes.aspx" />
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\IxStaging.pubxml" />
-    <None Include="Properties\PublishProfiles\ObelixStaging.pubxml" />
+    <None Include="Properties\PublishProfiles\Local.pubxml" />
     <None Include="Properties\PublishProfiles\rwllpractice - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\rwllpractice - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - FTP %282%29.pubxml" />
@@ -84,6 +130,49 @@
     <None Include="Properties\PublishProfiles\thetasoft2 - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - Web Deploy.pubxml" />
     <Content Include="SecretSettings.config" />
+    <None Include="Service References\RwpSvcLocal\Practice.wsdl" />
+    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.RSR.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.RSR_CalItems.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.ServerInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\RwpSvcLocal\RwpSvc.wsdl" />
+    <None Include="Service References\RwpSvcLocal\RwpSvc.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcLocal\RwpSvc1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcLocal\RwpSvc2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcLocal\RwpSvc3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcStaging\Practice.wsdl" />
+    <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.RSR.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.RSR_CalItems.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\RwpSvcStaging\RwpSvc.wsdl" />
+    <None Include="Service References\RwpSvcStaging\RwpSvc.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcStaging\RwpSvc1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcStaging\RwpSvc2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcStaging\RwpSvc3.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\RwpSvc\configuration91.svcinfo" />
     <None Include="Service References\RwpSvc\configuration.svcinfo" />
     <None Include="Service References\RwpSvc\Practice.wsdl" />
@@ -93,6 +182,20 @@
     </None>
     <Content Include="rwp.css" />
     <Content Include="SelectCalendar.png" />
+    <None Include="Service References\RwpSvcLocal\RwpSvc.disco" />
+    <None Include="Service References\RwpSvcLocal\configuration91.svcinfo" />
+    <None Include="Service References\RwpSvcLocal\configuration.svcinfo" />
+    <None Include="Service References\RwpSvcLocal\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\RwpSvcStaging\RwpSvc.disco" />
+    <None Include="Service References\RwpSvcStaging\configuration91.svcinfo" />
+    <None Include="Service References\RwpSvcStaging\configuration.svcinfo" />
+    <None Include="Service References\RwpSvcStaging\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="Service References\RwpSvc\Rwp.RwpSvc.RSR.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -100,6 +203,8 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Service References\RwpSvc\RwpSvc.disco" />
+    <Content Include="signin.png" />
+    <Content Include="signout.png" />
     <Content Include="SlotsReport.aspx" />
     <Content Include="TeamsReport.aspx" />
     <Content Include="Web.config">
@@ -116,6 +221,7 @@
     <Compile Include="admin.aspx.designer.cs">
       <DependentUpon>admin.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Auth.cs" />
     <Compile Include="default.aspx.cs">
       <DependentUpon>default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -138,6 +244,16 @@
     <Compile Include="ReleaseNotes.aspx.designer.cs">
       <DependentUpon>ReleaseNotes.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Service References\RwpSvcLocal\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\RwpSvcStaging\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Service References\RwpSvc\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -150,6 +266,7 @@
     <Compile Include="SlotsReport.aspx.designer.cs">
       <DependentUpon>SlotsReport.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Startup.cs" />
     <Compile Include="TeamsReport.aspx.cs">
       <DependentUpon>TeamsReport.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -178,9 +295,21 @@
     </None>
     <None Include="Web.AzureStagingDebug.config">
       <DependentUpon>Web.config</DependentUpon>
-      <SubType>Designer</SubType>
     </None>
     <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.DebugLocalSvcLocalData.config">
+      <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web.DebugLocalSvcProdData.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.DebugProdSvcProdData.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.DebugStageSvcProdData.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <None Include="Web.IxStaging.config">
@@ -201,6 +330,8 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <WCFMetadataStorage Include="Service References\RwpSvcLocal\" />
+    <WCFMetadataStorage Include="Service References\RwpSvcStaging\" />
     <WCFMetadataStorage Include="Service References\RwpSvc\" />
   </ItemGroup>
   <ItemGroup>
@@ -250,7 +381,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AzureStagingDebug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LOCALSERVICE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -261,6 +392,42 @@
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalSvcLocalData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;LOCALSVC LOCALDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalSvcProdData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;LOCALSVC PRODDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugStageSvcProdData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STAGESVC PRODDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugProdSvcProdData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;PRODSVC PRODDATA</DefineConstants>
+    <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
