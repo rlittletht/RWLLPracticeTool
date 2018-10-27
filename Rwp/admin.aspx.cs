@@ -1,26 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Rwp.RwpSvc;
+// TODO NOTE:  We have a bit of a mess with all the different AzureStaging and Local, etc.
+// we at least have a way to bind to both, but I don't thin there is any consistency
+// about when the javascript redirects to the local machine and when the codebehind has bound
+// to the local service.  very dangerous.  (already led to wiping out production data once).
+
+// also, at some point, deploying to azure is going to get grumpy because we have two service
+// endpoints bound (i think). this is why we have to figure out how to only define the one that
+// we want in the conditional web.config files (look at smoking love to see how this is really supposed to be
+// done...)
+
+#if LOCALSERVICE
+using RwpSvcProxy = Rwp.RwpSvcLocal;
+#else
+using RwpSvcProxy = Rwp.RwpSvc;
+#endif
+
 using System.Net;
 
 namespace Rwp
 {
     public partial class AdminPage : System.Web.UI.Page
     {
-        private RwpSvc.PracticeClient m_rspClient;
+        private RwpSvcProxy.PracticeClient m_rspClient;
+        private Auth m_auth;
+        private SqlConnection DBConn;
+        private Auth.UserPrivs m_userPrivs;
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            m_auth = new Auth(LoginOutButton, Request, null, null, null, null);
+
+            ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
+            string sSqlConnectionString = conn.ConnectionString;
+
+            DBConn = new SqlConnection(sSqlConnectionString);
+
+            string sIdentity = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
+
+            m_userPrivs = m_auth.LoadPrivs(DBConn, sIdentity);
             ipClient.InnerText = Request.UserHostAddress;
 
-            m_rspClient = new PracticeClient("BasicHttpBinding_Practice");
+            m_rspClient = new RwpSvcProxy.PracticeClient("BasicHttpBinding_Practice");
+            EnableUIForAdmin();
+
+            m_auth.SetupLoginLogout(Request.IsAuthenticated);
         }
 
-        private void ReportSr(RwpSvc.RSR sr, string sOperation)
+        private void ReportSr(RwpSvcProxy.RSR sr, string sOperation)
         {
             if (!sr.Result)
                 {
@@ -63,10 +96,18 @@ namespace Rwp
             return IP4Address;
         }
 
-        RSR CheckIP()
+        RwpSvcProxy.RSR CheckAdmin()
         {
-            RSR sr = new RSR();
+            RwpSvcProxy.RSR sr = new RwpSvcProxy.RSR();
             string sAddressForComp = GetIP4Address(Request.UserHostAddress);
+
+            if (m_userPrivs != Auth.UserPrivs.AdminPrivs)
+            {
+                sr.Result = false;
+                sr.Reason = $"User does not have administrative privileges";
+
+                return sr;
+            }
 
             if (String.Compare(sAddressForComp, "73.83.16.112") != 0
                 && String.Compare(sAddressForComp, "::1") != 0
@@ -81,6 +122,20 @@ namespace Rwp
             sr.Result = true;
             return sr;
         }
+
+        void EnableUIForAdmin()
+        {
+            bool fAdmin = m_userPrivs == Auth.UserPrivs.AdminPrivs;
+
+            btnDownloadTeams.Enabled = fAdmin;
+            btnClearTeams.Enabled = fAdmin;
+            btnUploadTeams.Enabled = fAdmin;
+            btnDownloadSlots.Enabled = fAdmin;
+            btnClearAllSlots.Enabled = fAdmin;
+            btnClearLastYear.Enabled = fAdmin;
+            btnUploadSlots.Enabled = fAdmin;
+        }
+
         /* D O  D E L E T E  S L O T S */
         /*----------------------------------------------------------------------------
         	%%Function: DoDeleteSlots
@@ -91,7 +146,7 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         protected void DoDeleteSlots(object sender, EventArgs e)
         {
-            RSR sr = CheckIP();
+            RwpSvcProxy.RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
@@ -105,7 +160,7 @@ namespace Rwp
 
 		protected void DoDelete2014Slots(object sender, EventArgs e)
 		{
-            RSR sr = CheckIP();
+            RwpSvcProxy.RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
@@ -119,7 +174,7 @@ namespace Rwp
 
 		protected void DoDeleteTeams(object sender, EventArgs e)
 		{
-            RSR sr = CheckIP();
+            RwpSvcProxy.RSR sr = CheckAdmin();
 
 		    if (!sr.Result)
 		        {
@@ -133,14 +188,14 @@ namespace Rwp
 
         protected void DoUploadTeams(object sender, EventArgs e)
         {
-            RSR sr = CheckIP();
+            RwpSvcProxy.RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
                 ReportSr(sr, "ipc");
                 return;
                 }
-            RwpSvc.PracticeClient rspClientStream = new PracticeClient("BasicHttpBinding_PracticeStream");
+            RwpSvcProxy.PracticeClient rspClientStream = new RwpSvcProxy.PracticeClient("BasicHttpBinding_PracticeStream");
 
             if ((fuTeams.PostedFile != null) && (fuTeams.PostedFile.ContentLength > 0))
                 {
@@ -154,7 +209,7 @@ namespace Rwp
                 }
             else
                 {
-                sr = new RSR();
+                sr = new RwpSvcProxy.RSR();
                 sr.Result = false;
                 sr.Reason = String.Format("Upload of file failed!");
                 }
@@ -164,14 +219,14 @@ namespace Rwp
 
         protected void DoUploadSlots(object sender, EventArgs e)
         {
-            RSR sr = CheckIP();
+            RwpSvcProxy.RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
                 ReportSr(sr, "ipc");
                 return;
                 }
-            RwpSvc.PracticeClient rspClientStream = new PracticeClient("BasicHttpBinding_PracticeStream");
+            RwpSvcProxy.PracticeClient rspClientStream = new RwpSvcProxy.PracticeClient("BasicHttpBinding_PracticeStream");
 
             if ((fuSlots.PostedFile != null && fuSlots.PostedFile.ContentLength > 0))
                 {
@@ -184,7 +239,7 @@ namespace Rwp
                 }
             else
                 {
-                sr = new RSR();
+                sr = new RwpSvcProxy.RSR();
                 sr.Result = false;
                 sr.Reason = String.Format("Upload of file failed!");
                 }
@@ -194,7 +249,7 @@ namespace Rwp
 
         protected void EnableClearItems(object sender, EventArgs e)
         {
-            RSR sr = CheckIP();
+            RwpSvcProxy.RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
@@ -207,7 +262,7 @@ namespace Rwp
 
 		protected void EnableDeleteSlots(object sender, EventArgs e)
 		{
-            RSR sr = CheckIP();
+            RwpSvcProxy.RSR sr = CheckAdmin();
 
 		    if (!sr.Result)
 		        {

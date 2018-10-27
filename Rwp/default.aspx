@@ -40,6 +40,12 @@
                                 <asp:ListItem Value="04">April</asp:ListItem>
                                 <asp:ListItem Value="05">May</asp:ListItem>
                                 <asp:ListItem Value="06">June</asp:ListItem>
+                                <asp:ListItem Value="07">July</asp:ListItem>
+                                <asp:ListItem Value="08">Aug</asp:ListItem>
+                                <asp:ListItem Value="09">Sep</asp:ListItem>
+                                <asp:ListItem Value="10">Oct</asp:ListItem>
+                                <asp:ListItem Value="11">Nov</asp:ListItem>
+                                <asp:ListItem Value="12">Dec</asp:ListItem>
                             </asp:DropDownList>
                             <asp:DropDownList runat="server" Height="25px" Width="50px" ID="dayMenu">
                                 <asp:ListItem Value="01">1</asp:ListItem>

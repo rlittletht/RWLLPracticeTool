@@ -130,6 +130,26 @@
     <None Include="Properties\PublishProfiles\thetasoft2 - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - Web Deploy.pubxml" />
     <Content Include="SecretSettings.config" />
+    <None Include="Service References\RwpSvcLocal\Practice.wsdl" />
+    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.RSR.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.RSR_CalItems.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\RwpSvcLocal\RwpSvc.wsdl" />
+    <None Include="Service References\RwpSvcLocal\RwpSvc.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcLocal\RwpSvc1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcLocal\RwpSvc2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcLocal\RwpSvc3.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\RwpSvc\configuration91.svcinfo" />
     <None Include="Service References\RwpSvc\configuration.svcinfo" />
     <None Include="Service References\RwpSvc\Practice.wsdl" />
@@ -139,6 +159,13 @@
     </None>
     <Content Include="rwp.css" />
     <Content Include="SelectCalendar.png" />
+    <None Include="Service References\RwpSvcLocal\RwpSvc.disco" />
+    <None Include="Service References\RwpSvcLocal\configuration91.svcinfo" />
+    <None Include="Service References\RwpSvcLocal\configuration.svcinfo" />
+    <None Include="Service References\RwpSvcLocal\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="Service References\RwpSvc\Rwp.RwpSvc.RSR.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -186,6 +213,11 @@
     </Compile>
     <Compile Include="ReleaseNotes.aspx.designer.cs">
       <DependentUpon>ReleaseNotes.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\RwpSvcLocal\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Service References\RwpSvc\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -251,6 +283,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <WCFMetadataStorage Include="Service References\RwpSvcLocal\" />
     <WCFMetadataStorage Include="Service References\RwpSvc\" />
   </ItemGroup>
   <ItemGroup>
@@ -300,7 +333,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AzureStagingDebug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LOCALSERVICE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>

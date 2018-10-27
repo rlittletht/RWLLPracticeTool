@@ -49,6 +49,47 @@ namespace Rwp
             m_onAfterLogout = onAfterLogout;
         }
 
+        public enum UserPrivs
+        {
+            NotAuthenticated,
+            AuthenticatedNoPrivs,
+            UserPrivs,
+            AdminPrivs
+        };
+
+        public UserPrivs LoadPrivs(SqlConnection DBConn, string sIdentity)
+        {
+            if (sIdentity == null)
+                return UserPrivs.NotAuthenticated;
+
+            string sqlStrLogin;
+
+            DBConn.Open();
+            // don't need to validate a password -- once we have an authenticated identity, just get its privileges
+            sqlStrLogin = $"SELECT TeamName as Count from rwllTeams where Email1 = '{Sql.Sqlify(sIdentity)}'";
+            SqlCommand cmdMbrs = DBConn.CreateCommand();
+            cmdMbrs.CommandText = sqlStrLogin;
+            SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
+            string teamName = null;
+
+            while (rdrMbrs.Read())
+            {
+                teamName = rdrMbrs.GetString(0);
+            }
+
+            rdrMbrs.Close();
+            cmdMbrs.Dispose();
+            DBConn.Close();
+
+            if (teamName == null)
+                return UserPrivs.AuthenticatedNoPrivs;
+
+            if (teamName == "Administrator")
+                return UserPrivs.AdminPrivs;
+
+            return UserPrivs.UserPrivs;
+        }
+
         public void DoSignInClick(object sender, ImageClickEventArgs args)
         {
             m_onBeforeLogin?.Invoke(sender, args);
