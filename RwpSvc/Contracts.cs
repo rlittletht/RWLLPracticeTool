@@ -178,6 +178,15 @@ namespace RwpSvc
 		}
 	}
 
+    [DataContract]
+    public class ServerInfo
+    {
+        [DataMember]
+        public string sSqlServerHash;
+        [DataMember]
+        public string sServerName;
+    }
+
 	[Serializable]
 	public class RwpErrorSerial
 	{

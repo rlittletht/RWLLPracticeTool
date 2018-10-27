@@ -122,7 +122,7 @@
     <Content Include="ReleaseNotes.aspx" />
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\IxStaging.pubxml" />
-    <None Include="Properties\PublishProfiles\ObelixStaging.pubxml" />
+    <None Include="Properties\PublishProfiles\Local.pubxml" />
     <None Include="Properties\PublishProfiles\rwllpractice - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\rwllpractice - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - FTP %282%29.pubxml" />
@@ -135,6 +135,9 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.RSR_CalItems.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.ServerInfo.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Service References\RwpSvcLocal\RwpSvc.wsdl" />
@@ -150,6 +153,26 @@
     <None Include="Service References\RwpSvcLocal\RwpSvc3.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\RwpSvcStaging\Practice.wsdl" />
+    <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.RSR.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.RSR_CalItems.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\RwpSvcStaging\RwpSvc.wsdl" />
+    <None Include="Service References\RwpSvcStaging\RwpSvc.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcStaging\RwpSvc1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcStaging\RwpSvc2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RwpSvcStaging\RwpSvc3.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\RwpSvc\configuration91.svcinfo" />
     <None Include="Service References\RwpSvc\configuration.svcinfo" />
     <None Include="Service References\RwpSvc\Practice.wsdl" />
@@ -163,6 +186,13 @@
     <None Include="Service References\RwpSvcLocal\configuration91.svcinfo" />
     <None Include="Service References\RwpSvcLocal\configuration.svcinfo" />
     <None Include="Service References\RwpSvcLocal\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\RwpSvcStaging\RwpSvc.disco" />
+    <None Include="Service References\RwpSvcStaging\configuration91.svcinfo" />
+    <None Include="Service References\RwpSvcStaging\configuration.svcinfo" />
+    <None Include="Service References\RwpSvcStaging\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
@@ -219,6 +249,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Service References\RwpSvcStaging\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Service References\RwpSvc\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -260,9 +295,21 @@
     </None>
     <None Include="Web.AzureStagingDebug.config">
       <DependentUpon>Web.config</DependentUpon>
-      <SubType>Designer</SubType>
     </None>
     <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.DebugLocalSvcLocalData.config">
+      <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web.DebugLocalSvcProdData.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.DebugProdSvcProdData.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.DebugStageSvcProdData.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <None Include="Web.IxStaging.config">
@@ -284,6 +331,7 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\RwpSvcLocal\" />
+    <WCFMetadataStorage Include="Service References\RwpSvcStaging\" />
     <WCFMetadataStorage Include="Service References\RwpSvc\" />
   </ItemGroup>
   <ItemGroup>
@@ -344,6 +392,42 @@
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalSvcLocalData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;LOCALSVC LOCALDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalSvcProdData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;LOCALSVC PRODDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugStageSvcProdData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STAGESVC PRODDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugProdSvcProdData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;PRODSVC PRODDATA</DefineConstants>
+    <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>

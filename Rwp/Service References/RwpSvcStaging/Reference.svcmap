@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="6cfc2040-24a2-4afc-ae7d-4a8340ea8779" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://thetasoft2.azurewebsites.net/rwpsvc/rwpsvc.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="RwpSvc.wsdl" MetadataType="Wsdl" ID="058bd79e-8771-4028-b853-e2551289c8bc" SourceId="1" SourceUrl="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="RwpSvc.xsd" MetadataType="Schema" ID="1f782536-1ad3-4eac-9208-ad969a15f92f" SourceId="1" SourceUrl="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?xsd=xsd3" />
+    <MetadataFile FileName="RwpSvc1.xsd" MetadataType="Schema" ID="69083f0f-7deb-441b-9931-edb59cf94def" SourceId="1" SourceUrl="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?xsd=xsd2" />
+    <MetadataFile FileName="RwpSvc2.xsd" MetadataType="Schema" ID="1c867d19-755b-4ab9-93cf-36846a803a8b" SourceId="1" SourceUrl="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?xsd=xsd1" />
+    <MetadataFile FileName="RwpSvc3.xsd" MetadataType="Schema" ID="5f18d20a-7653-4991-90b3-2f193405d5bc" SourceId="1" SourceUrl="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?xsd=xsd0" />
+    <MetadataFile FileName="Practice.wsdl" MetadataType="Wsdl" ID="01ddcf42-70d6-42c8-9adc-659aa9f7667f" SourceId="1" SourceUrl="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?wsdl" />
+    <MetadataFile FileName="RwpSvc.disco" MetadataType="Disco" ID="651d420e-c0a2-4747-84a6-3873e76091ad" SourceId="1" SourceUrl="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?disco" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

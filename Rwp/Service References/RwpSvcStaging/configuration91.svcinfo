@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="I0qdJkPuTjktzKfoyJWFE4avh6A=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="35+706X4x2hqTDJ6zrYIfhuB6L8=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="basicHttpBinding" name="BasicHttpBinding_Practice2">
       <properties>
@@ -221,10 +221,10 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="BasicHttpBinding_Practice" contract="RwpSvcLocal.Practice" bindingType="basicHttpBinding" address="http://dogmatix/RwpSvc/RwpSvc.svc/soap" bindingConfiguration="BasicHttpBinding_Practice2">
+    <endpoint name="BasicHttpBinding_Practice2" contract="RwpSvcStaging.Practice" bindingType="basicHttpBinding" address="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soap" bindingConfiguration="BasicHttpBinding_Practice2">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://dogmatix/RwpSvc/RwpSvc.svc/soap</serializedValue>
+          <serializedValue>http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soap</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -236,7 +236,7 @@
           <serializedValue>BasicHttpBinding_Practice2</serializedValue>
         </property>
         <property path="/contract" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>RwpSvcLocal.Practice</serializedValue>
+          <serializedValue>RwpSvcStaging.Practice</serializedValue>
         </property>
         <property path="/headers" isComplexType="true" isExplicitlyDefined="false" clrType="System.ServiceModel.Configuration.AddressHeaderCollectionElement, System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>System.ServiceModel.Configuration.AddressHeaderCollectionElement</serializedValue>
@@ -296,7 +296,7 @@
           <serializedValue>False</serializedValue>
         </property>
         <property path="/name" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>BasicHttpBinding_Practice</serializedValue>
+          <serializedValue>BasicHttpBinding_Practice2</serializedValue>
         </property>
         <property path="/kind" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -306,10 +306,10 @@
         </property>
       </properties>
     </endpoint>
-    <endpoint name="BasicHttpBinding_Practice1" contract="RwpSvcLocal.Practice" bindingType="basicHttpBinding" address="http://dogmatix/RwpSvc/RwpSvc.svc/soapStream" bindingConfiguration="BasicHttpBinding_Practice11">
+    <endpoint name="BasicHttpBinding_Practice11" contract="RwpSvcStaging.Practice" bindingType="basicHttpBinding" address="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soapStream" bindingConfiguration="BasicHttpBinding_Practice11">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://dogmatix/RwpSvc/RwpSvc.svc/soapStream</serializedValue>
+          <serializedValue>http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soapStream</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -321,7 +321,7 @@
           <serializedValue>BasicHttpBinding_Practice11</serializedValue>
         </property>
         <property path="/contract" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>RwpSvcLocal.Practice</serializedValue>
+          <serializedValue>RwpSvcStaging.Practice</serializedValue>
         </property>
         <property path="/headers" isComplexType="true" isExplicitlyDefined="false" clrType="System.ServiceModel.Configuration.AddressHeaderCollectionElement, System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>System.ServiceModel.Configuration.AddressHeaderCollectionElement</serializedValue>
@@ -381,7 +381,7 @@
           <serializedValue>False</serializedValue>
         </property>
         <property path="/name" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>BasicHttpBinding_Practice1</serializedValue>
+          <serializedValue>BasicHttpBinding_Practice11</serializedValue>
         </property>
         <property path="/kind" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />

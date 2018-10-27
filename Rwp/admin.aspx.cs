@@ -16,13 +16,18 @@ using System.Web.UI.WebControls;
 // we want in the conditional web.config files (look at smoking love to see how this is really supposed to be
 // done...)
 
-#if LOCALSERVICE
+#if LOCALSVC
 using RwpSvcProxy = Rwp.RwpSvcLocal;
-#else
+#elif STAGESVC
+using RwpSvcProxy = Rwp.RwpSvcStaging;
+#elif PRODSVC
 using RwpSvcProxy = Rwp.RwpSvc;
+#else
+#error "No service endpoint defined"
 #endif
 
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace Rwp
 {
@@ -33,12 +38,35 @@ namespace Rwp
         private SqlConnection DBConn;
         private Auth.UserPrivs m_userPrivs;
 
+        static string ExtractServerNameFromConnection(string sConnection)
+        {
+            Regex rex = new Regex(".*server[ \t]*=[ \t]*([^;]*)[ \t]*;.*", RegexOptions.IgnoreCase);
+
+            Match m = rex.Match(sConnection);
+
+            return m.Groups[1].Value;
+        }
+
+        void CheckServiceServerConsistency(string sSqlConnectionString)
+        {
+            RwpSvcProxy.ServerInfo si;
+
+            si = m_rspClient.GetServerInfo();
+
+            ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
+
+            string sSqlServer = ExtractServerNameFromConnection(sSqlConnectionString);
+            if (String.Compare(si.sSqlServerHash, sSqlServer, true) != 0)
+                throw new Exception($"SQL SERVER MISMATCH: {si.sSqlServerHash} != {sSqlServer}");
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             m_auth = new Auth(LoginOutButton, Request, null, null, null, null);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
+
 
             DBConn = new SqlConnection(sSqlConnectionString);
 
@@ -48,6 +76,7 @@ namespace Rwp
             ipClient.InnerText = Request.UserHostAddress;
 
             m_rspClient = new RwpSvcProxy.PracticeClient("BasicHttpBinding_Practice");
+            CheckServiceServerConsistency(sSqlConnectionString);
             EnableUIForAdmin();
 
             m_auth.SetupLoginLogout(Request.IsAuthenticated);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://dogmatix/RwpSvc/RwpSvc.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/Message" />
-  <xs:import schemaLocation="http://dogmatix/RwpSvc/RwpSvc.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/RwpSvc" />
+  <xs:import schemaLocation="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/Message" />
+  <xs:import schemaLocation="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/RwpSvc" />
   <xs:element name="GetData">
     <xs:complexType>
       <xs:sequence>
@@ -129,18 +129,6 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="ImportCsvSlotsResult" nillable="true" type="q10:RSR" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetServerInfo">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetServerInfoResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="GetServerInfoResult" nillable="true" type="q11:ServerInfo" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

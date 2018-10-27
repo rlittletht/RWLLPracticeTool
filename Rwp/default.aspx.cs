@@ -29,6 +29,14 @@ namespace Rwp
         {
         }
 
+        [Serializable]
+        struct Privs
+        {
+            public string sIdentity;
+            public string sTeamName;
+            public bool fIsAdmin;
+        }
+
         void FillInCalendarLink()
         {
             string s;
@@ -62,6 +70,12 @@ namespace Rwp
         {
             get { return TGetState("showingReserved", true); }
             set { SetState("showingReserved", value); }
+        }
+
+        private Privs CurrentPrivs
+        {
+            get => TGetState("privs", new Privs { fIsAdmin = false, sIdentity = null, sTeamName = null });
+            set => SetState("privs", value);
         }
 
         private bool IsLoggedIn
@@ -235,12 +249,18 @@ namespace Rwp
         {
             IsLoggedIn = false;
             LoggedInAsAdmin = false;
+            Privs privs = new Privs { fIsAdmin = false, sIdentity = null, sTeamName = null };
+            CurrentPrivs = privs;
+
             SqlBase = "";
         }
 
-
+        
         void LoadPrivs(string sIdentity)
         {
+            if (CurrentPrivs.sIdentity == sIdentity)
+                return;
+
             string sqlStrLogin;
             
             SqlBase = "";
@@ -278,6 +298,8 @@ namespace Rwp
                     sqlStrSorted = SqlBase + ",Date";
                 BindActAsDropdown();
                 BindGrid();
+                Privs privs = new Privs {fIsAdmin = LoggedInAsAdmin, sIdentity = sIdentity, sTeamName = teamName};
+                CurrentPrivs = privs;
             }
             else
             {
@@ -463,7 +485,7 @@ namespace Rwp
             if (DataGrid1.Columns[0].HeaderText == "Reserve")
             {
                 DBConn.Open();
-                if (LoggedInAsAdmin)
+                if (LoggedInAsAdmin && teamName == "Administrator")
                     SQLcmd = "exec usp_UpdateSlots 'ResAdmin'";
                 else
                     SQLcmd = "exec usp_UpdateSlots 'Res'";

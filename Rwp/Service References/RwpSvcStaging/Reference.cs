@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Rwp.RwpSvcLocal {
+namespace Rwp.RwpSvcStaging {
     using System.Runtime.Serialization;
     using System;
     
@@ -17,9 +17,9 @@ namespace Rwp.RwpSvcLocal {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="RSRBase", Namespace="http://schemas.datacontract.org/2004/07/RwpSvc")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Rwp.RwpSvcLocal.TRSROfArrayOfCalItemQ1Zl4_P0R))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Rwp.RwpSvcLocal.RSR_CalItems))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Rwp.RwpSvcLocal.RSR))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Rwp.RwpSvcStaging.TRSROfArrayOfCalItemQ1Zl4_P0R))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Rwp.RwpSvcStaging.RSR_CalItems))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Rwp.RwpSvcStaging.RSR))]
     public partial class RSRBase : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
@@ -81,14 +81,14 @@ namespace Rwp.RwpSvcLocal {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="TRSROfArrayOfCalItemQ1Zl4_P0R", Namespace="http://schemas.datacontract.org/2004/07/RwpSvc")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Rwp.RwpSvcLocal.RSR_CalItems))]
-    public partial class TRSROfArrayOfCalItemQ1Zl4_P0R : Rwp.RwpSvcLocal.RSRBase {
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Rwp.RwpSvcStaging.RSR_CalItems))]
+    public partial class TRSROfArrayOfCalItemQ1Zl4_P0R : Rwp.RwpSvcStaging.RSRBase {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private Rwp.RwpSvcLocal.CalItem[] TheValueField;
+        private Rwp.RwpSvcStaging.CalItem[] TheValueField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public Rwp.RwpSvcLocal.CalItem[] TheValue {
+        public Rwp.RwpSvcStaging.CalItem[] TheValue {
             get {
                 return this.TheValueField;
             }
@@ -105,14 +105,14 @@ namespace Rwp.RwpSvcLocal {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="RSR_CalItems", Namespace="http://schemas.datacontract.org/2004/07/RwpSvc")]
     [System.SerializableAttribute()]
-    public partial class RSR_CalItems : Rwp.RwpSvcLocal.TRSROfArrayOfCalItemQ1Zl4_P0R {
+    public partial class RSR_CalItems : Rwp.RwpSvcStaging.TRSROfArrayOfCalItemQ1Zl4_P0R {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="RSR", Namespace="http://schemas.datacontract.org/2004/07/RwpSvc")]
     [System.SerializableAttribute()]
-    public partial class RSR : Rwp.RwpSvcLocal.RSRBase {
+    public partial class RSR : Rwp.RwpSvcStaging.RSRBase {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -240,69 +240,8 @@ namespace Rwp.RwpSvcLocal {
         }
     }
     
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ServerInfo", Namespace="http://schemas.datacontract.org/2004/07/RwpSvc")]
-    [System.SerializableAttribute()]
-    public partial class ServerInfo : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string sServerNameField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string sSqlServerHashField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string sServerName {
-            get {
-                return this.sServerNameField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.sServerNameField, value) != true)) {
-                    this.sServerNameField = value;
-                    this.RaisePropertyChanged("sServerName");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string sSqlServerHash {
-            get {
-                return this.sSqlServerHashField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.sSqlServerHashField, value) != true)) {
-                    this.sSqlServerHashField = value;
-                    this.RaisePropertyChanged("sSqlServerHash");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="", ConfigurationName="RwpSvcLocal.Practice")]
+    [System.ServiceModel.ServiceContractAttribute(Namespace="", ConfigurationName="RwpSvcStaging.Practice")]
     public interface Practice {
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/GetData", ReplyAction="urn:Practice/GetDataResponse")]
@@ -324,28 +263,28 @@ namespace Rwp.RwpSvcLocal {
         System.Threading.Tasks.Task<System.IO.Stream> GetCsvTeamsStreamAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ImportCsvTeams", ReplyAction="urn:Practice/ImportCsvTeamsResponse")]
-        Rwp.RwpSvcLocal.RSR ImportCsvTeams(System.IO.Stream stmCsv);
+        Rwp.RwpSvcStaging.RSR ImportCsvTeams(System.IO.Stream stmCsv);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ImportCsvTeams", ReplyAction="urn:Practice/ImportCsvTeamsResponse")]
-        System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ImportCsvTeamsAsync(System.IO.Stream stmCsv);
+        System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ImportCsvTeamsAsync(System.IO.Stream stmCsv);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ClearTeams", ReplyAction="urn:Practice/ClearTeamsResponse")]
-        Rwp.RwpSvcLocal.RSR ClearTeams();
+        Rwp.RwpSvcStaging.RSR ClearTeams();
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ClearTeams", ReplyAction="urn:Practice/ClearTeamsResponse")]
-        System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ClearTeamsAsync();
+        System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ClearTeamsAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ClearSlots", ReplyAction="urn:Practice/ClearSlotsResponse")]
-        Rwp.RwpSvcLocal.RSR ClearSlots();
+        Rwp.RwpSvcStaging.RSR ClearSlots();
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ClearSlots", ReplyAction="urn:Practice/ClearSlotsResponse")]
-        System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ClearSlotsAsync();
+        System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ClearSlotsAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ClearYear", ReplyAction="urn:Practice/ClearYearResponse")]
-        Rwp.RwpSvcLocal.RSR ClearYear(int nYear);
+        Rwp.RwpSvcStaging.RSR ClearYear(int nYear);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ClearYear", ReplyAction="urn:Practice/ClearYearResponse")]
-        System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ClearYearAsync(int nYear);
+        System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ClearYearAsync(int nYear);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/GetCsvSlots", ReplyAction="urn:Practice/GetCsvSlotsResponse")]
         System.IO.Stream GetCsvSlots();
@@ -354,31 +293,25 @@ namespace Rwp.RwpSvcLocal {
         System.Threading.Tasks.Task<System.IO.Stream> GetCsvSlotsAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/GetCalendarForTeam", ReplyAction="urn:Practice/GetCalendarForTeamResponse")]
-        Rwp.RwpSvcLocal.RSR_CalItems GetCalendarForTeam(string sTeamName);
+        Rwp.RwpSvcStaging.RSR_CalItems GetCalendarForTeam(string sTeamName);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/GetCalendarForTeam", ReplyAction="urn:Practice/GetCalendarForTeamResponse")]
-        System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR_CalItems> GetCalendarForTeamAsync(string sTeamName);
+        System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR_CalItems> GetCalendarForTeamAsync(string sTeamName);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ImportCsvSlots", ReplyAction="urn:Practice/ImportCsvSlotsResponse")]
-        Rwp.RwpSvcLocal.RSR ImportCsvSlots(System.IO.Stream stmCsv);
+        Rwp.RwpSvcStaging.RSR ImportCsvSlots(System.IO.Stream stmCsv);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ImportCsvSlots", ReplyAction="urn:Practice/ImportCsvSlotsResponse")]
-        System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ImportCsvSlotsAsync(System.IO.Stream stmCsv);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/GetServerInfo", ReplyAction="urn:Practice/GetServerInfoResponse")]
-        Rwp.RwpSvcLocal.ServerInfo GetServerInfo();
-        
-        [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/GetServerInfo", ReplyAction="urn:Practice/GetServerInfoResponse")]
-        System.Threading.Tasks.Task<Rwp.RwpSvcLocal.ServerInfo> GetServerInfoAsync();
+        System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ImportCsvSlotsAsync(System.IO.Stream stmCsv);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface PracticeChannel : Rwp.RwpSvcLocal.Practice, System.ServiceModel.IClientChannel {
+    public interface PracticeChannel : Rwp.RwpSvcStaging.Practice, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class PracticeClient : System.ServiceModel.ClientBase<Rwp.RwpSvcLocal.Practice>, Rwp.RwpSvcLocal.Practice {
+    public partial class PracticeClient : System.ServiceModel.ClientBase<Rwp.RwpSvcStaging.Practice>, Rwp.RwpSvcStaging.Practice {
         
         public PracticeClient() {
         }
@@ -423,35 +356,35 @@ namespace Rwp.RwpSvcLocal {
             return base.Channel.GetCsvTeamsStreamAsync();
         }
         
-        public Rwp.RwpSvcLocal.RSR ImportCsvTeams(System.IO.Stream stmCsv) {
+        public Rwp.RwpSvcStaging.RSR ImportCsvTeams(System.IO.Stream stmCsv) {
             return base.Channel.ImportCsvTeams(stmCsv);
         }
         
-        public System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ImportCsvTeamsAsync(System.IO.Stream stmCsv) {
+        public System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ImportCsvTeamsAsync(System.IO.Stream stmCsv) {
             return base.Channel.ImportCsvTeamsAsync(stmCsv);
         }
         
-        public Rwp.RwpSvcLocal.RSR ClearTeams() {
+        public Rwp.RwpSvcStaging.RSR ClearTeams() {
             return base.Channel.ClearTeams();
         }
         
-        public System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ClearTeamsAsync() {
+        public System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ClearTeamsAsync() {
             return base.Channel.ClearTeamsAsync();
         }
         
-        public Rwp.RwpSvcLocal.RSR ClearSlots() {
+        public Rwp.RwpSvcStaging.RSR ClearSlots() {
             return base.Channel.ClearSlots();
         }
         
-        public System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ClearSlotsAsync() {
+        public System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ClearSlotsAsync() {
             return base.Channel.ClearSlotsAsync();
         }
         
-        public Rwp.RwpSvcLocal.RSR ClearYear(int nYear) {
+        public Rwp.RwpSvcStaging.RSR ClearYear(int nYear) {
             return base.Channel.ClearYear(nYear);
         }
         
-        public System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ClearYearAsync(int nYear) {
+        public System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ClearYearAsync(int nYear) {
             return base.Channel.ClearYearAsync(nYear);
         }
         
@@ -463,28 +396,20 @@ namespace Rwp.RwpSvcLocal {
             return base.Channel.GetCsvSlotsAsync();
         }
         
-        public Rwp.RwpSvcLocal.RSR_CalItems GetCalendarForTeam(string sTeamName) {
+        public Rwp.RwpSvcStaging.RSR_CalItems GetCalendarForTeam(string sTeamName) {
             return base.Channel.GetCalendarForTeam(sTeamName);
         }
         
-        public System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR_CalItems> GetCalendarForTeamAsync(string sTeamName) {
+        public System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR_CalItems> GetCalendarForTeamAsync(string sTeamName) {
             return base.Channel.GetCalendarForTeamAsync(sTeamName);
         }
         
-        public Rwp.RwpSvcLocal.RSR ImportCsvSlots(System.IO.Stream stmCsv) {
+        public Rwp.RwpSvcStaging.RSR ImportCsvSlots(System.IO.Stream stmCsv) {
             return base.Channel.ImportCsvSlots(stmCsv);
         }
         
-        public System.Threading.Tasks.Task<Rwp.RwpSvcLocal.RSR> ImportCsvSlotsAsync(System.IO.Stream stmCsv) {
+        public System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ImportCsvSlotsAsync(System.IO.Stream stmCsv) {
             return base.Channel.ImportCsvSlotsAsync(stmCsv);
-        }
-        
-        public Rwp.RwpSvcLocal.ServerInfo GetServerInfo() {
-            return base.Channel.GetServerInfo();
-        }
-        
-        public System.Threading.Tasks.Task<Rwp.RwpSvcLocal.ServerInfo> GetServerInfoAsync() {
-            return base.Channel.GetServerInfoAsync();
         }
     }
 }
