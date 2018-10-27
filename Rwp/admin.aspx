@@ -19,7 +19,10 @@
 </head>
 <body>
     <div class="masthead">admin services</div>
+
+
     <form id="form1" runat="server">
+        <asp:ImageButton ID="LoginOutButton" runat="server" ImageUrl="signin.png" CssClass="loginButton" />
     <div>
         <p>Annual cleanup</p>
         <p>client ip address: <span id="ipClient" runat="server"></span> </p>

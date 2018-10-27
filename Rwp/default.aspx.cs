@@ -23,6 +23,12 @@ namespace Rwp
 {
     public partial class default1 : System.Web.UI.Page
     {
+        private Auth m_auth;
+
+        public default1()
+        {
+        }
+
         void FillInCalendarLink()
         {
             string s;
@@ -42,7 +48,6 @@ namespace Rwp
         }
 
 
-        private SqlConnection conClsf;
         private SqlCommand cmdMbrs;
         private SqlDataReader rdrMbrs;
 
@@ -85,30 +90,6 @@ namespace Rwp
 
         private string sCurYear;
 
-        /// <summary>
-        /// Send an OpenID Connect sign-in request.
-        /// Alternatively, you can just decorate the SignIn method with the [Authorize] attribute
-        /// </summary>
-        public void SignIn()
-        {
-            if (!Request.IsAuthenticated)
-            {
-                HttpContext.Current.GetOwinContext().Authentication.Challenge(
-                    new AuthenticationProperties { RedirectUri = "/" },
-                    OpenIdConnectAuthenticationDefaults.AuthenticationType);
-            }
-        }
-
-        /// <summary>
-        /// Send an OpenID Connect sign-out request.
-        /// </summary>
-        public void SignOut()
-        {
-            HttpContext.Current.GetOwinContext().Authentication.SignOut(
-                OpenIdConnectAuthenticationDefaults.AuthenticationType,
-                CookieAuthenticationDefaults.AuthenticationType);
-        }
-
         T TGetState<T>(string sState, T tDefault)
         {
             T tValue = tDefault;
@@ -128,6 +109,8 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            m_auth = new Auth(LoginOutButton, Request, null, null, OnBeforeSignout, null);
+
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
 
@@ -173,8 +156,15 @@ namespace Rwp
             {
                 Message0.Text = exc.Message;
             }
+            
+            m_auth.SetupLoginLogout(Request.IsAuthenticated);
+        }
 
-            SetupLoginLogout();
+        protected void OnBeforeSignout(object sender, EventArgs e)
+        {
+            Message1.Text = "";
+            SetLoggedOff();
+            RunQuery(sender, e);
         }
 
         void BindFieldDropdown()
@@ -252,8 +242,7 @@ namespace Rwp
         void LoadPrivs(string sIdentity)
         {
             string sqlStrLogin;
-            int temp;
-
+            
             SqlBase = "";
 
             DBConn.Open();
@@ -262,7 +251,6 @@ namespace Rwp
             cmdMbrs = DBConn.CreateCommand();
             cmdMbrs.CommandText = sqlStrLogin;
             rdrMbrs = cmdMbrs.ExecuteReader();
-            temp = -1;
             lblTeamName.Text = null;
 
             while (rdrMbrs.Read())
@@ -306,37 +294,6 @@ namespace Rwp
                 return actAsMenu.SelectedValue;
 
             return lblTeamName.Text;
-        }
-
-        void SetupLoginLogout()
-        {
-            if (Request.IsAuthenticated)
-            {
-                LoginOutButton.Click -= ValidateLogin;
-                LoginOutButton.Click += LogOff;
-                LoginOutButton.ImageUrl = "signout.png";
-            }
-            else
-            {
-                LoginOutButton.Click -= LogOff;
-                LoginOutButton.Click += ValidateLogin;
-                LoginOutButton.ImageUrl = "signin.png";
-            }
-        }
-
-
-        protected void LogOff(object sender, EventArgs e)
-        {
-            Message1.Text = "";
-            SetLoggedOff();
-            RunQuery(sender, e);
-            SignOut();
-        }
-
-
-        protected void ValidateLogin(object sender, EventArgs e)
-        {
-            SignIn();
         }
 
         protected void ShowICalFeedLink(object sender, EventArgs e)
@@ -590,8 +547,6 @@ namespace Rwp
                     link.Enabled = false;
                     link.ToolTip = "Not logged in";
                 }
-
-                DateTime dttmNow;
 
                 if (link != null
                     && DateTime.Compare(dateField, DateTime.UtcNow.AddHours(-8).Date) <= 0

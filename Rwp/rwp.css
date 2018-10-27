@@ -7,6 +7,8 @@
     font-size: 48pt;
 }
 
+.notice h2 { font-size: 14pt; }
+
 .notice {
     font-family: "Segoe UI", "Tahoma", "Arial";
     width: 70%;
@@ -20,10 +22,16 @@
     margin: 0;
 }
 
-.notice h2 {
-    font-size: 14pt;
+.loginButton {
+    position: absolute;
+    top: 6pt;
+    right: 4pt;
 }
 
+.textField {
+    padding: 2pt;
+    padding-bottom: 3pt;
+}
 .notice p {
     margin: 0;
     margin-left: .25in;

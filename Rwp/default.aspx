@@ -5,37 +5,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
-    <style type="text/css">
-
-
-.notice {
-    font-family: "Segoe UI", "Tahoma", "Arial";
-    width: 70%;
-    background: lightyellow;
-    border: 1pt solid black;
-    padding: 4pt;
-}
-
-.notice h1 {
-    font-size: 16pt;
-    margin: 0;
-}
-
-.loginButton {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-}
-.textField {
-    padding: 2pt;
-    padding-bottom: 3pt;
-}
-    </style>
+    <link rel="stylesheet" href="rwp.css"/>
 </head>
 <body style="height: 244">
 <form id="Form1" runat="server" style="text-align: center" enctype="multipart/form-data">
-    <p>
-        <asp:ImageButton ID="LoginOutButton" runat="server" OnClick="ValidateLogin" ImageUrl="signin.png" CssClass="loginButton" />
+    <p style="display: table-cell; vertical-align: middle; height: 30pt; width: 24in; background: gold;">
+        <asp:ImageButton ID="LoginOutButton" runat="server" ImageUrl="signin.png" CssClass="loginButton" />
 
         <font face="Times" size="4">
             <asp:Label ID="Message0" align="Center" Font-Bold="True" BackColor="gold" Width="100%"
