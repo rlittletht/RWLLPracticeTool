@@ -126,10 +126,14 @@ namespace Rwp
         /// </summary>
         public void SignIn(bool IsAuthenticated)
         {
+            string sRedirect = "/rwp";
+#if LOCALSVC
+            sRedirect = "/";
+#endif // LOCALSVC
             if (!IsAuthenticated)
             {
                 HttpContext.Current.GetOwinContext().Authentication.Challenge(
-                    new AuthenticationProperties { RedirectUri = "/" },
+                    new AuthenticationProperties { RedirectUri = sRedirect },
                     OpenIdConnectAuthenticationDefaults.AuthenticationType);
             }
         }

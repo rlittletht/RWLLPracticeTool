@@ -6,10 +6,10 @@ Rwp\Rwp.vpj=,Debug|AnyCPU
 ..\liblet\cs\sql\sql.vpj=,Debug|AnyCPU
 ..\liblet\cs\StatusResult\StatusResult.vpj=,Debug|AnyCPU
 [ProjectDates]
-RwpSvc\RwpSvc.csproj=20180221044313925
-Rwp\Rwp.csproj=20181027200010307
-..\liblet\cs\sql\sql.csproj=20180728044001971
-..\liblet\cs\StatusResult\StatusResult.csproj=20180221044222286
+RwpSvc\RwpSvc.csproj=20181027215853462
+Rwp\Rwp.csproj=20181027234855603
+..\liblet\cs\sql\sql.csproj=20181027214012193
+..\liblet\cs\StatusResult\StatusResult.csproj=20181027214012180
 [TreeExpansion2]
 +@ Rwp\Rwp.csproj
 +@ RwpSvc\RwpSvc.csproj

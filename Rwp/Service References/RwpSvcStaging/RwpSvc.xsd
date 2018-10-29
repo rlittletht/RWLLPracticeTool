@@ -57,4 +57,11 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="CalItem" nillable="true" type="tns:CalItem" />
+  <xs:complexType name="ServerInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="sServerName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="sSqlServerHash" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ServerInfo" nillable="true" type="tns:ServerInfo" />
 </xs:schema>

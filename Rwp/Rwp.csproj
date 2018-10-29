@@ -160,6 +160,9 @@
     <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.RSR_CalItems.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
+    <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.ServerInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Service References\RwpSvcStaging\RwpSvc.wsdl" />
     <None Include="Service References\RwpSvcStaging\RwpSvc.xsd">
       <SubType>Designer</SubType>
@@ -426,7 +429,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugProdSvcProdData|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;PRODSVC PRODDATA</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STAGESVC PRODDATA</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -446,8 +449,7 @@
           <IISUrl>http://localhost:41880/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
-          <CustomServerUrl>
-          </CustomServerUrl>
+          <CustomServerUrl>https://thetasoft2.azurewebsites.net/rwp</CustomServerUrl>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>

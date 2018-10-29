@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="35+706X4x2hqTDJ6zrYIfhuB6L8=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="pUpSAYL+ACfC6+e72ATCK6E0KdU=">
   <bindingConfigurations>
-    <bindingConfiguration bindingType="basicHttpBinding" name="BasicHttpBinding_Practice2">
+    <bindingConfiguration bindingType="basicHttpBinding" name="BasicHttpBinding_Practice">
       <properties>
         <property path="/name" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>BasicHttpBinding_Practice2</serializedValue>
+          <serializedValue>BasicHttpBinding_Practice</serializedValue>
         </property>
         <property path="/closeTimeout" isComplexType="false" isExplicitlyDefined="true" clrType="System.TimeSpan, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -110,10 +110,10 @@
         </property>
       </properties>
     </bindingConfiguration>
-    <bindingConfiguration bindingType="basicHttpBinding" name="BasicHttpBinding_Practice11">
+    <bindingConfiguration bindingType="basicHttpBinding" name="BasicHttpBinding_Practice1">
       <properties>
         <property path="/name" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>BasicHttpBinding_Practice11</serializedValue>
+          <serializedValue>BasicHttpBinding_Practice1</serializedValue>
         </property>
         <property path="/closeTimeout" isComplexType="false" isExplicitlyDefined="true" clrType="System.TimeSpan, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -221,7 +221,7 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="BasicHttpBinding_Practice2" contract="RwpSvcStaging.Practice" bindingType="basicHttpBinding" address="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soap" bindingConfiguration="BasicHttpBinding_Practice2">
+    <endpoint name="BasicHttpBinding_Practice1" contract="RwpSvcStaging.Practice" bindingType="basicHttpBinding" address="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soap" bindingConfiguration="BasicHttpBinding_Practice">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soap</serializedValue>
@@ -233,7 +233,7 @@
           <serializedValue>basicHttpBinding</serializedValue>
         </property>
         <property path="/bindingConfiguration" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>BasicHttpBinding_Practice2</serializedValue>
+          <serializedValue>BasicHttpBinding_Practice</serializedValue>
         </property>
         <property path="/contract" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>RwpSvcStaging.Practice</serializedValue>
@@ -296,7 +296,7 @@
           <serializedValue>False</serializedValue>
         </property>
         <property path="/name" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>BasicHttpBinding_Practice2</serializedValue>
+          <serializedValue>BasicHttpBinding_Practice1</serializedValue>
         </property>
         <property path="/kind" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -306,7 +306,7 @@
         </property>
       </properties>
     </endpoint>
-    <endpoint name="BasicHttpBinding_Practice11" contract="RwpSvcStaging.Practice" bindingType="basicHttpBinding" address="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soapStream" bindingConfiguration="BasicHttpBinding_Practice11">
+    <endpoint name="BasicHttpBinding_Practice11" contract="RwpSvcStaging.Practice" bindingType="basicHttpBinding" address="http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soapStream" bindingConfiguration="BasicHttpBinding_Practice1">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>http://thetasoft2.azurewebsites.net/rwpsvc/RwpSvc.svc/soapStream</serializedValue>
@@ -318,7 +318,7 @@
           <serializedValue>basicHttpBinding</serializedValue>
         </property>
         <property path="/bindingConfiguration" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>BasicHttpBinding_Practice11</serializedValue>
+          <serializedValue>BasicHttpBinding_Practice1</serializedValue>
         </property>
         <property path="/contract" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>RwpSvcStaging.Practice</serializedValue>

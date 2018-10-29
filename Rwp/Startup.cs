@@ -59,6 +59,7 @@ namespace Rwp
                     {
                         AuthenticationFailed = OnAuthenticationFailed
                     }
+                    
                 }
             );
         }
@@ -71,7 +72,7 @@ namespace Rwp
         private Task OnAuthenticationFailed(AuthenticationFailedNotification<OpenIdConnectMessage, OpenIdConnectAuthenticationOptions> context)
         {
             context.HandleResponse();
-            context.Response.Redirect("/?errormessage=" + context.Exception.Message);
+            context.Response.Redirect("/?errormessage=FAILED:" + context.Exception.Message);
             return Task.FromResult(0);
         }
     }

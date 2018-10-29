@@ -240,6 +240,67 @@ namespace Rwp.RwpSvcStaging {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ServerInfo", Namespace="http://schemas.datacontract.org/2004/07/RwpSvc")]
+    [System.SerializableAttribute()]
+    public partial class ServerInfo : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string sServerNameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string sSqlServerHashField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string sServerName {
+            get {
+                return this.sServerNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.sServerNameField, value) != true)) {
+                    this.sServerNameField = value;
+                    this.RaisePropertyChanged("sServerName");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string sSqlServerHash {
+            get {
+                return this.sSqlServerHashField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.sSqlServerHashField, value) != true)) {
+                    this.sSqlServerHashField = value;
+                    this.RaisePropertyChanged("sSqlServerHash");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(Namespace="", ConfigurationName="RwpSvcStaging.Practice")]
     public interface Practice {
@@ -303,6 +364,12 @@ namespace Rwp.RwpSvcStaging {
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/ImportCsvSlots", ReplyAction="urn:Practice/ImportCsvSlotsResponse")]
         System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ImportCsvSlotsAsync(System.IO.Stream stmCsv);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/GetServerInfo", ReplyAction="urn:Practice/GetServerInfoResponse")]
+        Rwp.RwpSvcStaging.ServerInfo GetServerInfo();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Practice/GetServerInfo", ReplyAction="urn:Practice/GetServerInfoResponse")]
+        System.Threading.Tasks.Task<Rwp.RwpSvcStaging.ServerInfo> GetServerInfoAsync();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -410,6 +477,14 @@ namespace Rwp.RwpSvcStaging {
         
         public System.Threading.Tasks.Task<Rwp.RwpSvcStaging.RSR> ImportCsvSlotsAsync(System.IO.Stream stmCsv) {
             return base.Channel.ImportCsvSlotsAsync(stmCsv);
+        }
+        
+        public Rwp.RwpSvcStaging.ServerInfo GetServerInfo() {
+            return base.Channel.GetServerInfo();
+        }
+        
+        public System.Threading.Tasks.Task<Rwp.RwpSvcStaging.ServerInfo> GetServerInfoAsync() {
+            return base.Channel.GetServerInfoAsync();
         }
     }
 }

@@ -68,6 +68,12 @@
   <wsdl:message name="Practice_ImportCsvSlots_OutputMessage">
     <wsdl:part name="parameters" element="ImportCsvSlotsResponse" />
   </wsdl:message>
+  <wsdl:message name="Practice_GetServerInfo_InputMessage">
+    <wsdl:part name="parameters" element="GetServerInfo" />
+  </wsdl:message>
+  <wsdl:message name="Practice_GetServerInfo_OutputMessage">
+    <wsdl:part name="parameters" element="GetServerInfoResponse" />
+  </wsdl:message>
   <wsdl:portType name="Practice">
     <wsdl:operation name="GetData">
       <wsdl:input wsaw:Action="urn:Practice/GetData" message="Practice_GetData_InputMessage" />
@@ -108,6 +114,10 @@
     <wsdl:operation name="ImportCsvSlots">
       <wsdl:input wsaw:Action="urn:Practice/ImportCsvSlots" message="Practice_ImportCsvSlots_InputMessage" />
       <wsdl:output wsaw:Action="urn:Practice/ImportCsvSlotsResponse" message="Practice_ImportCsvSlots_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetServerInfo">
+      <wsdl:input wsaw:Action="urn:Practice/GetServerInfo" message="Practice_GetServerInfo_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Practice/GetServerInfoResponse" message="Practice_GetServerInfo_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

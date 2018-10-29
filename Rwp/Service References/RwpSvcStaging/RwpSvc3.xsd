@@ -132,4 +132,16 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="GetServerInfo">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetServerInfoResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/RwpSvc" minOccurs="0" name="GetServerInfoResult" nillable="true" type="q11:ServerInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>
