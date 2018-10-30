@@ -25,6 +25,7 @@ namespace Rwp
     {
         private global::System.Web.UI.WebControls.ImageButton m_buttonLoginOut;
         private HttpRequest m_request;
+        private string m_sAuthReturnAddress;
 
         public delegate void LoginOutCallback(object sender, EventArgs e);
 
@@ -36,11 +37,13 @@ namespace Rwp
         public Auth(
             global::System.Web.UI.WebControls.ImageButton button, 
             HttpRequest request,
+            string sReturnAddress,
             LoginOutCallback onBeforeLogin,
             LoginOutCallback onAfterLogin,
             LoginOutCallback onBeforeLogout,
             LoginOutCallback onAfterLogout)
         {
+            m_sAuthReturnAddress = sReturnAddress;
             m_buttonLoginOut = button;
             m_request = request;
             m_onBeforeLogin = onBeforeLogin;
@@ -93,7 +96,7 @@ namespace Rwp
         public void DoSignInClick(object sender, ImageClickEventArgs args)
         {
             m_onBeforeLogin?.Invoke(sender, args);
-            SignIn(m_request.IsAuthenticated);
+            SignIn(m_request.IsAuthenticated, m_sAuthReturnAddress);
             m_onAfterLogin?.Invoke(sender, args);
         }
 
@@ -124,16 +127,12 @@ namespace Rwp
         /// Send an OpenID Connect sign-in request.
         /// Alternatively, you can just decorate the SignIn method with the [Authorize] attribute
         /// </summary>
-        public void SignIn(bool IsAuthenticated)
+        public void SignIn(bool IsAuthenticated, string sReturnAddress)
         {
-            string sRedirect = "/rwp";
-#if LOCALSVC
-            sRedirect = "/";
-#endif // LOCALSVC
             if (!IsAuthenticated)
             {
                 HttpContext.Current.GetOwinContext().Authentication.Challenge(
-                    new AuthenticationProperties { RedirectUri = sRedirect },
+                    new AuthenticationProperties { RedirectUri = sReturnAddress},
                     OpenIdConnectAuthenticationDefaults.AuthenticationType);
             }
         }
@@ -150,7 +149,7 @@ namespace Rwp
 
         protected void ValidateLogin(bool IsAuthenticated)
         {
-            SignIn(IsAuthenticated);
+            SignIn(IsAuthenticated, m_sAuthReturnAddress);
         }
 
     }

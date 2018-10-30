@@ -33,6 +33,12 @@ namespace Rwp
 {
     public partial class AdminPage : System.Web.UI.Page
     {
+#if LOCALSVC
+        static string s_sRoot = "";
+#else
+        private static string s_sRoot = "/rwp";
+#endif // LOCALSVC
+
         private RwpSvcProxy.PracticeClient m_rspClient;
         private Auth m_auth;
         private SqlConnection DBConn;
@@ -62,7 +68,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, null, null, null, null);
+            m_auth = new Auth(LoginOutButton, Request, $"{s_sRoot}/admin.aspx", null, null, null, null);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;

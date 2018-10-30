@@ -24,6 +24,11 @@ namespace Rwp
     public partial class default1 : System.Web.UI.Page
     {
         private Auth m_auth;
+#if LOCALSVC
+        static string s_sRoot = "";
+#else
+        private static string s_sRoot = "/rwp";
+#endif // LOCALSVC
 
         public default1()
         {
@@ -123,7 +128,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, null, null, OnBeforeSignout, null);
+            m_auth = new Auth(LoginOutButton, Request, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
