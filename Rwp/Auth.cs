@@ -52,6 +52,16 @@ namespace Rwp
             m_onAfterLogout = onAfterLogout;
         }
 
+        [Serializable]
+        public struct UserData
+        {
+            public UserPrivs privs;
+            public string sIdentity;
+            public string sTeamName;
+            public string sDivision;
+        }
+
+        [Serializable]
         public enum UserPrivs
         {
             NotAuthenticated,
@@ -60,37 +70,49 @@ namespace Rwp
             AdminPrivs
         };
 
-        public UserPrivs LoadPrivs(SqlConnection DBConn, string sIdentity)
+        public UserData LoadPrivs(SqlConnection DBConn, string sIdentity)
         {
+            UserData data = new UserData() {sIdentity = null, privs = UserPrivs.NotAuthenticated, sTeamName = null, sDivision = null};
+
             if (sIdentity == null)
-                return UserPrivs.NotAuthenticated;
+                return data;
 
             string sqlStrLogin;
 
+            data.sIdentity = sIdentity;
+
             DBConn.Open();
             // don't need to validate a password -- once we have an authenticated identity, just get its privileges
-            sqlStrLogin = $"SELECT TeamName as Count from rwllTeams where Email1 = '{Sql.Sqlify(sIdentity)}'";
+            sqlStrLogin = $"SELECT TeamName, Division from rwllTeams where Email1 = '{Sql.Sqlify(sIdentity)}'";
             SqlCommand cmdMbrs = DBConn.CreateCommand();
             cmdMbrs.CommandText = sqlStrLogin;
             SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
-            string teamName = null;
-
+            
             while (rdrMbrs.Read())
             {
-                teamName = rdrMbrs.GetString(0);
+                data.sTeamName = rdrMbrs.GetString(0);
+                data.sDivision = rdrMbrs.GetString(1);
             }
 
             rdrMbrs.Close();
             cmdMbrs.Dispose();
             DBConn.Close();
 
-            if (teamName == null)
-                return UserPrivs.AuthenticatedNoPrivs;
 
-            if (teamName == "Administrator")
-                return UserPrivs.AdminPrivs;
+            if (string.IsNullOrEmpty(data.sTeamName))
+            {
+                data.privs = UserPrivs.AuthenticatedNoPrivs;
+                return data;
+            }
 
-            return UserPrivs.UserPrivs;
+            if (data.sDivision == "X")
+            {
+                data.privs = UserPrivs.AdminPrivs;
+                return data;
+            }
+
+            data.privs = UserPrivs.UserPrivs;
+            return data;
         }
 
         public void DoSignInClick(object sender, ImageClickEventArgs args)

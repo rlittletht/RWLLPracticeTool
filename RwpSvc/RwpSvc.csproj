@@ -115,16 +115,19 @@
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-    <None Include="Web.DebugLocalSvcLocalData.config">
+    <None Include="Web.DebugLocalHostLocalSvcLocalData.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-    <None Include="Web.DebugLocalSvcProdData.config">
+    <None Include="Web.DebugLocalHostLocalSvcProdData.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-    <None Include="Web.DebugProdSvcProdData.config">
+    <None Include="Web.DebugProdHostProdSvcProdData.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-    <None Include="Web.DebugStageSvcProdData.config">
+    <None Include="Web.DebugStageHostStageSvcProdData.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.DebugStageHostStageSvcStageData.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <None Include="Web.IxStaging.config">
@@ -202,37 +205,46 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalSvcLocalData|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalHostLocalSvcLocalData|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;LOCALSVC LOCALDATA</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LOCALHOST;LOCALSVC;LOCALDATA</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalSvcProdData|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalHostLocalSvcProdData|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;LOCALSVC PRODDATA</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LOCALHOST;LOCALSVC;PRODDATA</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugStageSvcProdData|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugStageHostStageSvcProdData|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STAGESVC PRODDATA</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STAGEHOST;STAGESVC;PRODDATA</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugProdSvcProdData|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugProdHostProdSvcProdData|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;PRODSVC PRODDATA</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;PRODHOST;PRODSVC;PRODDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugStageHostStageSvcStageData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STAGEHOST;STAGESVC;STAGEDATA</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>

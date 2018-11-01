@@ -34,14 +34,6 @@ namespace Rwp
         {
         }
 
-        [Serializable]
-        struct Privs
-        {
-            public string sIdentity;
-            public string sTeamName;
-            public bool fIsAdmin;
-        }
-
         void FillInCalendarLink()
         {
             string s;
@@ -77,9 +69,9 @@ namespace Rwp
             set { SetState("showingReserved", value); }
         }
 
-        private Privs CurrentPrivs
+        private Auth.UserData CurrentPrivs
         {
-            get => TGetState("privs", new Privs { fIsAdmin = false, sIdentity = null, sTeamName = null });
+            get => TGetState("privs", new Auth.UserData() { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null });
             set => SetState("privs", value);
         }
 
@@ -154,9 +146,6 @@ namespace Rwp
 
                 divCalendarFeedLink.Visible = ShowingCalLink;
 
-//                if (LoggedInAsAdmin)
-//                    teamNameForAvailableSlots = "Administrator";
-
                 if (sIdentity != null)
                     LoadPrivs(sIdentity);
 
@@ -226,7 +215,7 @@ namespace Rwp
             actAsMenu.DataBind();
             rdrMbrs.Close();
 
-            actAsMenu.SelectedValue = "Administrator";
+            actAsMenu.SelectedValue = lblTeamName.Text;
             DBConn.Close();
         }
         protected void BindGrid()
@@ -254,7 +243,7 @@ namespace Rwp
         {
             IsLoggedIn = false;
             LoggedInAsAdmin = false;
-            Privs privs = new Privs { fIsAdmin = false, sIdentity = null, sTeamName = null };
+            Auth.UserData privs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null};
             CurrentPrivs = privs;
 
             SqlBase = "";
@@ -263,35 +252,14 @@ namespace Rwp
         
         void LoadPrivs(string sIdentity)
         {
-            if (CurrentPrivs.sIdentity == sIdentity)
-                return;
+            Auth.UserData data = m_auth.LoadPrivs(DBConn, sIdentity);
+            lblTeamName.Text = data.sTeamName;
 
-            string sqlStrLogin;
-            
-            SqlBase = "";
-
-            DBConn.Open();
-            // don't need to validate a password -- once we have an authenticated identity, just get its privileges
-            sqlStrLogin = $"SELECT TeamName as Count from rwllTeams where Email1 = '{Sql.Sqlify(sIdentity)}'";
-            cmdMbrs = DBConn.CreateCommand();
-            cmdMbrs.CommandText = sqlStrLogin;
-            rdrMbrs = cmdMbrs.ExecuteReader();
-            lblTeamName.Text = null;
-
-            while (rdrMbrs.Read())
-            {
-                lblTeamName.Text = rdrMbrs.GetString(0);
-            }
-
-            rdrMbrs.Close();
-            cmdMbrs.Dispose();
-            DBConn.Close();
-
-            if (teamName != null)
+            if (data.privs != Auth.UserPrivs.NotAuthenticated && data.privs != Auth.UserPrivs.AuthenticatedNoPrivs)
             {
                 Message1.Text = $"Welcome to RedmondWest Practice Tool ({sIdentity})...";
                 IsLoggedIn = true;
-                if (teamName == "Administrator")
+                if (data.privs == Auth.UserPrivs.AdminPrivs)
                     LoggedInAsAdmin = true;
 
                 Message1.ForeColor = System.Drawing.Color.Green;
@@ -303,8 +271,7 @@ namespace Rwp
                     sqlStrSorted = SqlBase + ",Date";
                 BindActAsDropdown();
                 BindGrid();
-                Privs privs = new Privs {fIsAdmin = LoggedInAsAdmin, sIdentity = sIdentity, sTeamName = teamName};
-                CurrentPrivs = privs;
+                CurrentPrivs = data;
             }
             else
             {
@@ -317,7 +284,7 @@ namespace Rwp
 
         string GetTeamName()
         {
-            if (LoggedInAsAdmin && actAsMenu.SelectedValue != "Administrator")
+            if (LoggedInAsAdmin && actAsMenu.SelectedValue != lblTeamName.Text)
                 return actAsMenu.SelectedValue;
 
             return lblTeamName.Text;

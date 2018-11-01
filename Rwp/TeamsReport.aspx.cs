@@ -5,7 +5,15 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Rwp.RwpSvc;
+#if LOCALSVC
+using RwpSvcProxy = Rwp.RwpSvcLocal;
+#elif STAGESVC
+using RwpSvcProxy = Rwp.RwpSvcStaging;
+#elif PRODSVC
+using RwpSvcProxy = Rwp.RwpSvc;
+#else
+#error "No service endpoint defined"
+#endif
 
 namespace Rwp
 {
@@ -16,9 +24,9 @@ namespace Rwp
     		DoReport();
 		}
 
-	    private RSR CheckIP()
+	    private RwpSvcProxy.RSR CheckIP()
 	    {
-	        RSR sr = new RSR();
+	        RwpSvcProxy.RSR sr = new RwpSvcProxy.RSR();
 
 	        if (String.Compare(Request.UserHostAddress, "73.83.16.112") != 0
 	            && String.Compare(Request.UserHostAddress, "::1") != 0
@@ -40,7 +48,7 @@ namespace Rwp
 	        if (!CheckIP().Result)
 	            return;
 
-			PracticeClient rspClient = new PracticeClient("BasicHttpBinding_PracticeStream");
+	        RwpSvcProxy.PracticeClient rspClient = new RwpSvcProxy.PracticeClient("BasicHttpBinding_PracticeStream");
     		
     		Stream stm = rspClient.GetCsvTeamsStream();
     	    TextReader tr = new StreamReader(stm);

@@ -42,7 +42,7 @@ namespace Rwp
         private RwpSvcProxy.PracticeClient m_rspClient;
         private Auth m_auth;
         private SqlConnection DBConn;
-        private Auth.UserPrivs m_userPrivs;
+        private Auth.UserData m_userData;
 
         static string ExtractServerNameFromConnection(string sConnection)
         {
@@ -78,7 +78,7 @@ namespace Rwp
 
             string sIdentity = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
 
-            m_userPrivs = m_auth.LoadPrivs(DBConn, sIdentity);
+            m_userData = m_auth.LoadPrivs(DBConn, sIdentity);
             ipClient.InnerText = Request.UserHostAddress;
 
             m_rspClient = new RwpSvcProxy.PracticeClient("BasicHttpBinding_Practice");
@@ -136,7 +136,7 @@ namespace Rwp
             RwpSvcProxy.RSR sr = new RwpSvcProxy.RSR();
             string sAddressForComp = GetIP4Address(Request.UserHostAddress);
 
-            if (m_userPrivs != Auth.UserPrivs.AdminPrivs)
+            if (m_userData.privs != Auth.UserPrivs.AdminPrivs)
             {
                 sr.Result = false;
                 sr.Reason = $"User does not have administrative privileges";
@@ -160,7 +160,7 @@ namespace Rwp
 
         void EnableUIForAdmin()
         {
-            bool fAdmin = m_userPrivs == Auth.UserPrivs.AdminPrivs;
+            bool fAdmin = m_userData.privs == Auth.UserPrivs.AdminPrivs;
 
             btnDownloadTeams.Enabled = fAdmin;
             btnClearTeams.Enabled = fAdmin;

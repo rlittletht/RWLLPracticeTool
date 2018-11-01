@@ -22,6 +22,11 @@ namespace RwpSvc
         {
             get { return ConfigurationManager.AppSettings["Thetasoft.Azure.ConnectionString"]; }
         }
+#elif STAGEDATA
+        static string _sResourceConnString
+        {
+            get { return ConfigurationManager.AppSettings["Thetasoft.Staging.Azure.ConnectionString"]; }
+        }
 #else
     static string _sResourceConnString =
         "Server=cantorix;Database=db0902;Trusted_Connection=True;";
