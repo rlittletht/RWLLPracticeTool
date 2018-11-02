@@ -312,6 +312,9 @@
     <None Include="Web.DebugLocalHostLocalSvcProdData.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+    <None Include="Web.DebugLocalHostStageSvcStageData.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
     <None Include="Web.DebugProdHostProdSvcProdData.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -442,6 +445,15 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugStageHostStageSvcStageData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STAGEHOST;STAGESVC;STAGEDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugLocalHostStageSvcStageData|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE;DEBUG;STAGEHOST;STAGESVC;STAGEDATA</DefineConstants>

@@ -18,6 +18,7 @@ Global
 		Debug|Any CPU = Debug|Any CPU
 		DebugLocalHostLocalSvcLocalData|Any CPU = DebugLocalHostLocalSvcLocalData|Any CPU
 		DebugLocalHostLocalSvcProdData|Any CPU = DebugLocalHostLocalSvcProdData|Any CPU
+		DebugLocalHostStageSvcStageData|Any CPU = DebugLocalHostStageSvcStageData|Any CPU
 		DebugProdHostProdSvcProdData|Any CPU = DebugProdHostProdSvcProdData|Any CPU
 		DebugStageHostStageSvcProdData|Any CPU = DebugStageHostStageSvcProdData|Any CPU
 		DebugStageHostStageSvcStageData|Any CPU = DebugStageHostStageSvcStageData|Any CPU
@@ -37,6 +38,8 @@ Global
 		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.DebugLocalHostLocalSvcLocalData|Any CPU.Build.0 = DebugLocalHostLocalSvcLocalData|Any CPU
 		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.DebugLocalHostLocalSvcProdData|Any CPU.ActiveCfg = DebugLocalHostLocalSvcProdData|Any CPU
 		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.DebugLocalHostLocalSvcProdData|Any CPU.Build.0 = DebugLocalHostLocalSvcProdData|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.DebugLocalHostStageSvcStageData|Any CPU.ActiveCfg = DebugLocalHostStageSvcStageData|Any CPU
+		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.DebugLocalHostStageSvcStageData|Any CPU.Build.0 = DebugLocalHostStageSvcStageData|Any CPU
 		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.DebugProdHostProdSvcProdData|Any CPU.ActiveCfg = DebugProdHostProdSvcProdData|Any CPU
 		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.DebugProdHostProdSvcProdData|Any CPU.Build.0 = DebugProdHostProdSvcProdData|Any CPU
 		{C9A9AF50-AD16-4443-86CD-FDF46DD832A3}.DebugStageHostStageSvcProdData|Any CPU.ActiveCfg = DebugStageHostStageSvcProdData|Any CPU
@@ -62,6 +65,8 @@ Global
 		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.DebugLocalHostLocalSvcLocalData|Any CPU.Build.0 = DebugLocalHostLocalSvcLocalData|Any CPU
 		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.DebugLocalHostLocalSvcProdData|Any CPU.ActiveCfg = DebugLocalHostLocalSvcProdData|Any CPU
 		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.DebugLocalHostLocalSvcProdData|Any CPU.Build.0 = DebugLocalHostLocalSvcProdData|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.DebugLocalHostStageSvcStageData|Any CPU.ActiveCfg = DebugLocalHostStageSvcStageData|Any CPU
+		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.DebugLocalHostStageSvcStageData|Any CPU.Build.0 = DebugLocalHostStageSvcStageData|Any CPU
 		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.DebugProdHostProdSvcProdData|Any CPU.ActiveCfg = DebugProdHostProdSvcProdData|Any CPU
 		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.DebugProdHostProdSvcProdData|Any CPU.Build.0 = DebugProdHostProdSvcProdData|Any CPU
 		{5CEDD91C-A59D-4815-92CE-AF0A1483CDAA}.DebugStageHostStageSvcProdData|Any CPU.ActiveCfg = DebugStageHostStageSvcProdData|Any CPU
@@ -87,6 +92,8 @@ Global
 		{D2383C17-0D82-41B0-8C18-A14253C050C7}.DebugLocalHostLocalSvcLocalData|Any CPU.Build.0 = Debug|Any CPU
 		{D2383C17-0D82-41B0-8C18-A14253C050C7}.DebugLocalHostLocalSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
 		{D2383C17-0D82-41B0-8C18-A14253C050C7}.DebugLocalHostLocalSvcProdData|Any CPU.Build.0 = Debug|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.DebugLocalHostStageSvcStageData|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2383C17-0D82-41B0-8C18-A14253C050C7}.DebugLocalHostStageSvcStageData|Any CPU.Build.0 = Debug|Any CPU
 		{D2383C17-0D82-41B0-8C18-A14253C050C7}.DebugProdHostProdSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
 		{D2383C17-0D82-41B0-8C18-A14253C050C7}.DebugProdHostProdSvcProdData|Any CPU.Build.0 = Debug|Any CPU
 		{D2383C17-0D82-41B0-8C18-A14253C050C7}.DebugStageHostStageSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
@@ -111,6 +118,8 @@ Global
 		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.DebugLocalHostLocalSvcLocalData|Any CPU.Build.0 = Debug|Any CPU
 		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.DebugLocalHostLocalSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
 		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.DebugLocalHostLocalSvcProdData|Any CPU.Build.0 = Debug|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.DebugLocalHostStageSvcStageData|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.DebugLocalHostStageSvcStageData|Any CPU.Build.0 = Debug|Any CPU
 		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.DebugProdHostProdSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
 		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.DebugProdHostProdSvcProdData|Any CPU.Build.0 = Debug|Any CPU
 		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B}.DebugStageHostStageSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
