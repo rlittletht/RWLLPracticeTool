@@ -6,15 +6,6 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-// TODO NOTE:  We have a bit of a mess with all the different AzureStaging and Local, etc.
-// we at least have a way to bind to both, but I don't thin there is any consistency
-// about when the javascript redirects to the local machine and when the codebehind has bound
-// to the local service.  very dangerous.  (already led to wiping out production data once).
-
-// also, at some point, deploying to azure is going to get grumpy because we have two service
-// endpoints bound (i think). this is why we have to figure out how to only define the one that
-// we want in the conditional web.config files (look at smoking love to see how this is really supposed to be
-// done...)
 
 #if LOCALSVC
 using RwpSvcProxy = Rwp.RwpSvcLocal;

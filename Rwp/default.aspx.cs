@@ -25,7 +25,7 @@ namespace Rwp
     {
         private Auth m_auth;
 #if LOCALSVC
-        static string s_sRoot = "";
+        static string s_sRoot = "/rwp";
 #else
         private static string s_sRoot = "/rwp";
 #endif // LOCALSVC
