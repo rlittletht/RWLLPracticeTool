@@ -120,6 +120,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            
             m_auth = new Auth(LoginOutButton, Request, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
@@ -165,7 +166,7 @@ namespace Rwp
                 Message0.Text = exc.Message;
             }
             
-            m_auth.SetupLoginLogout(Request.IsAuthenticated);
+            m_auth.SetupLoginLogout(Request.IsAuthenticated && Container.AccessToken != null);
         }
 
         protected void OnBeforeSignout(object sender, EventArgs e)

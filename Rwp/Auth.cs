@@ -70,11 +70,16 @@ namespace Rwp
             AdminPrivs
         };
 
+        public bool IsAuthenticated()
+        {
+            return m_request.IsAuthenticated && Container.AccessToken != null;
+        }
+
         public UserData LoadPrivs(SqlConnection DBConn, string sIdentity)
         {
             UserData data = new UserData() {sIdentity = null, privs = UserPrivs.NotAuthenticated, sTeamName = null, sDivision = null};
 
-            if (sIdentity == null)
+            if (sIdentity == null || !IsAuthenticated())
                 return data;
 
             string sqlStrLogin;
@@ -149,9 +154,9 @@ namespace Rwp
         /// Send an OpenID Connect sign-in request.
         /// Alternatively, you can just decorate the SignIn method with the [Authorize] attribute
         /// </summary>
-        public void SignIn(bool IsAuthenticated, string sReturnAddress)
+        public void SignIn(bool fIsAuthenticated, string sReturnAddress)
         {
-            if (!IsAuthenticated)
+            if (!IsAuthenticated())
             {
                 HttpContext.Current.GetOwinContext().Authentication.Challenge(
                     new AuthenticationProperties { RedirectUri = sReturnAddress},
@@ -169,9 +174,9 @@ namespace Rwp
                 CookieAuthenticationDefaults.AuthenticationType);
         }
 
-        protected void ValidateLogin(bool IsAuthenticated)
+        protected void ValidateLogin(bool fIsAuthenticated)
         {
-            SignIn(IsAuthenticated, m_sAuthReturnAddress);
+            SignIn(IsAuthenticated(), m_sAuthReturnAddress);
         }
 
     }

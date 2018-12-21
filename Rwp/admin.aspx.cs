@@ -76,7 +76,7 @@ namespace Rwp
             CheckServiceServerConsistency(sSqlConnectionString);
             EnableUIForAdmin();
 
-            m_auth.SetupLoginLogout(Request.IsAuthenticated);
+            m_auth.SetupLoginLogout(Request.IsAuthenticated && Container.AccessToken != null);
         }
 
         private void ReportSr(RwpSvcProxy.RSR sr, string sOperation)

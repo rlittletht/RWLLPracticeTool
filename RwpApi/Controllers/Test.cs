@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace RwpApi.Controllers
 {
+    [Authorize]
     public class TestController : ApiController
     {
         public IHttpActionResult GetTestResult(string id)
