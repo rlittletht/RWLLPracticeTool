@@ -6,6 +6,8 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.EnterpriseServices;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
+using System.Security.Claims;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Microsoft.Owin.Security;
@@ -15,6 +17,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Web;
+using Microsoft.Identity.Client;
 using Microsoft.Owin.Security.Notifications;
 using Owin;
 using TCore;
@@ -26,6 +29,7 @@ namespace Rwp
         private global::System.Web.UI.WebControls.ImageButton m_buttonLoginOut;
         private HttpRequest m_request;
         private string m_sAuthReturnAddress;
+        private HttpContextBase m_context;
 
         public delegate void LoginOutCallback(object sender, EventArgs e);
 
@@ -37,6 +41,7 @@ namespace Rwp
         public Auth(
             global::System.Web.UI.WebControls.ImageButton button, 
             HttpRequest request,
+            HttpContextBase context,
             string sReturnAddress,
             LoginOutCallback onBeforeLogin,
             LoginOutCallback onAfterLogin,
@@ -50,6 +55,7 @@ namespace Rwp
             m_onAfterLogin = onAfterLogin;
             m_onBeforeLogout = onBeforeLogout;
             m_onAfterLogout = onAfterLogout;
+            m_context = context;
         }
 
         [Serializable]
@@ -72,7 +78,7 @@ namespace Rwp
 
         public bool IsAuthenticated()
         {
-            return m_request.IsAuthenticated && Container.AccessToken != null;
+            return IsSignedIn();
         }
 
         public UserData LoadPrivs(SqlConnection DBConn, string sIdentity)
@@ -134,9 +140,9 @@ namespace Rwp
             m_onAfterLogout?.Invoke(sender, args);
         }
 
-        public void SetupLoginLogout(bool fIsAuthenticated)
+        public void SetupLoginLogout()
         {
-            if (fIsAuthenticated)
+            if (IsAuthenticated())
             {
                 m_buttonLoginOut.Click -= DoSignInClick;
                 m_buttonLoginOut.Click += DoSignOutClick;
@@ -179,5 +185,78 @@ namespace Rwp
             SignIn(IsAuthenticated(), m_sAuthReturnAddress);
         }
 
+
+        /*----------------------------------------------------------------------------
+        	%%Function: GetUserId
+        	%%Qualified: WebApp._default.GetUserId
+        	
+            convenient way to get the current user id (so we can get to the right
+            TokenCache)
+        ----------------------------------------------------------------------------*/
+        string GetUserId()
+        {
+            return ClaimsPrincipal.Current.FindFirst(ClaimTypes.NameIdentifier).Value;
+        }
+
+        /*----------------------------------------------------------------------------
+        	%%Function: IsSignedIn
+        	%%Qualified: WebApp._default.IsSignedIn
+        	
+            return true if the signin process is complete -- this includes making 
+            sure there is an entry for this userid in the TokenCache
+        ----------------------------------------------------------------------------*/
+        bool IsSignedIn()
+        {
+            return m_request.IsAuthenticated && FTokenCachePopulated();
+        }
+
+        /*----------------------------------------------------------------------------
+        	%%Function: GetAccessToken
+        	%%Qualified: WebApp._default.GetAccessToken
+
+            Get an access token for accessing the WebApi. This will use 
+            AcquireTokenSilentAsync to get the token. Since this is using the 
+            same tokencache as we populated when the user logged in, we will
+            get the access token from that cache. 
+        ----------------------------------------------------------------------------*/
+        string GetAccessToken()
+        {
+            if (!IsSignedIn())
+                return null;
+
+            // Retrieve the token with the specified scopes
+            var scopes = new string[] {Startup.scopeWebApi};
+            string userId = GetUserId();
+            TokenCache tokenCache = new MSALSessionCache(userId, m_context).GetMsalCacheInstance();
+            ConfidentialClientApplication cca = new ConfidentialClientApplication(Startup.clientId, Startup.authority, Startup.redirectUri, new ClientCredential(Startup.appKey), tokenCache, null);
+
+            Task<IEnumerable<IAccount>> tskAccounts = cca.GetAccountsAsync();
+            tskAccounts.Wait();
+
+            IAccount account = tskAccounts.Result.FirstOrDefault();
+
+            Task<AuthenticationResult> tskResult = cca.AcquireTokenSilentAsync(scopes, account, Startup.authority, false);
+
+            tskResult.Wait();
+            return tskResult.Result.AccessToken;
+        }
+
+        /*----------------------------------------------------------------------------
+        	%%Function: FTokenCachePopulated
+        	%%Qualified: WebApp._default.FTokenCachePopulated
+        	
+        	return true if our TokenCache has been populated for the current 
+            UserId.  Since our TokenCache is currently only stored in the session, 
+            if our session ever gets reset, we might get into a state where there
+            is a cookie for auth (and will let us automatically login), but the
+            TokenCache never got populated (since it is only populated during the
+            actual authentication process). If this is the case, we need to treat
+            this as if the user weren't logged in. The user will SignIn again, 
+            populating the TokenCache.
+        ----------------------------------------------------------------------------*/
+        bool FTokenCachePopulated()
+        {
+            return MSALSessionCache.CacheExists(GetUserId(), m_context);
+        }
     }
 }

@@ -59,7 +59,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, $"{s_sRoot}/admin.aspx", null, null, null, null);
+            m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, $"{s_sRoot}/admin.aspx", null, null, null, null);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
@@ -76,7 +76,7 @@ namespace Rwp
             CheckServiceServerConsistency(sSqlConnectionString);
             EnableUIForAdmin();
 
-            m_auth.SetupLoginLogout(Request.IsAuthenticated && Container.AccessToken != null);
+            m_auth.SetupLoginLogout();
         }
 
         private void ReportSr(RwpSvcProxy.RSR sr, string sOperation)

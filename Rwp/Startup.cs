@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IdentityModel.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms.VisualStyles;
@@ -16,31 +17,26 @@ using Owin;
 
 namespace Rwp
 {
-    public static class Container
-    {
-        public static string AccessToken { get; set; }
-    }
-
     public class Startup
     {
         // The Client ID is used by the application to uniquely identify itself to Azure AD.
-        string clientId = System.Configuration.ConfigurationManager.AppSettings["ClientId"];
+        public static string clientId = System.Configuration.ConfigurationManager.AppSettings["ClientId"];
 
         // RedirectUri is the URL where the user will be redirected to after they sign in.
-        string redirectUri = System.Configuration.ConfigurationManager.AppSettings["RedirectUri"];
+        public static string redirectUri = System.Configuration.ConfigurationManager.AppSettings["RedirectUri"];
 
         // The AppKey is used to create a ConfidentialClientApplication in order to exchange an auth token for an access token
-        string appKey = System.Configuration.ConfigurationManager.AppSettings["AppKey"];
+        public static string appKey = System.Configuration.ConfigurationManager.AppSettings["AppKey"];
 
         // When requesting scopes during login (and token exchange), we need to specify that we want to access
         // our webapi, since this is a different application. We get this scope from the WebApi application registration page.
-        string scopeWebApi = System.Configuration.ConfigurationManager.AppSettings["WebApiScope"];
+        public static string scopeWebApi = System.Configuration.ConfigurationManager.AppSettings["WebApiScope"];
 
         // Tenant is the tenant ID (e.g. contoso.onmicrosoft.com, or 'common' for multi-tenant)
-        static string tenant = System.Configuration.ConfigurationManager.AppSettings["Tenant"];
+        public static string tenant = System.Configuration.ConfigurationManager.AppSettings["Tenant"];
 
         // Authority is the URL for authority, composed by Azure Active Directory v2 endpoint and the tenant name (e.g. https://login.microsoftonline.com/contoso.onmicrosoft.com/v2.0)
-        string authority = String.Format(System.Globalization.CultureInfo.InvariantCulture, System.Configuration.ConfigurationManager.AppSettings["Authority"], tenant);
+        public static string authority = String.Format(System.Globalization.CultureInfo.InvariantCulture, System.Configuration.ConfigurationManager.AppSettings["Authority"], tenant);
 
 
         public void Configuration(IAppBuilder app)
@@ -58,7 +54,7 @@ namespace Rwp
                     RedirectUri = redirectUri,
                     // PostLogoutRedirectUri is the page that users will be redirected to after sign-out. In this case, it is using the home page
                     PostLogoutRedirectUri = redirectUri,
-                    Scope = $"{OpenIdConnectScope.OpenIdProfile} {scopeWebApi} offline_access user.read",
+                    Scope = $"{OpenIdConnectScope.OpenIdProfile} user.read offline_access {scopeWebApi}",
                     // ResponseType is set to request the id_token - which contains basic information about the signed-in user
                     ResponseType = OpenIdConnectResponseType.CodeIdToken,
                     // ValidateIssuer set to false to allow personal and work accounts from any organization to sign in to your application
@@ -94,13 +90,15 @@ namespace Rwp
         private async Task OnAuthorizationCodeReceived(AuthorizationCodeReceivedNotification context)
         {
             var code = context.Code;
-            
+
+            string signedInUserID = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            TokenCache userTokenCache = new MSALSessionCache(signedInUserID, context.OwinContext.Environment["System.Web.HttpContextBase"] as HttpContextBase).GetMsalCacheInstance();
+
             ConfidentialClientApplication cca =
-                new ConfidentialClientApplication(clientId, redirectUri, new ClientCredential(appKey), null, null);
+                new ConfidentialClientApplication(clientId, redirectUri, new ClientCredential(appKey), userTokenCache, null);
 
             AuthenticationResult result = await cca.AcquireTokenByAuthorizationCodeAsync(code, new string[] { scopeWebApi });
-            
-            Container.AccessToken = result.AccessToken;
+            // the result doesn't matter -- our goal is to just populate the TokenCache, which the above call does.
         }
     }
 }

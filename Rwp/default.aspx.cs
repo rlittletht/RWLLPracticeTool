@@ -121,7 +121,7 @@ namespace Rwp
         protected void Page_Load(object sender, EventArgs e)
         {
             
-            m_auth = new Auth(LoginOutButton, Request, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
+            m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
@@ -129,7 +129,9 @@ namespace Rwp
             DBConn = new SqlConnection(sSqlConnectionString);
 
             sCurYear = DateTime.UtcNow.Year.ToString();
-            string sIdentity = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
+            string sIdentity = m_auth.IsAuthenticated()
+                ? System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value
+                : null;
 
             Message0.Text =
                 $"Redmond West Little League Practice Scheduler v1.9 (Server DateTime = {DateTime.UtcNow.AddHours(-8)} ({sCurYear})";
@@ -166,7 +168,7 @@ namespace Rwp
                 Message0.Text = exc.Message;
             }
             
-            m_auth.SetupLoginLogout(Request.IsAuthenticated && Container.AccessToken != null);
+            m_auth.SetupLoginLogout();
         }
 
         protected void OnBeforeSignout(object sender, EventArgs e)
