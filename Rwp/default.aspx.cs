@@ -348,41 +348,6 @@ namespace Rwp
 
                 DataGrid1.EditItemIndex = -1;
             }
-#if no // nothing to do if not logged in
-            else
-            {
-                if (showingReserved && !teamName.Contains("--"))
-                {
-                    DataGrid1.Columns[0].HeaderText = "";
-                    sqlStrBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
-                    sqlStrSorted = sqlStrBase + ",Date";
-                    ViewState["sqlStrBase"] = sqlStrBase;
-                }
-                else
-                {
-                    //  show available slots for a given day
-                    DataGrid1.Columns[0].HeaderText = "";
-                    if (showingAvailableByField)
-                    {
-                        sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" +
-                                     dayMenu.SelectedItem.Value + "/" + sCurYear + "','" +
-                                     Sql.Sqlify(fieldMenu.SelectedItem.Value) + "'";
-                        sqlStrSorted = sqlStrBase + ",Date";
-                    }
-                    else
-                    {
-                        sqlStrBase = "exec usp_DisplaySlotsEx 'ShowAll',0,'" + monthMenu.SelectedItem.Value + "/" +
-                                     dayMenu.SelectedItem.Value + "/" + sCurYear + "'," + "''";
-                        sqlStrSorted = sqlStrBase + ",Date";
-                    }
-
-                    ViewState["sqlStrBase"] = sqlStrBase;
-                }
-
-                Message2.ForeColor = System.Drawing.Color.Green;
-                Message2.Text = "You must login to reserve fields.";
-            }
-#endif
             BindGrid();
         }
 
