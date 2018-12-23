@@ -69,17 +69,7 @@ namespace Rwp
             set { SetState("showingReserved", value); }
         }
 
-        private Auth.UserData CurrentPrivs
-        {
-            get => TGetState("privs", new Auth.UserData() { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null });
-            set => SetState("privs", value);
-        }
-
-        private bool IsLoggedIn
-        {
-            get { return TGetState("isLoggedIn", false); }
-            set { SetState("isLoggedIn", value); }
-        }
+        private bool IsLoggedIn => m_auth.IsLoggedIn;
 
         private bool ShowingAvailableByField
         {
@@ -95,9 +85,13 @@ namespace Rwp
 
         private bool LoggedInAsAdmin
         {
-            get { return TGetState("loggedInAsAdmin", false); }
-            set { SetState("loggedInAsAdmin", value); }
+            get { return m_auth.CurrentPrivs.privs == Auth.UserPrivs.AdminPrivs; }
         }
+//        private bool LoggedInAsAdmin
+//        {
+//            get { return TGetState("loggedInAsAdmin", false); }
+//            set { SetState("loggedInAsAdmin", value); }
+//        }
 
         private string sCurYear;
 
@@ -120,8 +114,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            
-            m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
+            m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
@@ -129,9 +122,6 @@ namespace Rwp
             DBConn = new SqlConnection(sSqlConnectionString);
 
             sCurYear = DateTime.UtcNow.Year.ToString();
-            string sIdentity = m_auth.IsAuthenticated()
-                ? System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value
-                : null;
 
             Message0.Text =
                 $"Redmond West Little League Practice Scheduler v1.9 (Server DateTime = {DateTime.UtcNow.AddHours(-8)} ({sCurYear})";
@@ -149,8 +139,7 @@ namespace Rwp
 
                 divCalendarFeedLink.Visible = ShowingCalLink;
 
-                if (sIdentity != null)
-                    LoadPrivs(sIdentity);
+                LoadPrivs();
 
                 if (!IsLoggedIn)
                     SetLoggedOff();
@@ -244,26 +233,28 @@ namespace Rwp
 
         void SetLoggedOff()
         {
-            IsLoggedIn = false;
-            LoggedInAsAdmin = false;
-            Auth.UserData privs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null};
-            CurrentPrivs = privs;
+            m_auth.SetLoggedOff();
 
             SqlBase = "";
         }
 
         
-        void LoadPrivs(string sIdentity)
+        void LoadPrivs()
         {
-            Auth.UserData data = m_auth.LoadPrivs(DBConn, sIdentity);
-            lblTeamName.Text = data.sTeamName;
+            if (!m_auth.IsAuthenticated())
+                return;
 
-            if (data.privs != Auth.UserPrivs.NotAuthenticated && data.privs != Auth.UserPrivs.AuthenticatedNoPrivs)
+            Auth.UserData userData;
+                
+            m_auth.LoadPrivs(DBConn);
+
+            userData = m_auth.CurrentPrivs;
+
+            lblTeamName.Text = userData.sTeamName;
+
+            if (m_auth.IsLoggedIn)
             {
-                Message1.Text = $"Welcome to RedmondWest Practice Tool ({sIdentity})...";
-                IsLoggedIn = true;
-                if (data.privs == Auth.UserPrivs.AdminPrivs)
-                    LoggedInAsAdmin = true;
+                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity()})...";
 
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
@@ -274,12 +265,11 @@ namespace Rwp
                     sqlStrSorted = SqlBase + ",Date";
                 BindActAsDropdown();
                 BindGrid();
-                CurrentPrivs = data;
             }
             else
             {
                 SetLoggedOff();
-                Message1.Text = $"User '{sIdentity} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
+                Message1.Text = $"User '{m_auth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
                 Message1.ForeColor = System.Drawing.Color.Red;
             }
 

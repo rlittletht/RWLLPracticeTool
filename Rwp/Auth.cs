@@ -30,6 +30,7 @@ namespace Rwp
         private HttpRequest m_request;
         private string m_sAuthReturnAddress;
         private HttpContextBase m_context;
+        private StateBag m_viewState;
 
         public delegate void LoginOutCallback(object sender, EventArgs e);
 
@@ -42,6 +43,7 @@ namespace Rwp
             global::System.Web.UI.WebControls.ImageButton button, 
             HttpRequest request,
             HttpContextBase context,
+            StateBag viewState,
             string sReturnAddress,
             LoginOutCallback onBeforeLogin,
             LoginOutCallback onAfterLogin,
@@ -56,6 +58,7 @@ namespace Rwp
             m_onBeforeLogout = onBeforeLogout;
             m_onAfterLogout = onAfterLogout;
             m_context = context;
+            m_viewState = viewState;
         }
 
         [Serializable]
@@ -76,25 +79,66 @@ namespace Rwp
             AdminPrivs
         };
 
+        T TGetState<T>(string sState, T tDefault)
+        {
+            T tValue = tDefault;
+
+            if (m_viewState[sState] == null)
+                m_viewState[sState] = tValue;
+            else
+                tValue = (T)m_viewState[sState];
+
+            return tValue;
+        }
+
+        void SetState<T>(string sState, T tValue)
+        {
+            m_viewState[sState] = tValue;
+        }
+
+        public Auth.UserData CurrentPrivs
+        {
+            get => TGetState("privs", new Auth.UserData() { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null });
+            set => SetState("privs", value);
+        }
+
+        public bool IsLoggedIn  => CurrentPrivs.privs != Auth.UserPrivs.NotAuthenticated && CurrentPrivs.privs != Auth.UserPrivs.AuthenticatedNoPrivs;
+
         public bool IsAuthenticated()
         {
             return IsSignedIn();
         }
 
-        public UserData LoadPrivs(SqlConnection DBConn, string sIdentity)
+        public string Identity()
         {
-            UserData data = new UserData() {sIdentity = null, privs = UserPrivs.NotAuthenticated, sTeamName = null, sDivision = null};
+            if (IsAuthenticated())
+                return System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
 
-            if (sIdentity == null || !IsAuthenticated())
+            return null;
+        }
+
+        public void SetLoggedOff()
+        {
+            CurrentPrivs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null};
+        }
+
+        public UserData LoadPrivs(SqlConnection DBConn)
+        {
+            string sAuthIdentity = Identity();
+
+            UserData data = new UserData() {sIdentity = null, privs = UserPrivs.NotAuthenticated, sTeamName = null, sDivision = null};
+            CurrentPrivs = data;
+
+            if (sAuthIdentity == null || !IsAuthenticated())
                 return data;
 
             string sqlStrLogin;
 
-            data.sIdentity = sIdentity;
+            data.sIdentity = sAuthIdentity;
 
             DBConn.Open();
             // don't need to validate a password -- once we have an authenticated identity, just get its privileges
-            sqlStrLogin = $"SELECT TeamName, Division from rwllTeams where Email1 = '{Sql.Sqlify(sIdentity)}'";
+            sqlStrLogin = $"SELECT TeamName, Division from rwllTeams where Email1 = '{Sql.Sqlify(sAuthIdentity)}'";
             SqlCommand cmdMbrs = DBConn.CreateCommand();
             cmdMbrs.CommandText = sqlStrLogin;
             SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
@@ -113,16 +157,19 @@ namespace Rwp
             if (string.IsNullOrEmpty(data.sTeamName))
             {
                 data.privs = UserPrivs.AuthenticatedNoPrivs;
+                CurrentPrivs = data;
                 return data;
             }
 
             if (data.sDivision == "X")
             {
                 data.privs = UserPrivs.AdminPrivs;
+                CurrentPrivs = data;
                 return data;
             }
 
             data.privs = UserPrivs.UserPrivs;
+            CurrentPrivs = data;
             return data;
         }
 
