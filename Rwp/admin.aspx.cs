@@ -43,6 +43,15 @@ namespace Rwp
             return m.Groups[1].Value;
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: CheckServiceServerConsistency
+        	%%Qualified: Rwp.AdminPage.CheckServiceServerConsistency
+        	%%Contact: rlittle
+        	
+            verify that the web client is consistent with the web api (the web client
+            access the SQL server as well as the web api -- it sucks when they
+            don't agree on the SQL server to be working with)
+        ----------------------------------------------------------------------------*/
         void CheckServiceServerConsistency(string sSqlConnectionString)
         {
             if (!m_auth.IsLoggedIn)
@@ -59,6 +68,13 @@ namespace Rwp
                 throw new Exception($"SQL SERVER MISMATCH: {si.sSqlServerHash} != {sSqlServer}");
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: Page_Load
+        	%%Qualified: Rwp.AdminPage.Page_Load
+        	%%Contact: rlittle
+        	
+            Initialize authentication and api interop
+        ----------------------------------------------------------------------------*/
         protected void Page_Load(object sender, EventArgs e)
         {
             m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/admin.aspx", null, null, null, null);
@@ -79,6 +95,13 @@ namespace Rwp
             m_auth.SetupLoginLogout();
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: ReportSr
+        	%%Qualified: Rwp.AdminPage.ReportSr
+        	%%Contact: rlittle
+        	
+            report the SR to the web page
+        ----------------------------------------------------------------------------*/
         private void ReportSr(RSR sr, string sOperation)
         {
             if (!sr.Result)
@@ -92,40 +115,9 @@ namespace Rwp
                 }
         }
 
-        public static string GetIP4Address(string sUserHostAddress)
-        {
-            string IP4Address = String.Empty;
-
-            foreach (IPAddress IPA in Dns.GetHostAddresses(sUserHostAddress))
-            {
-                if (IPA.AddressFamily.ToString() == "InterNetwork")
-                {
-                    IP4Address = IPA.ToString();
-                    break;
-                }
-            }
-
-            if (IP4Address != String.Empty)
-            {
-                return IP4Address;
-            }
-
-            foreach (IPAddress IPA in Dns.GetHostAddresses(Dns.GetHostName()))
-            {
-                if (IPA.AddressFamily.ToString() == "InterNetwork")
-                {
-                    IP4Address = IPA.ToString();
-                    break;
-                }
-            }
-
-            return IP4Address;
-        }
-
         RSR CheckAdmin()
         {
             RSR sr = new RSR();
-            string sAddressForComp = GetIP4Address(Request.UserHostAddress);
 
             if (m_userData.privs != Auth.UserPrivs.AdminPrivs)
             {
@@ -134,16 +126,6 @@ namespace Rwp
 
                 return sr;
             }
-
-            if (String.Compare(sAddressForComp, "73.83.16.112") != 0
-                && String.Compare(sAddressForComp, "::1") != 0
-                && !sAddressForComp.StartsWith("192.168.1."))
-                {
-                sr.Result = false;
-                sr.Reason = String.Format("Admin operations illegal from current ip address: {0}",
-                                          sAddressForComp);
-                return sr;
-                }
 
             sr.Result = true;
             return sr;
