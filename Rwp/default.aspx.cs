@@ -24,11 +24,7 @@ namespace Rwp
     public partial class default1 : System.Web.UI.Page
     {
         private Auth m_auth;
-#if LOCALSVC
         static string s_sRoot = "/rwp";
-#else
-        private static string s_sRoot = "/rwp";
-#endif // LOCALSVC
 
         public default1()
         {
@@ -70,6 +66,7 @@ namespace Rwp
         }
 
         private bool IsLoggedIn => m_auth.IsLoggedIn;
+        private bool LoggedInAsAdmin => m_auth.CurrentPrivs.privs == Auth.UserPrivs.AdminPrivs;
 
         private bool ShowingAvailableByField
         {
@@ -83,15 +80,6 @@ namespace Rwp
             set { SetState("showingCalLink", value); }
         }
 
-        private bool LoggedInAsAdmin
-        {
-            get { return m_auth.CurrentPrivs.privs == Auth.UserPrivs.AdminPrivs; }
-        }
-//        private bool LoggedInAsAdmin
-//        {
-//            get { return TGetState("loggedInAsAdmin", false); }
-//            set { SetState("loggedInAsAdmin", value); }
-//        }
 
         private string sCurYear;
 
