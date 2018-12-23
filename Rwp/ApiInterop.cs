@@ -212,5 +212,12 @@ namespace Rwp
             return GetServicePutResponse(client, sTarget, content);
         }
 
+        public string GetContentAsString(HttpResponseMessage resp)
+        {
+            Task<string> tskString = resp.Content.ReadAsStringAsync();
+
+            tskString.Wait();
+            return tskString.Result;
+        }
     }
 }

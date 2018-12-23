@@ -20,6 +20,8 @@ using RwpSvcProxy = Rwp.RwpSvc;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace Rwp
 {
@@ -217,7 +219,13 @@ namespace Rwp
             {
                 HttpContent content = new StreamContent(fuTeams.PostedFile.InputStream);
 
-                m_apiInterop.CallServicePut("http://localhost/rwpapi/api/team/PutTeams", content, false);
+                HttpResponseMessage resp = m_apiInterop.CallServicePut("http://localhost/rwpapi/api/team/PutTeams", content, false);
+
+                string sJson = m_apiInterop.GetContentAsString(resp);
+
+                JavaScriptSerializer jsc = new JavaScriptSerializer();
+
+                sr = jsc.Deserialize<RwpSvcProxy.RSR>(sJson);
             }
             else
                 {
