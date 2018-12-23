@@ -46,5 +46,16 @@ namespace RwpApi.Controllers
             sr = Teams.ImportCsv(stm.Result);
             return Ok(sr);
         }
+
+        [HttpGet]
+        [Route("api/team/DeleteTeams")]
+        public IHttpActionResult DeleteTeams()
+        {
+            RSR sr;
+
+            sr = Teams.ClearTeams();
+            return Ok(sr);
+        }
+
     }
 }

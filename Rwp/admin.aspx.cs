@@ -160,7 +160,6 @@ namespace Rwp
         	%%Qualified: Rwp.AdminPage.DoDeleteSlots
         	%%Contact: rlittle
 
-        	
         ----------------------------------------------------------------------------*/
         protected void DoDeleteSlots(object sender, EventArgs e)
         {
@@ -190,6 +189,12 @@ namespace Rwp
 			ReportSr(sr, "Delete 2014 Slots");
 		}
 
+		/*----------------------------------------------------------------------------
+			%%Function: DoDeleteTeams
+			%%Qualified: Rwp.AdminPage.DoDeleteTeams
+			%%Contact: rlittle
+			
+		----------------------------------------------------------------------------*/
 		protected void DoDeleteTeams(object sender, EventArgs e)
 		{
             RSR sr = CheckAdmin();
@@ -200,7 +205,7 @@ namespace Rwp
 		        return;
 		        }
 		    // first download the current data...
-			sr = RsrFromRsr(m_rspClient.ClearTeams());
+		    sr = m_apiInterop.CallService<RSR>("http://localhost/rwpapi/api/team/DeleteTeams", true);
 			ReportSr(sr, "Delete Teams");
 		}
 
@@ -213,7 +218,7 @@ namespace Rwp
             {
                 HttpContent content = new StreamContent(fuTeams.PostedFile.InputStream);
 
-                sr = m_apiInterop.CallServicePut<RSR>("http://localhost/rwpapi/api/team/PutTeams", content, false);
+                sr = m_apiInterop.CallServicePut<RSR>("http://localhost/rwpapi/api/team/PutTeams", content, true);
             }
             else
             {
