@@ -46,6 +46,7 @@ namespace Rwp
 
         void CheckServiceServerConsistency(string sSqlConnectionString)
         {
+            return; 
             RwpSvcProxy.ServerInfo si;
 
             si = m_rspClient.GetServerInfo();

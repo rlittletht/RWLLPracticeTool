@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -19,8 +21,12 @@ namespace Rwp
 {
 	public partial class TeamsReport : System.Web.UI.Page
 	{
+	    private ApiInterop m_apiInterop;
+
 		protected void Page_Load(object sender, EventArgs e)
 		{
+		    m_apiInterop = new ApiInterop(Context, Server);
+
     		DoReport();
 		}
 
@@ -42,15 +48,16 @@ namespace Rwp
 	        return sr;
 	    }
 
-
 	    protected void DoReport()
 	    {
-	        if (!CheckIP().Result)
-	            return;
+	        HttpResponseMessage resp = m_apiInterop.CallService("http://localhost/rwpapi/api/team/GetTestResult", false);
 
 	        RwpSvcProxy.PracticeClient rspClient = new RwpSvcProxy.PracticeClient("BasicHttpBinding_PracticeStream");
-    		
-    		Stream stm = rspClient.GetCsvTeamsStream();
+
+	        Task<Stream> tskStream = resp.Content.ReadAsStreamAsync();
+	        tskStream.Wait();
+
+	        Stream stm = tskStream.Result;
     	    TextReader tr = new StreamReader(stm);
 
 			Response.Clear();
