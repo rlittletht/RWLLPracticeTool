@@ -5,14 +5,18 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Web.Http;
+using Microsoft.Owin.Security.OAuth;
 using RwpApi.Models;
 
 namespace RwpApi.Controllers
 {
+//    [Authorize]
     public class TeamController : ApiController
     {
-        public HttpResponseMessage GetTestResult(string id)
+        [Route("api/team/GetTeams")]
+        public HttpResponseMessage GetTeams()
         {
             Stream stm = new MemoryStream(4096);
 
@@ -27,6 +31,20 @@ namespace RwpApi.Controllers
             result.Content.Headers.ContentType = 
                 new MediaTypeHeaderValue("application/octet-stream");
             return result;
+        }
+
+        [HttpPut]
+        [Route("api/team/PutTeams")]
+        public IHttpActionResult PutTeams(HttpRequestMessage request)
+        {
+            Task<Stream> stm = request.Content.ReadAsStreamAsync();
+
+            stm.Wait();
+
+            RSR sr;
+
+            sr = Teams.ImportCsv(stm.Result);
+            return Ok(sr);
         }
     }
 }

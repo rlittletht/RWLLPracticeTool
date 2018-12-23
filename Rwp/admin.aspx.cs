@@ -18,22 +18,19 @@ using RwpSvcProxy = Rwp.RwpSvc;
 #endif
 
 using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 
 namespace Rwp
 {
     public partial class AdminPage : System.Web.UI.Page
     {
-#if LOCALSVC
-        static string s_sRoot = "";
-#else
-        private static string s_sRoot = "/rwp";
-#endif // LOCALSVC
-
+        static string s_sRoot = "/rwp";
         private RwpSvcProxy.PracticeClient m_rspClient;
         private Auth m_auth;
         private SqlConnection DBConn;
         private Auth.UserData m_userData;
+        private ApiInterop m_apiInterop;
 
         static string ExtractServerNameFromConnection(string sConnection)
         {
@@ -61,6 +58,7 @@ namespace Rwp
         protected void Page_Load(object sender, EventArgs e)
         {
             m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/admin.aspx", null, null, null, null);
+            m_apiInterop = new ApiInterop(Context, Server);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
@@ -212,25 +210,15 @@ namespace Rwp
 
         protected void DoUploadTeams(object sender, EventArgs e)
         {
-            RwpSvcProxy.RSR sr = CheckAdmin();
+            RwpSvcProxy.RSR sr = new RwpSvcProxy.RSR();
 
-            if (!sr.Result)
-                {
-                ReportSr(sr, "ipc");
-                return;
-                }
-            RwpSvcProxy.PracticeClient rspClientStream = new RwpSvcProxy.PracticeClient("BasicHttpBinding_PracticeStream");
 
             if ((fuTeams.PostedFile != null) && (fuTeams.PostedFile.ContentLength > 0))
-                {
+            {
+                HttpContent content = new StreamContent(fuTeams.PostedFile.InputStream);
 
-                System.Guid guid = System.Guid.NewGuid();
-
-                string sAsPosted = System.IO.Path.GetFileName(fuTeams.PostedFile.FileName);
-                string sUpload = Server.MapPath("\\Data") + "\\" + guid.ToString();
-
-                sr = rspClientStream.ImportCsvTeams(fuTeams.PostedFile.InputStream);
-                }
+                m_apiInterop.CallServicePut("http://localhost/rwpapi/api/team/PutTeams", content, false);
+            }
             else
                 {
                 sr = new RwpSvcProxy.RSR();
@@ -238,7 +226,6 @@ namespace Rwp
                 sr.Reason = String.Format("Upload of file failed!");
                 }
             ReportSr(sr, "Upload Teams");
-            rspClientStream.Close();
         }
 
         protected void DoUploadSlots(object sender, EventArgs e)

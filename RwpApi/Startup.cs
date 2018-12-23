@@ -47,7 +47,7 @@ namespace RwpApi
                 ValidAudiences = new[] {clientId },
 
                 // Change below to 'true' if you want this Web API to accept tokens issued to one Azure AD tenant only (single-tenant)
-                ValidateIssuer = true,
+                ValidateIssuer = false,
             };
 
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions

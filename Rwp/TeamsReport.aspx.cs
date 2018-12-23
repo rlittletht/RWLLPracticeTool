@@ -50,7 +50,7 @@ namespace Rwp
 
 	    protected void DoReport()
 	    {
-	        HttpResponseMessage resp = m_apiInterop.CallService("http://localhost/rwpapi/api/team/GetTestResult", false);
+	        HttpResponseMessage resp = m_apiInterop.CallService("http://localhost/rwpapi/api/team/GetTeams", false);
 
 	        RwpSvcProxy.PracticeClient rspClient = new RwpSvcProxy.PracticeClient("BasicHttpBinding_PracticeStream");
 

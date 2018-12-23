@@ -66,6 +66,37 @@ namespace Rwp
             return tskResponse.Result;
         }
 
+
+        HttpResponseMessage GetServicePutResponse(HttpClient client, string sTarget, HttpContent content)
+        {
+            Task<HttpResponseMessage> tskResponse = client.PutAsync(sTarget, content);
+
+            tskResponse.Wait();
+
+            if (tskResponse.Result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                // check to see if we just need to get consent
+                foreach (AuthenticationHeaderValue val in tskResponse.Result.Headers.WwwAuthenticate)
+                {
+                    if (val.Scheme == "need-consent")
+                    {
+                        // the parameter is the URL the user needs to visit in order to grant consent. Construct
+                        // a link to report to the user (here we can inject HTML into our DIV to make
+                        // this easier).
+
+                        // This is not the best user experience (they end up in a new tab to grant consent, 
+                        // and that tab is orphaned... but for now it makes it clear how a flow *could*
+                        // work)
+                        throw new Exception(
+                            $"The current user has not given the WebApi consent to access the Microsoft Graph on their behalf. <a href='{val.Parameter}' target='_blank'>Click Here</a> to grant consent.");
+                    }
+                }
+            }
+
+            return tskResponse.Result;
+        }
+
+
         /*----------------------------------------------------------------------------
         	%%Function: HttpClientCreate
         	%%Qualified: WebApp._default.HttpClientCreate
@@ -169,5 +200,17 @@ namespace Rwp
 
             return GetServiceResponse(client, sTarget);
         }
+
+        public HttpResponseMessage CallServicePut(string sTarget, HttpContent content, bool fRequireAuth)
+        {
+            string sAccessToken = GetAccessToken();
+            if (sAccessToken == null && fRequireAuth == true)
+                throw new Exception("Authentication failed, no access token");
+
+            HttpClient client = HttpClientCreate(sAccessToken);
+
+            return GetServicePutResponse(client, sTarget, content);
+        }
+
     }
 }
