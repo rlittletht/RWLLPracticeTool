@@ -41,16 +41,16 @@ namespace Rwp
 
         private SqlConnection DBConn;
         private string sqlStrSorted;
+        private SqlCommand cmdMbrs;
+        private SqlDataReader rdrMbrs;
+
+        #region Persisted ViewState
 
         private string SqlBase
         {
             get { return TGetState<string>("sqlStrBase", null); }
             set { SetState("sqlStrBase", value); }
         }
-
-
-        private SqlCommand cmdMbrs;
-        private SqlDataReader rdrMbrs;
 
         private string teamName
         {
@@ -65,9 +65,6 @@ namespace Rwp
             set { SetState("showingReserved", value); }
         }
 
-        private bool IsLoggedIn => m_auth.IsLoggedIn;
-        private bool LoggedInAsAdmin => m_auth.CurrentPrivs.privs == Auth.UserPrivs.AdminPrivs;
-
         private bool ShowingAvailableByField
         {
             get { return TGetState("showingAvailableByField", false); }
@@ -79,9 +76,6 @@ namespace Rwp
             get { return TGetState("showingCalLink", false); }
             set { SetState("showingCalLink", value); }
         }
-
-
-        private string sCurYear;
 
         T TGetState<T>(string sState, T tDefault)
         {
@@ -99,6 +93,13 @@ namespace Rwp
         {
             ViewState[sState] = tValue;
         }
+
+        #endregion
+
+        private bool IsLoggedIn => m_auth.IsLoggedIn;
+        private bool LoggedInAsAdmin => m_auth.CurrentPrivs.privs == Auth.UserPrivs.AdminPrivs;
+        
+        private string sCurYear;
 
         protected void Page_Load(object sender, EventArgs e)
         {
