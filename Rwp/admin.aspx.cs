@@ -77,7 +77,7 @@ namespace Rwp
             m_auth.SetupLoginLogout();
         }
 
-        private void ReportSr(RwpSvcProxy.RSR sr, string sOperation)
+        private void ReportSr(RSR sr, string sOperation)
         {
             if (!sr.Result)
                 {
@@ -120,9 +120,9 @@ namespace Rwp
             return IP4Address;
         }
 
-        RwpSvcProxy.RSR CheckAdmin()
+        RSR CheckAdmin()
         {
-            RwpSvcProxy.RSR sr = new RwpSvcProxy.RSR();
+            RSR sr = new RSR();
             string sAddressForComp = GetIP4Address(Request.UserHostAddress);
 
             if (m_userData.privs != Auth.UserPrivs.AdminPrivs)
@@ -160,6 +160,16 @@ namespace Rwp
             btnUploadSlots.Enabled = fAdmin;
         }
 
+        RSR RsrFromRsr(RwpSvcProxy.RSR rsr)
+        {
+            RSR sr = new RSR();
+
+            sr.Result = rsr.Result;
+            sr.Reason = rsr.Reason;
+
+            return sr;
+        }
+
         /* D O  D E L E T E  S L O T S */
         /*----------------------------------------------------------------------------
         	%%Function: DoDeleteSlots
@@ -170,7 +180,7 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         protected void DoDeleteSlots(object sender, EventArgs e)
         {
-            RwpSvcProxy.RSR sr = CheckAdmin();
+            RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
@@ -178,13 +188,13 @@ namespace Rwp
                 return;
                 }
     		// first download the current data...
-            sr = m_rspClient.ClearSlots();
+            sr = RsrFromRsr(m_rspClient.ClearSlots());
             ReportSr(sr, "Delete All Slots");
         }
 
 		protected void DoDelete2014Slots(object sender, EventArgs e)
 		{
-            RwpSvcProxy.RSR sr = CheckAdmin();
+            RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
@@ -192,13 +202,13 @@ namespace Rwp
                 return;
                 }
 			// first download the current data...
-			sr = m_rspClient.ClearYear(2014);
+			sr = RsrFromRsr(m_rspClient.ClearYear(2014));
 			ReportSr(sr, "Delete 2014 Slots");
 		}
 
 		protected void DoDeleteTeams(object sender, EventArgs e)
 		{
-            RwpSvcProxy.RSR sr = CheckAdmin();
+            RSR sr = CheckAdmin();
 
 		    if (!sr.Result)
 		        {
@@ -206,30 +216,24 @@ namespace Rwp
 		        return;
 		        }
 		    // first download the current data...
-			sr = m_rspClient.ClearTeams();
+			sr = RsrFromRsr(m_rspClient.ClearTeams());
 			ReportSr(sr, "Delete Teams");
 		}
 
         protected void DoUploadTeams(object sender, EventArgs e)
         {
-            RwpSvcProxy.RSR sr = new RwpSvcProxy.RSR();
+            RSR sr;
 
 
             if ((fuTeams.PostedFile != null) && (fuTeams.PostedFile.ContentLength > 0))
             {
                 HttpContent content = new StreamContent(fuTeams.PostedFile.InputStream);
 
-                HttpResponseMessage resp = m_apiInterop.CallServicePut("http://localhost/rwpapi/api/team/PutTeams", content, false);
-
-                string sJson = m_apiInterop.GetContentAsString(resp);
-
-                JavaScriptSerializer jsc = new JavaScriptSerializer();
-
-                sr = jsc.Deserialize<RwpSvcProxy.RSR>(sJson);
+                sr = m_apiInterop.CallServicePut<RSR>("http://localhost/rwpapi/api/team/PutTeams", content, false);
             }
             else
-                {
-                sr = new RwpSvcProxy.RSR();
+            {
+                sr = new RSR();
                 sr.Result = false;
                 sr.Reason = String.Format("Upload of file failed!");
                 }
@@ -238,7 +242,7 @@ namespace Rwp
 
         protected void DoUploadSlots(object sender, EventArgs e)
         {
-            RwpSvcProxy.RSR sr = CheckAdmin();
+            RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
@@ -254,11 +258,11 @@ namespace Rwp
                 string sAsPosted = System.IO.Path.GetFileName(fuSlots.PostedFile.FileName);
                 string sUpload = Server.MapPath("\\Data") + "\\" + guid.ToString();
 
-                sr = rspClientStream.ImportCsvSlots(fuSlots.PostedFile.InputStream);
+                sr = RsrFromRsr(rspClientStream.ImportCsvSlots(fuSlots.PostedFile.InputStream));
                 }
             else
                 {
-                sr = new RwpSvcProxy.RSR();
+                sr = new RSR();
                 sr.Result = false;
                 sr.Reason = String.Format("Upload of file failed!");
                 }
@@ -268,7 +272,7 @@ namespace Rwp
 
         protected void EnableClearItems(object sender, EventArgs e)
         {
-            RwpSvcProxy.RSR sr = CheckAdmin();
+            RSR sr = CheckAdmin();
 
             if (!sr.Result)
                 {
@@ -281,7 +285,7 @@ namespace Rwp
 
 		protected void EnableDeleteSlots(object sender, EventArgs e)
 		{
-            RwpSvcProxy.RSR sr = CheckAdmin();
+            RSR sr = CheckAdmin();
 
 		    if (!sr.Result)
 		        {

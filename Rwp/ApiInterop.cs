@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Identity.Client;
+using System.Web.Script.Serialization;
 
 namespace Rwp
 {
@@ -212,6 +213,18 @@ namespace Rwp
             return GetServicePutResponse(client, sTarget, content);
         }
 
+        public T CallServicePut<T>(string sTarget, HttpContent content, bool fRequireAuth)
+        {
+            HttpResponseMessage resp = CallServicePut(sTarget, content, fRequireAuth);
+
+            string sJson = GetContentAsString(resp);
+
+            JavaScriptSerializer jsc = new JavaScriptSerializer();
+
+            return jsc.Deserialize<T>(sJson);
+        }
+
+
         public string GetContentAsString(HttpResponseMessage resp)
         {
             Task<string> tskString = resp.Content.ReadAsStringAsync();
@@ -219,5 +232,7 @@ namespace Rwp
             tskString.Wait();
             return tskString.Result;
         }
+
+
     }
 }
