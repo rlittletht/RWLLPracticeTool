@@ -45,10 +45,12 @@ namespace Rwp
 
         void CheckServiceServerConsistency(string sSqlConnectionString)
         {
-            return; 
-            RwpSvcProxy.ServerInfo si;
+            if (!m_auth.IsLoggedIn)
+                return;
 
-            si = m_rspClient.GetServerInfo();
+            ServerInfo si;
+
+            si = m_apiInterop.CallService<ServerInfo>("http://localhost/rwpapi/api/core/GetServerInfo", false);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
 

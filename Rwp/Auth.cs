@@ -258,37 +258,6 @@ namespace Rwp
         }
 
         /*----------------------------------------------------------------------------
-        	%%Function: GetAccessToken
-        	%%Qualified: WebApp._default.GetAccessToken
-
-            Get an access token for accessing the WebApi. This will use 
-            AcquireTokenSilentAsync to get the token. Since this is using the 
-            same tokencache as we populated when the user logged in, we will
-            get the access token from that cache. 
-        ----------------------------------------------------------------------------*/
-        string GetAccessToken()
-        {
-            if (!IsSignedIn())
-                return null;
-
-            // Retrieve the token with the specified scopes
-            var scopes = new string[] {Startup.scopeWebApi};
-            string userId = GetUserId();
-            TokenCache tokenCache = new MSALSessionCache(userId, m_context).GetMsalCacheInstance();
-            ConfidentialClientApplication cca = new ConfidentialClientApplication(Startup.clientId, Startup.authority, Startup.redirectUri, new ClientCredential(Startup.appKey), tokenCache, null);
-
-            Task<IEnumerable<IAccount>> tskAccounts = cca.GetAccountsAsync();
-            tskAccounts.Wait();
-
-            IAccount account = tskAccounts.Result.FirstOrDefault();
-
-            Task<AuthenticationResult> tskResult = cca.AcquireTokenSilentAsync(scopes, account, Startup.authority, false);
-
-            tskResult.Wait();
-            return tskResult.Result.AccessToken;
-        }
-
-        /*----------------------------------------------------------------------------
         	%%Function: FTokenCachePopulated
         	%%Qualified: WebApp._default.FTokenCachePopulated
         	

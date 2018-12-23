@@ -165,6 +165,8 @@ namespace Rwp
             tskAccounts.Wait();
 
             IAccount account = tskAccounts.Result.FirstOrDefault();
+            if (account == null)
+                return null;
 
             Task<AuthenticationResult> tskResult =
                 cca.AcquireTokenSilentAsync(scopes, account, Startup.authority, false);
@@ -202,6 +204,29 @@ namespace Rwp
             return GetServiceResponse(client, sTarget);
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: CallService
+        	%%Qualified: Rwp.ApiInterop.CallService<T>
+
+            Call the service and parse the return value into the given type T        	
+        ----------------------------------------------------------------------------*/
+        public T CallService<T>(string sTarget, bool fRequireAuth)
+        {
+            HttpResponseMessage resp = CallService(sTarget, fRequireAuth);
+
+            string sJson = GetContentAsString(resp);
+
+            JavaScriptSerializer jsc = new JavaScriptSerializer();
+
+            return jsc.Deserialize<T>(sJson);
+        }
+
+        /*----------------------------------------------------------------------------
+        	%%Function: CallServicePut
+        	%%Qualified: Rwp.ApiInterop.CallServicePut
+
+            Call the service with a put, with the given HttpContent        	
+        ----------------------------------------------------------------------------*/
         public HttpResponseMessage CallServicePut(string sTarget, HttpContent content, bool fRequireAuth)
         {
             string sAccessToken = GetAccessToken();
@@ -213,6 +238,12 @@ namespace Rwp
             return GetServicePutResponse(client, sTarget, content);
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: CallServicePut
+        	%%Qualified: Rwp.ApiInterop.CallServicePut<T>
+
+            Call the service put, and parse the result into the given type T
+        ----------------------------------------------------------------------------*/
         public T CallServicePut<T>(string sTarget, HttpContent content, bool fRequireAuth)
         {
             HttpResponseMessage resp = CallServicePut(sTarget, content, fRequireAuth);
@@ -224,7 +255,12 @@ namespace Rwp
             return jsc.Deserialize<T>(sJson);
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: GetContentAsString
+        	%%Qualified: Rwp.ApiInterop.GetContentAsString
 
+            convert the HttpResponseMessage into a string
+        ----------------------------------------------------------------------------*/
         public string GetContentAsString(HttpResponseMessage resp)
         {
             Task<string> tskString = resp.Content.ReadAsStringAsync();

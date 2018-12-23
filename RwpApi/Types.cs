@@ -170,12 +170,9 @@ namespace RwpApi
 		}
 	}
 
-    [DataContract]
     public class ServerInfo
     {
-        [DataMember]
         public string sSqlServerHash;
-        [DataMember]
         public string sServerName;
     }
 

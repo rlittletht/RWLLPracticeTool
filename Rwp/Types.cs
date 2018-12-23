@@ -16,4 +16,10 @@ namespace Rwp
     {
         public T TheValue { get; set; }
     }
+
+    public class ServerInfo
+    {
+        public string sSqlServerHash;
+        public string sServerName;
+    }
 }
