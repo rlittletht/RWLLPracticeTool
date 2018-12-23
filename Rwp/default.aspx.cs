@@ -25,6 +25,10 @@ namespace Rwp
     {
         private Auth m_auth;
         static string s_sRoot = "/rwp";
+        private SqlConnection DBConn;
+        private string sqlStrSorted;
+        private SqlCommand cmdMbrs;
+        private SqlDataReader rdrMbrs;
 
         public default1()
         {
@@ -38,11 +42,6 @@ namespace Rwp
 
             txtCalendarFeedLink.Text = $"http://rwllpractice.azurewebsites.net/icsfeed.aspx?Team={s}";
         }
-
-        private SqlConnection DBConn;
-        private string sqlStrSorted;
-        private SqlCommand cmdMbrs;
-        private SqlDataReader rdrMbrs;
 
         #region Persisted ViewState
 
@@ -119,10 +118,6 @@ namespace Rwp
             {
                 teamNameForAvailableSlots = teamName;
 
-                // this teams reservations
-                //sqlStrBase = "exec usp_DisplaySlotsEx '" + Sqlify(teamName) + "',1,'00 / 00 / 00'"
-                //			DataGrid1.Columns(0).HeaderText = "Release"
-
                 if (!String.IsNullOrEmpty(SqlBase))
                     sqlStrSorted = SqlBase + ",Date";
 
@@ -149,6 +144,7 @@ namespace Rwp
             m_auth.SetupLoginLogout();
         }
 
+        #region Auth/Privs
         protected void OnBeforeSignout(object sender, EventArgs e)
         {
             Message1.Text = "";
@@ -156,6 +152,52 @@ namespace Rwp
             RunQuery(sender, e);
         }
 
+        void SetLoggedOff()
+        {
+            m_auth.SetLoggedOff();
+
+            SqlBase = "";
+        }
+
+        
+        void LoadPrivs()
+        {
+            if (!m_auth.IsAuthenticated())
+                return;
+
+            Auth.UserData userData;
+                
+            m_auth.LoadPrivs(DBConn);
+
+            userData = m_auth.CurrentPrivs;
+
+            lblTeamName.Text = userData.sTeamName;
+
+            if (m_auth.IsLoggedIn)
+            {
+                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity()})...";
+
+                Message1.ForeColor = System.Drawing.Color.Green;
+                Message2.Text = "";
+                DataGrid1.Columns[0].HeaderText = "Release";
+                SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," +
+                          "''";
+                if (!String.IsNullOrEmpty(SqlBase))
+                    sqlStrSorted = SqlBase + ",Date";
+                BindActAsDropdown();
+                BindGrid();
+            }
+            else
+            {
+                SetLoggedOff();
+                Message1.Text = $"User '{m_auth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
+                Message1.ForeColor = System.Drawing.Color.Red;
+            }
+
+        }
+        #endregion
+
+        #region Bindings
         void BindFieldDropdown()
         {
             DBConn.Open();
@@ -199,6 +241,7 @@ namespace Rwp
             actAsMenu.SelectedValue = lblTeamName.Text;
             DBConn.Close();
         }
+
         protected void BindGrid()
         {
             if (String.IsNullOrEmpty(sqlStrSorted))
@@ -219,50 +262,7 @@ namespace Rwp
                 DBConn.Close();
             }
         }
-
-        void SetLoggedOff()
-        {
-            m_auth.SetLoggedOff();
-
-            SqlBase = "";
-        }
-
-        
-        void LoadPrivs()
-        {
-            if (!m_auth.IsAuthenticated())
-                return;
-
-            Auth.UserData userData;
-                
-            m_auth.LoadPrivs(DBConn);
-
-            userData = m_auth.CurrentPrivs;
-
-            lblTeamName.Text = userData.sTeamName;
-
-            if (m_auth.IsLoggedIn)
-            {
-                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity()})...";
-
-                Message1.ForeColor = System.Drawing.Color.Green;
-                Message2.Text = "";
-                DataGrid1.Columns[0].HeaderText = "Release";
-                SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," +
-                             "''";
-                if (!String.IsNullOrEmpty(SqlBase))
-                    sqlStrSorted = SqlBase + ",Date";
-                BindActAsDropdown();
-                BindGrid();
-            }
-            else
-            {
-                SetLoggedOff();
-                Message1.Text = $"User '{m_auth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
-                Message1.ForeColor = System.Drawing.Color.Red;
-            }
-
-        }
+        #endregion
 
         string GetTeamName()
         {
