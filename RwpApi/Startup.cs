@@ -25,6 +25,14 @@ namespace RwpApi
 
         public static string clientId = ConfigurationManager.AppSettings["ClientId"];
 
+        #if PRODDATA
+        public static string _sResourceConnString = ConfigurationManager.AppSettings["Thetasoft.Azure.ConnectionString"];
+        #elif STAGEDATA
+        public static string _sResourceConnString = ConfigurationManager.AppSettings["Thetasoft.Staging.Azure.ConnectionString"];
+        #else
+        public static string _sResourceConnString = ConfigurationManager.AppSettings["Thetasoft.Local.ConnectionString"];
+        #endif
+
         public void ConfigureAuth(IAppBuilder app)
         {
             // NOTE: The usual WindowsAzureActiveDirectoryBearerAuthentication middleware uses a
