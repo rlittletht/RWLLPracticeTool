@@ -213,7 +213,6 @@ namespace Rwp
         {
             RSR sr;
 
-
             if ((fuTeams.PostedFile != null) && (fuTeams.PostedFile.ContentLength > 0))
             {
                 HttpContent content = new StreamContent(fuTeams.PostedFile.InputStream);

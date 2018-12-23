@@ -123,6 +123,7 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Core.cs" />
+    <Compile Include="Controllers\Slots.cs" />
     <Compile Include="Controllers\Teams.cs" />
     <Compile Include="Controllers\Test.cs" />
     <Compile Include="Csv.cs" />
