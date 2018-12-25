@@ -15,5 +15,22 @@ namespace RwpApi.Controllers
 //    [Authorize]
     public class SlotController : ApiController
     {
+        [Route("api/slot/GetSlots")]
+        public HttpResponseMessage GetSlots()
+        {
+            Stream stm = new MemoryStream(4096);
+
+            RwpSlots slots = new RwpSlots();
+
+            slots.GetCsv(stm);
+            stm.Flush();
+            stm.Seek(0, SeekOrigin.Begin);
+
+            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+            result.Content = new StreamContent(stm);
+            result.Content.Headers.ContentType = 
+                new MediaTypeHeaderValue("application/octet-stream");
+            return result;
+        }
     }
 }
