@@ -145,6 +145,8 @@
     <None Include="packages.config" />
     <Content Include="SecretSettings.config" />
     <None Include="Properties\PublishProfiles\LocalHost.pubxml" />
+    <None Include="Properties\PublishProfiles\StagingServer %28Thetasoft2%29.pubxml" />
+    <None Include="Properties\PublishProfiles\thetasoft2 - FTP.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -191,6 +193,15 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE;DEBUG;LOCALHOST;LOCALSVC;PRODDATA</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugStageHostStageSvcStageData|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STAGEHOST;STAGESVC;STAGEDATA</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
