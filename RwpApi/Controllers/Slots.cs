@@ -32,5 +32,16 @@ namespace RwpApi.Controllers
                 new MediaTypeHeaderValue("application/octet-stream");
             return result;
         }
+
+        [HttpGet]
+        [Route("api/slot/DeleteSlotsByYear/{year}")]
+        public IHttpActionResult DeleteSlotsByYear(int year)
+        {
+            RSR sr;
+
+            sr = RwpSlots.ClearYear(year);
+            return Ok(sr);
+        }
+
     }
 }

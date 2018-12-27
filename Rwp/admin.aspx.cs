@@ -177,15 +177,15 @@ namespace Rwp
 
 		protected void DoDelete2014Slots(object sender, EventArgs e)
 		{
-            RSR sr = CheckAdmin();
+		    RSR sr = CheckAdmin();
 
-            if (!sr.Result)
-                {
-                ReportSr(sr, "ipc");
-                return;
-                }
-			// first download the current data...
-			sr = RsrFromRsr(m_rspClient.ClearYear(2014));
+		    if (!sr.Result)
+		    {
+		        ReportSr(sr, "ipc");
+		        return;
+		    }
+
+		    sr = m_apiInterop.CallService<RSR>($"http://localhost/rwpapi/api/slot/DeleteSlotsByYear/2014", true);
 			ReportSr(sr, "Delete 2014 Slots");
 		}
 
