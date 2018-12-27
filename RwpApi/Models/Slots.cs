@@ -48,18 +48,31 @@ namespace RwpApi
         ----------------------------------------------------------------------------*/
         public static DateTime StartTimeFromDateAndTime(DateTime dttmStartDate, string sTime)
         {
-            if (dttmStartDate < DateTime.Parse("12/1/2016")
-                || dttmStartDate > DateTime.Parse("11/21/2017"))
+            Tuple<DateTime, DateTime>[] rgDaylightSavingsRanges = new Tuple<DateTime, DateTime>[]
+            {
+                new Tuple<DateTime, DateTime>(DateTime.Parse("3/10/2019"), DateTime.Parse("11/3/2019")),
+                new Tuple<DateTime, DateTime>(DateTime.Parse("3/11/2018"), DateTime.Parse("11/4/2018")),
+                new Tuple<DateTime, DateTime>(DateTime.Parse("3/12/2017"), DateTime.Parse("11/5/2017")),
+                new Tuple<DateTime, DateTime>(DateTime.Parse("3/10/2016"), DateTime.Parse("11/6/2016")),
+                new Tuple<DateTime, DateTime>(DateTime.Parse("3/8/2015"), DateTime.Parse("11/1/2015")),
+            };
+            
+            if (dttmStartDate < DateTime.Parse("3/7/2015")
+                || dttmStartDate > DateTime.Parse("11/3/2019"))
                 throw new Exception(
                     "cannot handle timezone conversion. did you forget to add the 'TimeZone' column in the offseason?!?");
 
             // now, convert this to UTC
-            int nHours = 0;
+            int nHours = -8;
 
-            if (dttmStartDate >= DateTime.Parse("3/12/2017"))
-                nHours = -7;
-            else
-                nHours = -8;
+            foreach (Tuple<DateTime, DateTime> range in rgDaylightSavingsRanges)
+            {
+                if (dttmStartDate >= range.Item1 && dttmStartDate <= range.Item2)
+                {
+                    nHours = -7;
+                    break;
+                }
+            }
 
             DateTime dttmParse = DateTime.Parse(String.Format("{0} {1}", dttmStartDate.ToString("d"), sTime));
             DateTime dttmUTC = new DateTime(dttmParse.Year, dttmParse.Month, dttmParse.Day, dttmParse.Hour,
@@ -70,8 +83,9 @@ namespace RwpApi
 
         [Test]
         [TestCase("2/18/2017", "07:30:00 PM", "Sun, 19 Feb 2017 03:30:00 GMT")] // before PDT
-        [TestCase("3/18/2017", "07:30:00 PM", "Sun, 19 Mar 2017 02:30:00 GMT")]
-        // after PDT
+        [TestCase("3/18/2017", "07:30:00 PM", "Sun, 19 Mar 2017 02:30:00 GMT")] // after PDT
+        [TestCase("3/11/2017", "07:30:00 PM", "Sun, 12 Mar 2017 03:30:00 GMT")] // before PDT
+        [TestCase("3/12/2017", "07:30:00 PM", "Mon, 13 Mar 2017 02:30:00 GMT")] // after PDT
         public static void TestStartTimeFromDateAndTime(string sStartDate, string sTime, string sExpected)
         {
             DateTime dttmStart = DateTime.Parse(sStartDate);
