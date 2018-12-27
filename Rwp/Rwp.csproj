@@ -135,9 +135,9 @@
     <None Include="Properties\PublishProfiles\thetasoft2 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - Web Deploy.pubxml" />
-    <Content Include="SecretSettings.config" />
-    <Content Include="SecretSettingsStaging.config" />
-    <Content Include="SecretAppSettings.config">
+    <Content Include="Secrets\SecretSettings_Prod.config" />
+    <Content Include="Secrets\SecretSettings_Staging.config" />
+    <Content Include="Secrets\SecretAppSettings_Local.config">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="rwp.css" />
@@ -203,6 +203,13 @@
     <Compile Include="Types.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Secrets\SecretAppSettings_Prod.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Secrets\SecretAppSettings_Staging.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Secrets\SecretSettings_Local.config" />
     <None Include="Web.AzureDebug.config">
       <DependentUpon>Web.config</DependentUpon>
       <SubType>Designer</SubType>
