@@ -43,6 +43,16 @@ namespace RwpApi.Controllers
             return Ok(sr);
         }
 
+        [HttpGet]
+        [Route("api/slot/DeleteAllSlots")]
+        public IHttpActionResult DeleteAllSlots()
+        {
+            RSR sr;
+
+            sr = RwpSlots.ClearAll();
+            return Ok(sr);
+        }
+
         [HttpPut]
         [Route("api/slot/PutSlots")]
         public IHttpActionResult PutSlots(HttpRequestMessage request)

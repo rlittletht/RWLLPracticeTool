@@ -166,12 +166,13 @@ namespace Rwp
             RSR sr = CheckAdmin();
 
             if (!sr.Result)
-                {
+            {
                 ReportSr(sr, "ipc");
                 return;
-                }
-    		// first download the current data...
-            sr = RsrFromRsr(m_rspClient.ClearSlots());
+            }
+
+            sr = m_apiInterop.CallService<RSR>("http://localhost/rwpapi/api/slot/DeleteAllSlots", true);
+
             ReportSr(sr, "Delete All Slots");
         }
 
