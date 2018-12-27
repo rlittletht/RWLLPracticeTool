@@ -140,82 +140,8 @@
     <Content Include="SecretAppSettings.config">
       <SubType>Designer</SubType>
     </Content>
-    <None Include="Service References\RwpSvcLocal\Practice.wsdl" />
-    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.RSR.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.RSR_CalItems.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\RwpSvcLocal\Rwp.RwpSvcLocal.ServerInfo.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <None Include="Service References\RwpSvcLocal\RwpSvc.wsdl" />
-    <None Include="Service References\RwpSvcLocal\RwpSvc.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvcLocal\RwpSvc1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvcLocal\RwpSvc2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvcLocal\RwpSvc3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvcStaging\Practice.wsdl" />
-    <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.RSR.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.RSR_CalItems.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\RwpSvcStaging\Rwp.RwpSvcStaging.ServerInfo.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <None Include="Service References\RwpSvcStaging\RwpSvc.wsdl" />
-    <None Include="Service References\RwpSvcStaging\RwpSvc.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvcStaging\RwpSvc1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvcStaging\RwpSvc2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvcStaging\RwpSvc3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvc\configuration91.svcinfo" />
-    <None Include="Service References\RwpSvc\configuration.svcinfo" />
-    <None Include="Service References\RwpSvc\Practice.wsdl" />
-    <None Include="Service References\RwpSvc\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <Content Include="rwp.css" />
     <Content Include="SelectCalendar.png" />
-    <None Include="Service References\RwpSvcLocal\RwpSvc.disco" />
-    <None Include="Service References\RwpSvcLocal\configuration91.svcinfo" />
-    <None Include="Service References\RwpSvcLocal\configuration.svcinfo" />
-    <None Include="Service References\RwpSvcLocal\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Service References\RwpSvcStaging\RwpSvc.disco" />
-    <None Include="Service References\RwpSvcStaging\configuration91.svcinfo" />
-    <None Include="Service References\RwpSvcStaging\configuration.svcinfo" />
-    <None Include="Service References\RwpSvcStaging\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <Content Include="Service References\RwpSvc\Rwp.RwpSvc.RSR.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\RwpSvc\Rwp.RwpSvc.RSR_CalItems.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <None Include="Service References\RwpSvc\RwpSvc.disco" />
     <Content Include="signin.png" />
     <Content Include="signout.png" />
     <Content Include="SlotsReport.aspx" />
@@ -259,21 +185,6 @@
     <Compile Include="ReleaseNotes.aspx.designer.cs">
       <DependentUpon>ReleaseNotes.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Service References\RwpSvcLocal\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Include="Service References\RwpSvcStaging\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Include="Service References\RwpSvc\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="SlotsReport.aspx.cs">
       <DependentUpon>SlotsReport.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -292,19 +203,6 @@
     <Compile Include="Types.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\RwpSvc\RwpSvc.wsdl" />
-    <None Include="Service References\RwpSvc\RwpSvc.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvc\RwpSvc1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvc\RwpSvc2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\RwpSvc\RwpSvc3.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Web.AzureDebug.config">
       <DependentUpon>Web.config</DependentUpon>
       <SubType>Designer</SubType>
@@ -351,11 +249,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\RwpSvcLocal\" />
-    <WCFMetadataStorage Include="Service References\RwpSvcStaging\" />
-    <WCFMetadataStorage Include="Service References\RwpSvc\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\liblet\cs\sql\sql.csproj">
