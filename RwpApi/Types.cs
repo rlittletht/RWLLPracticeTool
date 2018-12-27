@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace RwpApi
 {
@@ -110,7 +111,6 @@ namespace RwpApi
         }
     }
 
-    [DataContract]
     public class CalItem
     {
         string m_sTitle;
@@ -120,21 +120,14 @@ namespace RwpApi
         string m_sDescription;
         private string m_uid;
 
-        [DataMember]
         public string Title { get { return m_sTitle; } set { m_sTitle = value; } }
-        [DataMember]
         public DateTime Start { get { return m_dttmStart; } set { m_dttmStart = value; } }
-        [DataMember]
         public DateTime End { get { return m_dttmEnd; } set { m_dttmEnd = value; } }
-        [DataMember]
         public string Location { get { return m_sLocation; } set { m_sLocation = value; } }
-        [DataMember]
         public string Description { get { return m_sDescription; } set { m_sDescription = value; } }
-        [DataMember]
         public string UID { get { return m_uid; }set { m_uid = value; } }
     }
 
-    [DataContract]
     public class RSR_CalItems : TRSR<List<CalItem>>
     {
         public static RSR_CalItems FromRSR(RSR rsr)
