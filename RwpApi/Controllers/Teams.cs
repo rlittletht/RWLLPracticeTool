@@ -12,7 +12,7 @@ using RwpApi.Models;
 
 namespace RwpApi.Controllers
 {
-//    [Authorize]
+    [Authorize]
     public class TeamController : ApiController
     {
         [Route("api/team/GetTeams")]

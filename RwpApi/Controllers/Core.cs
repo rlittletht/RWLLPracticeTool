@@ -13,7 +13,7 @@ using RwpApi.Models;
 
 namespace RwpApi.Controllers
 {
-//    [Authorize]
+    //[Authorize]
     public class CoreController : ApiController
     {
         static string ExtractServerNameFromConnection(string sConnection)

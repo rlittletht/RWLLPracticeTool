@@ -23,7 +23,13 @@ namespace RwpApi
         {
         }
 
+        #if PRODHOST
+        public static string clientId = ConfigurationManager.AppSettings["ClientIdProd"];
+        #elif STAGEHOST
+        public static string clientId = ConfigurationManager.AppSettings["ClientIdStage"];
+        #else
         public static string clientId = ConfigurationManager.AppSettings["ClientId"];
+        #endif
 
         #if PRODDATA
         public static string _sResourceConnString = ConfigurationManager.AppSettings["Thetasoft.Azure.ConnectionString"];
