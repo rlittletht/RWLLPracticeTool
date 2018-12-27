@@ -175,6 +175,13 @@ namespace Rwp
             ReportSr(sr, "Delete All Slots");
         }
 
+		/*----------------------------------------------------------------------------
+			%%Function: DoDelete2014Slots
+			%%Qualified: Rwp.AdminPage.DoDelete2014Slots
+			
+            Intended to be changed every year, currently hardcoded to 2014 (will be
+            2018 once the 2019 season starts)
+		----------------------------------------------------------------------------*/
 		protected void DoDelete2014Slots(object sender, EventArgs e)
 		{
 		    RSR sr = CheckAdmin();
@@ -209,6 +216,13 @@ namespace Rwp
 			ReportSr(sr, "Delete Teams");
 		}
 
+        /*----------------------------------------------------------------------------
+        	%%Function: DoUploadTeams
+        	%%Qualified: Rwp.AdminPage.DoUploadTeams
+        	%%Contact: rlittle
+        	
+            upload a csv file of teams to the server
+        ----------------------------------------------------------------------------*/
         protected void DoUploadTeams(object sender, EventArgs e)
         {
             RSR sr;
@@ -228,6 +242,13 @@ namespace Rwp
             ReportSr(sr, "Upload Teams");
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: DoUploadSlots
+        	%%Qualified: Rwp.AdminPage.DoUploadSlots
+        	%%Contact: rlittle
+        	
+            upload a csv file of slots to the server
+        ----------------------------------------------------------------------------*/
         protected void DoUploadSlots(object sender, EventArgs e)
         {
             RSR sr = CheckAdmin();
