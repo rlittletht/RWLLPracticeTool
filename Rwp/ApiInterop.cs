@@ -203,7 +203,7 @@ namespace Rwp
 
             HttpClient client = HttpClientCreate(sAccessToken);
 
-            return GetServiceResponse(client, sTarget);
+            return GetServiceResponse(client, $"{m_apiRoot}/{sTarget}");
         }
 
         /*----------------------------------------------------------------------------
@@ -237,7 +237,7 @@ namespace Rwp
 
             HttpClient client = HttpClientCreate(sAccessToken);
 
-            return GetServicePutResponse(client, sTarget, content);
+            return GetServicePutResponse(client, $"{m_apiRoot}/{sTarget}", content);
         }
 
         /*----------------------------------------------------------------------------
