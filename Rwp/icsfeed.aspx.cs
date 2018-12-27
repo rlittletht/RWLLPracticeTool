@@ -5,12 +5,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Rwp.RwpSvc;
 
 namespace Rwp
 {
     public partial class icsfeed : System.Web.UI.Page
     {
+        private ApiInterop m_apiInterop;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             string sTeam = Request.QueryString["Team"];
@@ -21,14 +22,16 @@ namespace Rwp
                 return;
                 }
 
+            m_apiInterop = new ApiInterop(Context, Server);
+
             DoReport(sTeam);
         }
 
         protected void DoReport(string sTeam)
         {
-            PracticeClient rspClient = new PracticeClient("BasicHttpBinding_PracticeStream");
+            sTeam = sTeam.Replace(" ", "%20");
 
-            RSR_CalItems rci = rspClient.GetCalendarForTeam(sTeam);
+            RSR_CalItems rci = m_apiInterop.CallService<RSR_CalItems>($"http://localhost/rwpapi/api/slot/GetCalendarForTeam/{sTeam}", false);
             if (!rci.Result)
                 {
                 ErrorResponse.InnerText = String.Format("Failed to get calendar for {0}: {1}", sTeam, rci.Reason);

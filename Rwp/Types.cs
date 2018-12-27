@@ -1,4 +1,7 @@
 ﻿
+using System;
+using System.Collections.Generic;
+
 namespace Rwp
 {
     public class RSRBase
@@ -21,5 +24,19 @@ namespace Rwp
     {
         public string sSqlServerHash;
         public string sServerName;
+    }
+
+    public class CalItem
+    {
+        public string Title { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public string Location { get; set; }
+        public string Description { get; set; }
+        public string UID { get; set; }
+    }
+
+    public class RSR_CalItems : TRSR<List<CalItem>>
+    {
     }
 }

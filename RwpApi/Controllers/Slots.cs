@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.Owin.Security.OAuth;
+using Newtonsoft.Json;
 using RwpApi.Models;
 
 namespace RwpApi.Controllers
@@ -31,6 +32,13 @@ namespace RwpApi.Controllers
             result.Content.Headers.ContentType = 
                 new MediaTypeHeaderValue("application/octet-stream");
             return result;
+        }
+
+        [Route("api/slot/GetCalendarForTeam/{team}")]
+        public IHttpActionResult GetCalendarForTeam(string team)
+        {
+            RSR_CalItems items = RwpSlots.GetCalendarItemsForTeam(team);
+            return Ok(items);
         }
 
         [HttpGet]
