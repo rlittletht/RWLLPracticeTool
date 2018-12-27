@@ -7,16 +7,6 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-#if LOCALSVC
-using RwpSvcProxy = Rwp.RwpSvcLocal;
-#elif STAGESVC
-using RwpSvcProxy = Rwp.RwpSvcStaging;
-#elif PRODSVC
-using RwpSvcProxy = Rwp.RwpSvc;
-#else
-#error "No service endpoint defined"
-#endif
-
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -28,7 +18,6 @@ namespace Rwp
     public partial class AdminPage : System.Web.UI.Page
     {
         static string s_sRoot = "/rwp";
-        private RwpSvcProxy.PracticeClient m_rspClient;
         private Auth m_auth;
         private SqlConnection DBConn;
         private Auth.UserData m_userData;
@@ -88,7 +77,6 @@ namespace Rwp
             m_userData = m_auth.LoadPrivs(DBConn);
             ipClient.InnerText = Request.UserHostAddress;
 
-            m_rspClient = new RwpSvcProxy.PracticeClient("BasicHttpBinding_Practice");
             CheckServiceServerConsistency(sSqlConnectionString);
             EnableUIForAdmin();
 
@@ -142,16 +130,6 @@ namespace Rwp
             btnClearAllSlots.Enabled = fAdmin;
             btnClearLastYear.Enabled = fAdmin;
             btnUploadSlots.Enabled = fAdmin;
-        }
-
-        RSR RsrFromRsr(RwpSvcProxy.RSR rsr)
-        {
-            RSR sr = new RSR();
-
-            sr.Result = rsr.Result;
-            sr.Reason = rsr.Reason;
-
-            return sr;
         }
 
         /* D O  D E L E T E  S L O T S */
