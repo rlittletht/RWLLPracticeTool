@@ -43,5 +43,18 @@ namespace RwpApi.Controllers
             return Ok(sr);
         }
 
+        [HttpPut]
+        [Route("api/slot/PutSlots")]
+        public IHttpActionResult PutSlots(HttpRequestMessage request)
+        {
+            Task<Stream> stm = request.Content.ReadAsStreamAsync();
+
+            stm.Wait();
+
+            RSR sr;
+
+            sr = RwpSlots.ImportCsv(stm.Result);
+            return Ok(sr);
+        }
     }
 }

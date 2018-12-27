@@ -251,32 +251,21 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         protected void DoUploadSlots(object sender, EventArgs e)
         {
-            RSR sr = CheckAdmin();
+            RSR sr;
 
-            if (!sr.Result)
-                {
-                ReportSr(sr, "ipc");
-                return;
-                }
-            RwpSvcProxy.PracticeClient rspClientStream = new RwpSvcProxy.PracticeClient("BasicHttpBinding_PracticeStream");
+            if ((fuSlots.PostedFile != null) && (fuSlots.PostedFile.ContentLength > 0))
+            {
+                HttpContent content = new StreamContent(fuSlots.PostedFile.InputStream);
 
-            if ((fuSlots.PostedFile != null && fuSlots.PostedFile.ContentLength > 0))
-                {
-                System.Guid guid = System.Guid.NewGuid();
-
-                string sAsPosted = System.IO.Path.GetFileName(fuSlots.PostedFile.FileName);
-                string sUpload = Server.MapPath("\\Data") + "\\" + guid.ToString();
-
-                sr = RsrFromRsr(rspClientStream.ImportCsvSlots(fuSlots.PostedFile.InputStream));
-                }
+                sr = m_apiInterop.CallServicePut<RSR>("http://localhost/rwpapi/api/slot/PutSlots", content, true);
+            }
             else
-                {
+            {
                 sr = new RSR();
                 sr.Result = false;
                 sr.Reason = String.Format("Upload of file failed!");
-                }
+            }
             ReportSr(sr, "Upload Slots");
-            rspClientStream.Close();
         }
 
         protected void EnableClearItems(object sender, EventArgs e)
