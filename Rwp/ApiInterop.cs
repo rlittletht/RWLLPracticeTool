@@ -20,11 +20,13 @@ namespace Rwp
         private HttpContext m_context;
         private HttpClient m_client;
         private HttpServerUtility m_server;
+        private string m_apiRoot;
 
-        public ApiInterop(HttpContext context, HttpServerUtility server)
+        public ApiInterop(HttpContext context, HttpServerUtility server, string apiRoot)
         {
             m_context = context;
             m_server = server;
+            m_apiRoot = apiRoot;
         }
 
         /*----------------------------------------------------------------------------

@@ -22,7 +22,7 @@ namespace Rwp
                 return;
                 }
 
-            m_apiInterop = new ApiInterop(Context, Server);
+            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
             DoReport(sTeam);
         }
@@ -31,7 +31,7 @@ namespace Rwp
         {
             sTeam = sTeam.Replace(" ", "%20");
 
-            RSR_CalItems rci = m_apiInterop.CallService<RSR_CalItems>($"http://localhost/rwpapi/api/slot/GetCalendarForTeam/{sTeam}", false);
+            RSR_CalItems rci = m_apiInterop.CallService<RSR_CalItems>($"api/slot/GetCalendarForTeam/{sTeam}", false);
             if (!rci.Result)
                 {
                 ErrorResponse.InnerText = String.Format("Failed to get calendar for {0}: {1}", sTeam, rci.Reason);

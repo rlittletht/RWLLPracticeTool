@@ -38,6 +38,8 @@ namespace Rwp
         // Authority is the URL for authority, composed by Azure Active Directory v2 endpoint and the tenant name (e.g. https://login.microsoftonline.com/contoso.onmicrosoft.com/v2.0)
         public static string authority = String.Format(System.Globalization.CultureInfo.InvariantCulture, System.Configuration.ConfigurationManager.AppSettings["Authority"], tenant);
 
+        public static string apiRoot = System.Configuration.ConfigurationManager.AppSettings["WebApiRoot"];
+
 
         public void Configuration(IAppBuilder app)
         {

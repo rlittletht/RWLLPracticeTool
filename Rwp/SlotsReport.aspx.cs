@@ -16,14 +16,14 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_apiInterop = new ApiInterop(Context, Server);
+            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
             DoReport();
         }
 
         protected void DoReport()
         {
-            HttpResponseMessage resp = m_apiInterop.CallService("http://localhost/rwpapi/api/slot/GetSlots", false);
+            HttpResponseMessage resp = m_apiInterop.CallService("api/slot/GetSlots", false);
 
             Task<Stream> tskStream = resp.Content.ReadAsStreamAsync();
             tskStream.Wait();

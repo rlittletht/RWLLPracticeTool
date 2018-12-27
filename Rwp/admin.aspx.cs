@@ -48,7 +48,7 @@ namespace Rwp
 
             ServerInfo si;
 
-            si = m_apiInterop.CallService<ServerInfo>("http://localhost/rwpapi/api/core/GetServerInfo", false);
+            si = m_apiInterop.CallService<ServerInfo>("api/core/GetServerInfo", false);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
 
@@ -67,7 +67,7 @@ namespace Rwp
         protected void Page_Load(object sender, EventArgs e)
         {
             m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/admin.aspx", null, null, null, null);
-            m_apiInterop = new ApiInterop(Context, Server);
+            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
@@ -149,7 +149,7 @@ namespace Rwp
                 return;
             }
 
-            sr = m_apiInterop.CallService<RSR>("http://localhost/rwpapi/api/slot/DeleteAllSlots", true);
+            sr = m_apiInterop.CallService<RSR>("api/slot/DeleteAllSlots", true);
 
             ReportSr(sr, "Delete All Slots");
         }
@@ -171,7 +171,7 @@ namespace Rwp
 		        return;
 		    }
 
-		    sr = m_apiInterop.CallService<RSR>($"http://localhost/rwpapi/api/slot/DeleteSlotsByYear/2014", true);
+		    sr = m_apiInterop.CallService<RSR>($"api/slot/DeleteSlotsByYear/2014", true);
 			ReportSr(sr, "Delete 2014 Slots");
 		}
 
@@ -191,7 +191,7 @@ namespace Rwp
 		        return;
 		        }
 		    // first download the current data...
-		    sr = m_apiInterop.CallService<RSR>("http://localhost/rwpapi/api/team/DeleteTeams", true);
+		    sr = m_apiInterop.CallService<RSR>("api/team/DeleteTeams", true);
 			ReportSr(sr, "Delete Teams");
 		}
 
@@ -210,7 +210,7 @@ namespace Rwp
             {
                 HttpContent content = new StreamContent(fuTeams.PostedFile.InputStream);
 
-                sr = m_apiInterop.CallServicePut<RSR>("http://localhost/rwpapi/api/team/PutTeams", content, true);
+                sr = m_apiInterop.CallServicePut<RSR>("api/team/PutTeams", content, true);
             }
             else
             {
@@ -236,7 +236,7 @@ namespace Rwp
             {
                 HttpContent content = new StreamContent(fuSlots.PostedFile.InputStream);
 
-                sr = m_apiInterop.CallServicePut<RSR>("http://localhost/rwpapi/api/slot/PutSlots", content, true);
+                sr = m_apiInterop.CallServicePut<RSR>("api/slot/PutSlots", content, true);
             }
             else
             {
