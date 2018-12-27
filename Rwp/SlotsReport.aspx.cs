@@ -45,7 +45,7 @@ namespace Rwp
 
             Response.Write("\n");
             Response.Flush();
-            Response.End();
+            HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
     }
 }
