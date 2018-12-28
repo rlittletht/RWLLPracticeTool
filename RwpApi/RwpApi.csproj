@@ -136,6 +136,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="App_Start\OpenIdConnectSecurityTokenProviders.cs" />
+    <Compile Include="Models\calendar.cs" />
     <Compile Include="Models\Slots.cs" />
     <Compile Include="Models\Teams.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

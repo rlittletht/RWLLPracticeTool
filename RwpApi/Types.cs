@@ -111,6 +111,34 @@ namespace RwpApi
         }
     }
 
+    public class CalendarLink
+    {
+        private Guid m_guidLink;
+        private string m_sTeam;
+        private string m_sAuthority;
+        private DateTime m_dttmCreateDate;
+        private string m_sComment;
+
+        public Guid Link { get => m_guidLink; set => m_guidLink = value; }
+        public string Team { get => m_sTeam; set => m_sTeam = value; }
+        public string Authority { get => m_sAuthority; set => m_sAuthority = value; }
+        public DateTime CreateDate { get => m_dttmCreateDate; set => m_dttmCreateDate = value; }
+        public string Comment { get => m_sComment; set => m_sComment = value; }
+    }
+
+    public class RSR_CalendarLinks : TRSR<List<CalendarLink>>
+    {
+        public static RSR_CalendarLinks FromRSR(RSR rsr)
+        {
+            RSR_CalendarLinks _twsr = new RSR_CalendarLinks();
+
+            _twsr.Reason = rsr.Reason;
+            _twsr.Result = rsr.Result;
+
+            return _twsr;
+        }
+    }
+
     public class CalItem
     {
         string m_sTitle;
