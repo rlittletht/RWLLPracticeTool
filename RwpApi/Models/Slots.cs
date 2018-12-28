@@ -642,7 +642,10 @@ namespace RwpApi
 
             sr = RSR.FromSR(sql.BeginTransaction());
             if (!sr.Result)
+            {
+                sql.Close();
                 return sr;
+            }
 
             bool fHeadingRead = false;
             string sLine;

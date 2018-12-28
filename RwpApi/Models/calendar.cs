@@ -172,6 +172,70 @@ namespace RwpApi
             }
 
             /*----------------------------------------------------------------------------
+            	%%Function: FromCalendarLink
+            	%%Qualified: RwpApi.CalendarLinks.CalendarLinkItem.FromCalendarLink
+            	%%Contact: rlittle
+            	
+                convert a CalendarLink (from the wire) into our internal LinkItem format
+            ----------------------------------------------------------------------------*/
+            static CalendarLinkItem FromCalendarLink(CalendarLink linkItem)
+            {
+                return new CalendarLinkItem()
+                {
+                    m_guidLink = linkItem.Link, m_sTeam = linkItem.Team, m_sAuthority = linkItem.Authority,
+                    m_dttmCreateDate = linkItem.CreateDate, m_sComment = linkItem.Comment
+                };
+            }
+
+            /*----------------------------------------------------------------------------
+            	%%Function: AddCalendarLinkItem
+            	%%Qualified: RwpApi.CalendarLinks.CalendarLinkItem.AddCalendarLinkItem
+            	%%Contact: rlittle
+            	
+            ----------------------------------------------------------------------------*/
+            public static RSR AddCalendarLinkItem(CalendarLink link)
+            {
+                CalendarLinkItem item = FromCalendarLink(link);
+                RSR sr = item.Preflight(null);
+
+                if (!sr.Succeeded)
+                    return sr;
+
+                Sql sql;
+                
+                sr = RSR.FromSR(Sql.OpenConnection(out sql, Startup._sResourceConnString));
+                if (!sr.Result)
+                    return sr;
+
+                sr = RSR.FromSR(sql.BeginTransaction());
+                if (!sr.Result)
+                {
+                    sql.Close();
+                    return sr;
+                }
+
+                try
+                {
+                    string sAdd = item.SGenerateUpdateQuery(sql, true);
+
+                    SqlCommand sqlcmd = sql.CreateCommand();
+                    sqlcmd.CommandText = sAdd;
+                    sqlcmd.Transaction = sql.Transaction;
+                    sqlcmd.ExecuteNonQuery();
+                }
+                catch (Exception exc)
+                {
+                    sql.Rollback();
+                    sql.Close();
+                    return RSR.Failed(exc);
+                }
+
+                sql.Commit();
+                sql.Close();
+                return RSR.Success();
+            }
+            
+            /*----------------------------------------------------------------------------
             	%%Function: SRFromPls
             	%%Qualified: RwpApi.CalendarLinks.CalendarLinkItem.SRFromPls
             	%%Contact: rlittle

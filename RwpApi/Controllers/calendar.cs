@@ -21,5 +21,12 @@ namespace RwpApi.Controllers
             RSR_CalItems items = RwpSlots.GetCalendarItemsForTeam(team);
             return Ok(items);
         }
+
+        [Route("api/calendar/PutCalendarLink/{linkItem}")]
+        public IHttpActionResult PutCalendarLink(CalendarLink linkItem)
+        {
+            RSR rsr = CalendarLinks.CalendarLinkItem.AddCalendarLinkItem(linkItem);
+            return Ok(rsr);
+        }
     }
 }

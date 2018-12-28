@@ -17,7 +17,12 @@ namespace Rwp
 {
     public partial class AdminPage : System.Web.UI.Page
     {
+        #if PRODHOST
+        static string s_sRoot = "";
+        #else
         static string s_sRoot = "/rwp";
+        #endif
+
         private Auth m_auth;
         private SqlConnection DBConn;
         private Auth.UserData m_userData;

@@ -38,7 +38,7 @@
               <p style="text-align: right">
               </p>
             </div>
-            <asp:Button ID="btnCreateLink" runat="server" Text="Create Link" />
+            <asp:Button ID="btnCreateLink" runat="server" Text="Create Link" OnClick="DoCreateLink" />
             </td>
         </tr>
         <td>
