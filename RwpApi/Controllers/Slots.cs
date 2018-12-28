@@ -34,13 +34,6 @@ namespace RwpApi.Controllers
             return result;
         }
 
-        [Route("api/slot/GetCalendarForTeam/{team}")]
-        public IHttpActionResult GetCalendarForTeam(string team)
-        {
-            RSR_CalItems items = RwpSlots.GetCalendarItemsForTeam(team);
-            return Ok(items);
-        }
-
         [HttpGet]
         [Route("api/slot/DeleteSlotsByYear/{year}")]
         public IHttpActionResult DeleteSlotsByYear(int year)
