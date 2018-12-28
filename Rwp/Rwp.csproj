@@ -125,6 +125,7 @@
   <ItemGroup>
     <Content Include="AddInternetCalendar.png" />
     <Content Include="admin.aspx" />
+    <Content Include="CalendarLink.aspx" />
     <Content Include="default.aspx" />
     <Content Include="icsfeed.aspx" />
     <Content Include="icsfeed_howto.html" />
@@ -166,6 +167,13 @@
     </Compile>
     <Compile Include="ApiInterop.cs" />
     <Compile Include="Auth.cs" />
+    <Compile Include="CalendarLink.aspx.cs">
+      <DependentUpon>CalendarLink.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CalendarLink.aspx.designer.cs">
+      <DependentUpon>CalendarLink.aspx</DependentUpon>
+    </Compile>
     <Compile Include="default.aspx.cs">
       <DependentUpon>default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
