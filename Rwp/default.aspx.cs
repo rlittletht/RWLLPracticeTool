@@ -272,6 +272,7 @@ namespace Rwp
             return lblTeamName.Text;
         }
 
+        #region Commands
         protected void ShowICalFeedLink(object sender, EventArgs e)
         {
             divCalendarFeedLink.Visible = true;
@@ -314,6 +315,22 @@ namespace Rwp
             }
         }
 
+        protected void ShowAvailableByField(object sender, EventArgs e)
+        {
+            try
+            {
+                ShowingReserved = false;
+                ShowingAvailableByField = true;
+                RunQuery(sender, e);
+            }
+            catch (Exception ex)
+            {
+                Message0.Text = Message0.Text + ", Exception: " + ex.Message;
+            }
+        }
+        #endregion
+
+        #region Query/Data
         protected void RunQuery(object sender, EventArgs e)
         {
             Message2.Text = "";
@@ -504,19 +521,7 @@ namespace Rwp
                 }
             }
         }
+        #endregion
 
-        protected void ShowAvailableByField(object sender, EventArgs e)
-        {
-            try
-            {
-                ShowingReserved = false;
-                ShowingAvailableByField = true;
-                RunQuery(sender, e);
-            }
-            catch (Exception ex)
-            {
-                Message0.Text = Message0.Text + ", Exception: " + ex.Message;
-            }
-        }
     }
 }
