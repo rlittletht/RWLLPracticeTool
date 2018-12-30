@@ -8,6 +8,7 @@ using System.EnterpriseServices;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Microsoft.Owin.Security;
@@ -17,6 +18,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Web;
+using System.Web.SessionState;
 using Microsoft.Identity.Client;
 using Microsoft.Owin.Security.Notifications;
 using Owin;
@@ -31,6 +33,7 @@ namespace Rwp
         private string m_sAuthReturnAddress;
         private HttpContextBase m_context;
         private StateBag m_viewState;
+        private HttpSessionState m_session;
 
         public delegate void LoginOutCallback(object sender, EventArgs e);
 
@@ -39,9 +42,20 @@ namespace Rwp
         LoginOutCallback m_onBeforeLogout;
         LoginOutCallback m_onAfterLogout;
 
+        /*----------------------------------------------------------------------------
+        	%%Function: Auth
+        	%%Qualified: Rwp.Auth.Auth
+        	%%Contact: rlittle
+        	
+            Create a new auth object. This takes request, session, context, and 
+            viewstate.
+
+            to grab current privs or setup for logging in/out, call this.LoadPrivs
+        ----------------------------------------------------------------------------*/
         public Auth(
             global::System.Web.UI.WebControls.ImageButton button, 
             HttpRequest request,
+            HttpSessionState session,
             HttpContextBase context,
             StateBag viewState,
             string sReturnAddress,
@@ -59,6 +73,7 @@ namespace Rwp
             m_onAfterLogout = onAfterLogout;
             m_context = context;
             m_viewState = viewState;
+            m_session = session;
         }
 
         [Serializable]
@@ -66,7 +81,9 @@ namespace Rwp
         {
             public UserPrivs privs;
             public string sIdentity;
+            public string sTenant;
             public string sTeamName;
+            public List<string> plsTeams;
             public string sDivision;
         }
 
@@ -96,10 +113,27 @@ namespace Rwp
             m_viewState[sState] = tValue;
         }
 
+        T TGetSessionState<T>(string sState, T tDefault)
+        {
+            T tValue = tDefault;
+
+            if (m_session[sState] == null)
+                m_session[sState] = tValue;
+            else
+                tValue = (T)m_session[sState];
+
+            return tValue;
+        }
+
+        void SetSessionState<T>(string sState, T tValue)
+        {
+            m_session[sState] = tValue;
+        }
+
         public Auth.UserData CurrentPrivs
         {
-            get => TGetState("privs", new Auth.UserData() { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null });
-            set => SetState("privs", value);
+            get => TGetSessionState("privs", new Auth.UserData() { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null });
+            set => SetSessionState("privs", value);
         }
 
         public bool IsLoggedIn  => CurrentPrivs.privs != Auth.UserPrivs.NotAuthenticated && CurrentPrivs.privs != Auth.UserPrivs.AuthenticatedNoPrivs;
@@ -117,16 +151,76 @@ namespace Rwp
             return null;
         }
 
-        public void SetLoggedOff()
+        public string Tenant()
         {
-            CurrentPrivs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null};
+            if (IsAuthenticated())
+            {
+                Regex rex = new Regex("https://login.microsoftonline.com/([^/]*)/");
+
+                return rex.Match(System.Security.Claims.ClaimsPrincipal.Current.FindFirst("iss")?.Value).Groups[1].Value;
+            }
+
+            return null;
         }
 
-        public UserData LoadPrivs(SqlConnection DBConn)
+        public static UserData EmptyAuth()
+        {
+            return new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
+        }
+
+        public void SetLoggedOff()
+        {
+            CurrentPrivs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
+        }
+
+        // they might be asking for a specific team (if they are switching who they are acting as)
+        /*----------------------------------------------------------------------------
+        	%%Function: LoadPrivs
+        	%%Qualified: Rwp.Auth.LoadPrivs
+        	%%Contact: rlittle
+        	
+            if not already authenticated, just return an empty UserData.
+
+            if authenticated (and we have an access token), then load the current
+            user privileges.
+
+            This will query our auth tables to see if the currently authenticated
+            user (and tenant) are authorized to access our data.
+
+            * If not, then TeamName will be null on return. This means they don't get
+              to access the tool or the data -- presumably the caller will present an
+              error message
+            * If yes, then return the team name (this might be a default from the list
+              of authorized teams, or it might be the team name from the session cache
+            
+        ----------------------------------------------------------------------------*/
+        public UserData LoadPrivs(SqlConnection DBConn, string sTeamNameSelected = null)
         {
             string sAuthIdentity = Identity();
+            string sTenant = Tenant();
+            bool fSoftTeamName = false;
 
-            UserData data = new UserData() {sIdentity = null, privs = UserPrivs.NotAuthenticated, sTeamName = null, sDivision = null};
+            UserData data;
+
+            data = CurrentPrivs;
+
+            // before we reset the userdata, let's grab any already set teamname in the 
+            // session state (this could have come from another page on our site)
+            if (data.sTeamName != null)
+            {
+                if (sTeamNameSelected == null)
+                {
+                    sTeamNameSelected = data.sTeamName;
+                    fSoftTeamName = true;
+                }
+            }
+
+            data = new UserData()
+            {
+                sIdentity = null, privs = UserPrivs.NotAuthenticated, sTeamName = null, sDivision = null,
+                sTenant = null, plsTeams = null
+            };
+
             CurrentPrivs = data;
 
             if (sAuthIdentity == null || !IsAuthenticated())
@@ -137,22 +231,71 @@ namespace Rwp
             data.sIdentity = sAuthIdentity;
 
             DBConn.Open();
-            // don't need to validate a password -- once we have an authenticated identity, just get its privileges
-            sqlStrLogin = $"SELECT TeamName, Division from rwllTeams where Email1 = '{Sql.Sqlify(sAuthIdentity)}'";
+
+            // first, get the list of teams we are authorized for...
+            sqlStrLogin =
+                $"SELECT PrimaryIdentity, Tenant, TeamID from rwllauth where PrimaryIdentity = '{Sql.Sqlify(sAuthIdentity)}' AND Tenant = '{Sql.Sqlify(sTenant)}'";
+
             SqlCommand cmdMbrs = DBConn.CreateCommand();
             cmdMbrs.CommandText = sqlStrLogin;
             SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
-            
+
+            // there may be multiple returns, get them all
+            // the last one will be the default (unless some form of "Admin" is there, then the last one of those will be the default,
+            // or if they requested a specific team name
             while (rdrMbrs.Read())
             {
-                data.sTeamName = rdrMbrs.GetString(0);
-                data.sDivision = rdrMbrs.GetString(1);
+                if (data.plsTeams == null)
+                    data.plsTeams = new List<string>();
+
+                string sTeamName = rdrMbrs.GetString(2);
+                data.plsTeams.Add(sTeamName);
+                if (sTeamName.Contains("Admin") && sTeamNameSelected == null)
+                {
+                    data.sTeamName = sTeamName;
+                }
+
+                if (sTeamName == sTeamNameSelected)
+                    data.sTeamName = sTeamName;
             }
 
             rdrMbrs.Close();
             cmdMbrs.Dispose();
-            DBConn.Close();
 
+            if (data.sTeamName == null)
+            {
+                if (sTeamNameSelected != null && !fSoftTeamName)
+                {
+                    // they are requesting a team that they aren't authorized to see
+                    // (if the team name is soft, then this is just a previously cached
+                    // value...they may have changed users)
+                    throw new Exception("authorization failed");
+                }
+
+                if (data.plsTeams != null)
+                    data.sTeamName = data.plsTeams[data.plsTeams.Count - 1]; // grab the last one as the default
+            }
+
+            if (data.sTeamName != null)
+            {
+                // don't need to validate a password -- once we have an authenticated identity, just get the privileges for the team name
+                sqlStrLogin =
+                    $"SELECT TeamName, Division from rwllTeams where TeamName = '{Sql.Sqlify(data.sTeamName)}'";
+                cmdMbrs = DBConn.CreateCommand();
+                cmdMbrs.CommandText = sqlStrLogin;
+                rdrMbrs = cmdMbrs.ExecuteReader();
+
+                while (rdrMbrs.Read())
+                {
+                    data.sTeamName = rdrMbrs.GetString(0);
+                    data.sDivision = rdrMbrs.GetString(1);
+                }
+
+                rdrMbrs.Close();
+                cmdMbrs.Dispose();
+            }
+
+            DBConn.Close();
 
             if (string.IsNullOrEmpty(data.sTeamName))
             {

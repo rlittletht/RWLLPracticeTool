@@ -23,7 +23,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/CalendarLink.aspx", null, null, null, null);
+            m_auth = new Auth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/CalendarLink.aspx", null, null, null, null);
             m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];

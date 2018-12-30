@@ -31,7 +31,8 @@
                             <font face="Verdana" size="2">
                             <asp:Button OnClick="ShowReserved" autopostback="true" Text="Show Reserved" Font-Bold="true" ID="ShowReservedButton" runat="server" />&nbsp;
                             <asp:Button OnClick="ShowICalFeedLink" autopostback="true" Text="Get iCal Feed" Font-Bold="true" ID="ShowICalFeedLinkButton" runat="server"/>
-                            Team: <asp:Label ID="lblTeamName" CssClass="textField" runat="Server" BackColor="White" ForeColor="Black"/>&nbsp;&nbsp;&nbsp;
+                            Team: 
+                            <asp:DropDownList ID="teamMenu" AutoPostBack="True" OnSelectedIndexChanged="OnTeamMenuItemChanged" runat="server"><asp:ListItem Value="">--- Unauthorized ---</asp:ListItem></asp:DropDownList>
                         </td>
                         <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
                             <asp:DropDownList runat="server" Height="25px" Width="100px" ID="monthMenu">

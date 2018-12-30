@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.EnterpriseServices;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Microsoft.Owin.Security;
@@ -15,6 +16,8 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Web;
+using System.Windows.Forms;
+using System.Xml.Serialization;
 using Microsoft.Owin.Security.Notifications;
 using Owin;
 using TCore;
@@ -38,7 +41,7 @@ namespace Rwp
         {
             string s;
 
-            s = lblTeamName.Text.Replace(" ", "%20");
+            s = teamName.Replace(" ", "%20");
 
             txtCalendarFeedLink.Text = $"http://rwllpractice.azurewebsites.net/icsfeed.aspx?Team={s}";
         }
@@ -102,7 +105,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
+            m_auth = new Auth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
@@ -116,25 +119,7 @@ namespace Rwp
 
             try
             {
-                teamNameForAvailableSlots = teamName;
-
-                if (!String.IsNullOrEmpty(SqlBase))
-                    sqlStrSorted = SqlBase + ",Date";
-
-                divCalendarFeedLink.Visible = ShowingCalLink;
-
-                LoadPrivs();
-
-                if (!IsLoggedIn)
-                    SetLoggedOff();
-
-                if (!IsPostBack)
-                {
-                    BindActAsDropdown();
-                    BindFieldDropdown();
-                }
-
-                FillInCalendarLink();
+                LoadPrivsAndSetupPage();
             }
             catch (Exception exc)
             {
@@ -142,6 +127,29 @@ namespace Rwp
             }
             
             m_auth.SetupLoginLogout();
+        }
+
+        void LoadPrivsAndSetupPage()
+        {
+            teamNameForAvailableSlots = teamName;
+
+            if (!String.IsNullOrEmpty(SqlBase))
+                sqlStrSorted = SqlBase + ",Date";
+
+            if (!IsPostBack)
+            {
+                divCalendarFeedLink.Visible = ShowingCalLink;
+
+                Auth.UserData data = LoadPrivs();
+
+                if (!IsLoggedIn)
+                    SetLoggedOff();
+
+                BindActAsDropdown(data);
+                BindFieldDropdown();
+            }
+
+            FillInCalendarLink();
         }
 
         #region Auth/Privs
@@ -159,11 +167,31 @@ namespace Rwp
             SqlBase = "";
         }
 
-        
-        void LoadPrivs()
+        void FillTeamList(Auth.UserData data)
+        {
+            int i = 0;
+            int iChecked = -1;
+
+            teamMenu.Items.Clear();
+            if (data.plsTeams == null)
+                return;
+
+            foreach (string sTeam in data.plsTeams)
+            {
+                teamMenu.Items.Add(sTeam);
+                if (data.sTeamName == sTeam)
+                    iChecked = i;
+                i++;
+            }
+
+            if (iChecked != -1)
+                teamMenu.SelectedIndex = iChecked;
+        }
+
+        Auth.UserData LoadPrivs()
         {
             if (!m_auth.IsAuthenticated())
-                return;
+                return Auth.EmptyAuth();
 
             Auth.UserData userData;
                 
@@ -171,7 +199,7 @@ namespace Rwp
 
             userData = m_auth.CurrentPrivs;
 
-            lblTeamName.Text = userData.sTeamName;
+            FillTeamList(userData);
 
             if (m_auth.IsLoggedIn)
             {
@@ -184,16 +212,17 @@ namespace Rwp
                           "''";
                 if (!String.IsNullOrEmpty(SqlBase))
                     sqlStrSorted = SqlBase + ",Date";
-                BindActAsDropdown();
+                BindActAsDropdown(userData);
                 BindGrid();
             }
             else
             {
                 SetLoggedOff();
-                Message1.Text = $"User '{m_auth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
+                Message1.Text = $"User '{m_auth.Tenant()}\\{m_auth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
                 Message1.ForeColor = System.Drawing.Color.Red;
             }
 
+            return userData;
         }
         #endregion
 
@@ -216,7 +245,7 @@ namespace Rwp
             DBConn.Close();
         }
 
-        void BindActAsDropdown()
+        void BindActAsDropdown(Auth.UserData data)
         {
             if (!LoggedInAsAdmin)
             {
@@ -238,7 +267,7 @@ namespace Rwp
             actAsMenu.DataBind();
             rdrMbrs.Close();
 
-            actAsMenu.SelectedValue = lblTeamName.Text;
+            actAsMenu.SelectedValue = data.sTeamName;
             DBConn.Close();
         }
 
@@ -266,10 +295,16 @@ namespace Rwp
 
         string GetTeamName()
         {
-            if (LoggedInAsAdmin && actAsMenu.SelectedValue != lblTeamName.Text)
-                return actAsMenu.SelectedValue;
+            if (LoggedInAsAdmin)
+            {
+                // choose a non-administrator value, favoring actAsMenu
+                if (!actAsMenu.SelectedValue.ToUpper().Contains("ADMINISTRATOR"))
+                    return actAsMenu.SelectedValue;
 
-            return lblTeamName.Text;
+                return teamMenu.SelectedValue;
+            }
+
+            return teamMenu.SelectedValue;
         }
 
         #region Commands
@@ -523,5 +558,10 @@ namespace Rwp
         }
         #endregion
 
+        protected void OnTeamMenuItemChanged(object sender, EventArgs e)
+        {
+            // they have selected a new teamname to work as, load the privs for that
+            LoadPrivsAndSetupPage();
+        }
     }
 }
