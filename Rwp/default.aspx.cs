@@ -145,7 +145,7 @@ namespace Rwp
                 if (!IsLoggedIn)
                     SetLoggedOff();
 
-                BindActAsDropdown(data);
+                ShowHideAdmin(data);
                 BindFieldDropdown();
             }
 
@@ -153,6 +153,18 @@ namespace Rwp
         }
 
         #region Auth/Privs
+
+        void ShowHideAdmin(Auth.UserData data)
+        {
+            if (!LoggedInAsAdmin)
+            {
+                divAdminFunctions.Visible = false;
+                return;
+            }
+
+            divAdminFunctions.Visible = true;
+        }
+
         protected void OnBeforeSignout(object sender, EventArgs e)
         {
             Message1.Text = "";
@@ -203,7 +215,7 @@ namespace Rwp
 
             if (m_auth.IsLoggedIn)
             {
-                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity()})...";
+                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity()})";
 
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
@@ -212,7 +224,7 @@ namespace Rwp
                           "''";
                 if (!String.IsNullOrEmpty(SqlBase))
                     sqlStrSorted = SqlBase + ",Date";
-                BindActAsDropdown(userData);
+                ShowHideAdmin(userData);
                 BindGrid();
             }
             else
@@ -245,32 +257,6 @@ namespace Rwp
             DBConn.Close();
         }
 
-        void BindActAsDropdown(Auth.UserData data)
-        {
-            if (!LoggedInAsAdmin)
-            {
-                divAdminFunctions.Visible = false;
-                return;
-            }
-
-            divAdminFunctions.Visible = true;
-
-            DBConn.Open();
-            cmdMbrs = DBConn.CreateCommand();
-            // populate the teamMenu
-            string sql = "exec usp_PopulateTeamList";
-            cmdMbrs.CommandText = sql;
-            rdrMbrs = cmdMbrs.ExecuteReader();
-            actAsMenu.DataSource = rdrMbrs;
-            actAsMenu.DataTextField = "TeamName";
-            actAsMenu.DataValueField = "TeamName";
-            actAsMenu.DataBind();
-            rdrMbrs.Close();
-
-            actAsMenu.SelectedValue = data.sTeamName;
-            DBConn.Close();
-        }
-
         protected void BindGrid()
         {
             if (String.IsNullOrEmpty(sqlStrSorted))
@@ -295,15 +281,6 @@ namespace Rwp
 
         string GetTeamName()
         {
-            if (LoggedInAsAdmin)
-            {
-                // choose a non-administrator value, favoring actAsMenu
-                if (!actAsMenu.SelectedValue.ToUpper().Contains("ADMINISTRATOR"))
-                    return actAsMenu.SelectedValue;
-
-                return teamMenu.SelectedValue;
-            }
-
             return teamMenu.SelectedValue;
         }
 

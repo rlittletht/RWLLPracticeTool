@@ -173,6 +173,79 @@ namespace Rwp
             CurrentPrivs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
         }
 
+        void GetTeamListAndDefaultForQuery(SqlConnection DBConn, string sqlStrLogin, string sTeamNameSelected, out List<string> plsTeams, out string sTeam, out string sAdminTeam)
+        {
+            sTeam = null;
+            plsTeams = null;
+            sAdminTeam = null;
+
+            SqlCommand cmdMbrs = DBConn.CreateCommand();
+            cmdMbrs.CommandText = sqlStrLogin;
+            SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
+
+            // there may be multiple returns, get them all
+            // the last one will be the default (unless some form of "Admin" is there, then the last one of those will be the default,
+            // or if they requested a specific team name
+            while (rdrMbrs.Read())
+            {
+                if (plsTeams == null)
+                    plsTeams = new List<string>();
+
+                string sTeamName = rdrMbrs.GetString(0);
+                plsTeams.Add(sTeamName);
+
+                // admin is the default unless there is a preferred team name.
+                // (even if there is a preferred team name, we will still return an "admin team" name
+                // so the caller knows we are an admin)
+                if (sTeamName.Contains("Admin"))
+                {
+                    sAdminTeam = sTeamName;
+
+                    if (sTeamNameSelected == null)
+                        sTeam = sTeamName;
+                }
+
+                if (sTeamName == sTeamNameSelected)
+                    sTeam = sTeamName;
+            }
+
+            rdrMbrs.Close();
+            cmdMbrs.Dispose();
+
+        }
+
+                
+        void GetTeamListAndDefault(SqlConnection DBConn, string sAuthIdentity, string sTenant, string sTeamNameSelected, out List<string> plsTeams, out string sTeam, out string sAdminTeam)
+        {
+            string sqlStrLogin =
+                $"SELECT TeamID from rwllauth where PrimaryIdentity = '{Sql.Sqlify(sAuthIdentity)}' AND Tenant = '{Sql.Sqlify(sTenant)}'";
+
+            GetTeamListAndDefaultForQuery(DBConn, sqlStrLogin, sTeamNameSelected, out plsTeams, out sTeam, out sAdminTeam);
+        }
+
+        void LoadPrivsForTeam(SqlConnection DBConn, string sTeamNameIn, out string sTeamName, out string sDivision)
+        {
+            sTeamName = null;
+            sDivision = null;
+
+            // don't need to validate a password -- once we have an authenticated identity, just get the privileges for the team name
+            string sqlStrLogin =
+                $"SELECT TeamName, Division from rwllTeams where TeamName = '{Sql.Sqlify(sTeamNameIn)}'";
+
+            SqlCommand cmdMbrs = DBConn.CreateCommand();
+            cmdMbrs.CommandText = sqlStrLogin;
+            SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
+
+            while (rdrMbrs.Read())
+            {
+                sTeamName = rdrMbrs.GetString(0);
+                sDivision = rdrMbrs.GetString(1);
+            }
+
+            rdrMbrs.Close();
+            cmdMbrs.Dispose();
+        }
+
         // they might be asking for a specific team (if they are switching who they are acting as)
         /*----------------------------------------------------------------------------
         	%%Function: LoadPrivs
@@ -226,41 +299,52 @@ namespace Rwp
             if (sAuthIdentity == null || !IsAuthenticated())
                 return data;
 
-            string sqlStrLogin;
-
             data.sIdentity = sAuthIdentity;
 
             DBConn.Open();
 
             // first, get the list of teams we are authorized for...
-            sqlStrLogin =
-                $"SELECT PrimaryIdentity, Tenant, TeamID from rwllauth where PrimaryIdentity = '{Sql.Sqlify(sAuthIdentity)}' AND Tenant = '{Sql.Sqlify(sTenant)}'";
+            // (we might have a requested team name, if so, use that as the default)
+            // (if we are an admin, then we won't get all the teams here...which means
+            // the requested team name might not be found...yet.  if we are admin
+            // then we will be authorized for all teams, and we will load that list
+            // later
+            string sAdminTeam;
 
-            SqlCommand cmdMbrs = DBConn.CreateCommand();
-            cmdMbrs.CommandText = sqlStrLogin;
-            SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
+            GetTeamListAndDefault(DBConn, sAuthIdentity, sTenant, sTeamNameSelected, out data.plsTeams, out data.sTeamName, out sAdminTeam);
 
-            // there may be multiple returns, get them all
-            // the last one will be the default (unless some form of "Admin" is there, then the last one of those will be the default,
-            // or if they requested a specific team name
-            while (rdrMbrs.Read())
+            if (sAdminTeam != null || (data.sTeamName != null && data.sTeamName.Contains("Admin")))
             {
-                if (data.plsTeams == null)
-                    data.plsTeams = new List<string>();
+                // let's make sure its really an admin -- the division has to be "X" for this admin team
+                // (yes, there's a weird case where our identity is associated with multiple teams with "Admin" in
+                // the name, but the last one we get (which because the default one), doesn't have "X" in its 
+                // division name, which means its really not an admin. this means we won't get admin
+                // privileges. The only way to really get the admin privileges is to selected the correct
+                // admin team name in the list of team names, then we will load the right privs. of course, then
+                // when you choose the team you want to act as, we will lose that real admin selection and we will 
+                // again go to the "last one wins" default, and we will lost our admin privileges).
+                // 
+                // the moral of this store? don't put "Admin" in a team name if you aren't going to put it in
+                // division "X" to make it a real admin. unless you are trying to drive someone crazy
+                string sTeamOut, sDivision;
 
-                string sTeamName = rdrMbrs.GetString(2);
-                data.plsTeams.Add(sTeamName);
-                if (sTeamName.Contains("Admin") && sTeamNameSelected == null)
+                string sTeamIn = data.sTeamName;
+
+                sTeamIn = sAdminTeam;
+
+                if (data.sTeamName != null || data.sTeamName.Contains("Admin"))
+                    sTeamIn = data.sTeamName;
+                   
+                LoadPrivsForTeam(DBConn, sTeamIn, out sTeamOut, out sDivision);
+
+                if (sDivision == "X")
                 {
-                    data.sTeamName = sTeamName;
+                    // this is an admin. load the list of all teams for our list of teams
+                    string sqlStrLogin = $"SELECT TeamName from rwllTeams";
+
+                    GetTeamListAndDefaultForQuery(DBConn, sqlStrLogin, sTeamNameSelected, out data.plsTeams, out data.sTeamName, out sAdminTeam);
                 }
-
-                if (sTeamName == sTeamNameSelected)
-                    data.sTeamName = sTeamName;
             }
-
-            rdrMbrs.Close();
-            cmdMbrs.Dispose();
 
             if (data.sTeamName == null)
             {
@@ -278,21 +362,7 @@ namespace Rwp
 
             if (data.sTeamName != null)
             {
-                // don't need to validate a password -- once we have an authenticated identity, just get the privileges for the team name
-                sqlStrLogin =
-                    $"SELECT TeamName, Division from rwllTeams where TeamName = '{Sql.Sqlify(data.sTeamName)}'";
-                cmdMbrs = DBConn.CreateCommand();
-                cmdMbrs.CommandText = sqlStrLogin;
-                rdrMbrs = cmdMbrs.ExecuteReader();
-
-                while (rdrMbrs.Read())
-                {
-                    data.sTeamName = rdrMbrs.GetString(0);
-                    data.sDivision = rdrMbrs.GetString(1);
-                }
-
-                rdrMbrs.Close();
-                cmdMbrs.Dispose();
+                LoadPrivsForTeam(DBConn, data.sTeamName, out data.sTeamName, out data.sDivision);
             }
 
             DBConn.Close();

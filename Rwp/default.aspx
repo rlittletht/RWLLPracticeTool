@@ -102,10 +102,6 @@
                         <tr>
                             <td style="padding-right: .5in">
                                 Administrative Functions</td>
-                            <td>Act As: 
-                                <asp:DropDownList runat="server" Height="25px" Width="180px" ID="actAsMenu">
-                                    <asp:ListItem Value="">-- Select Login --</asp:ListItem>
-                                </asp:DropDownList>
                             <td><a href="admin.aspx">Admin functions</a></td>
                     </table>
                 </div>
