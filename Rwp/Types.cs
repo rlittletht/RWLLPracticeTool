@@ -36,6 +36,15 @@ namespace Rwp
         public string UID { get; set; }
     }
 
+    public class CalendarLink
+    {
+        public Guid Link { get; set; }
+        public string Team { get; set; }
+        public string Authority { get; set; }
+        public DateTime CreateDate { get; set; }
+        public string Comment { get; set; }
+    }
+
     public class RSR_CalItems : TRSR<List<CalItem>>
     {
     }
