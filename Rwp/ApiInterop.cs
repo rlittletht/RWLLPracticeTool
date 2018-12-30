@@ -30,6 +30,38 @@ namespace Rwp
         }
 
         /*----------------------------------------------------------------------------
+        	%%Function: ProcessResponse
+        	%%Qualified: Rwp.ApiInterop.ProcessResponse
+        	%%Contact: rlittle
+        	
+            General response code for all HttpResponses (for now, this is just
+            looking for our special need-consent handshake)
+        ----------------------------------------------------------------------------*/
+        HttpResponseMessage ProcessResponse(HttpResponseMessage msg)
+        {
+            if (msg.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                // check to see if we just need to get consent
+                foreach (AuthenticationHeaderValue val in msg.Headers.WwwAuthenticate)
+                {
+                    if (val.Scheme == "need-consent")
+                    {
+                        // the parameter is the URL the user needs to visit in order to grant consent. Construct
+                        // a link to report to the user (here we can inject HTML into our DIV to make
+                        // this easier).
+
+                        // This is not the best user experience (they end up in a new tab to grant consent, 
+                        // and that tab is orphaned... but for now it makes it clear how a flow *could*
+                        // work)
+                        throw new Exception(
+                            $"The current user has not given the WebApi consent to access the Microsoft Graph on their behalf. <a href='{val.Parameter}' target='_blank'>Click Here</a> to grant consent.");
+                    }
+                }
+            }
+
+            return msg;
+        }
+        /*----------------------------------------------------------------------------
         	%%Function: GetServiceResponse
         	%%Qualified: WebApp._default.GetServiceResponse
 
@@ -44,59 +76,37 @@ namespace Rwp
             Task<HttpResponseMessage> tskResponse = client.GetAsync(sTarget);
 
             tskResponse.Wait();
-
-
-            if (tskResponse.Result.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                // check to see if we just need to get consent
-                foreach (AuthenticationHeaderValue val in tskResponse.Result.Headers.WwwAuthenticate)
-                {
-                    if (val.Scheme == "need-consent")
-                    {
-                        // the parameter is the URL the user needs to visit in order to grant consent. Construct
-                        // a link to report to the user (here we can inject HTML into our DIV to make
-                        // this easier).
-
-                        // This is not the best user experience (they end up in a new tab to grant consent, 
-                        // and that tab is orphaned... but for now it makes it clear how a flow *could*
-                        // work)
-                        throw new Exception(
-                            $"The current user has not given the WebApi consent to access the Microsoft Graph on their behalf. <a href='{val.Parameter}' target='_blank'>Click Here</a> to grant consent.");
-                    }
-                }
-            }
-
-            return tskResponse.Result;
+            return ProcessResponse(tskResponse.Result);
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: GetServicePostResponse
+        	%%Qualified: Rwp.ApiInterop.GetServicePostResponse
+        	%%Contact: rlittle
+        	
+            Do an http post and get the response
+        ----------------------------------------------------------------------------*/
+        HttpResponseMessage GetServicePostResponse(HttpClient client, string sTarget, HttpContent content)
+        {
+            Task<HttpResponseMessage> tskResponse = client.PostAsync(sTarget, content);
+            
+            tskResponse.Wait();
+            return ProcessResponse(tskResponse.Result);
+        }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: GetServicePutResponse
+        	%%Qualified: Rwp.ApiInterop.GetServicePutResponse
+        	%%Contact: rlittle
+        	
+            Do an http put and get the response
+        ----------------------------------------------------------------------------*/
         HttpResponseMessage GetServicePutResponse(HttpClient client, string sTarget, HttpContent content)
         {
             Task<HttpResponseMessage> tskResponse = client.PutAsync(sTarget, content);
 
             tskResponse.Wait();
-
-            if (tskResponse.Result.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                // check to see if we just need to get consent
-                foreach (AuthenticationHeaderValue val in tskResponse.Result.Headers.WwwAuthenticate)
-                {
-                    if (val.Scheme == "need-consent")
-                    {
-                        // the parameter is the URL the user needs to visit in order to grant consent. Construct
-                        // a link to report to the user (here we can inject HTML into our DIV to make
-                        // this easier).
-
-                        // This is not the best user experience (they end up in a new tab to grant consent, 
-                        // and that tab is orphaned... but for now it makes it clear how a flow *could*
-                        // work)
-                        throw new Exception(
-                            $"The current user has not given the WebApi consent to access the Microsoft Graph on their behalf. <a href='{val.Parameter}' target='_blank'>Click Here</a> to grant consent.");
-                    }
-                }
-            }
-
-            return tskResponse.Result;
+            return ProcessResponse(tskResponse.Result);
         }
 
 
@@ -195,6 +205,14 @@ namespace Rwp
             return MSALSessionCache.CacheExists(GetUserId(), GetContextBase());
         }
 
+        #region Helper Service Calls
+        /*----------------------------------------------------------------------------
+        	%%Function: CallService
+        	%%Qualified: Rwp.ApiInterop.CallService
+        	%%Contact: rlittle
+        	
+            Core call service, returning an httpresponse
+        ----------------------------------------------------------------------------*/
         public HttpResponseMessage CallService(string sTarget, bool fRequireAuth)
         {
             string sAccessToken = GetAccessToken();
@@ -256,6 +274,45 @@ namespace Rwp
 
             return jsc.Deserialize<T>(sJson);
         }
+
+        /*----------------------------------------------------------------------------
+        	%%Function: CallServicePost
+        	%%Qualified: Rwp.ApiInterop.CallServicePost
+        	%%Contact: rlittle
+        	
+            Core call put service, returning an httpresponse
+        ----------------------------------------------------------------------------*/
+        public HttpResponseMessage CallServicePost(string sTarget, HttpContent content, bool fRequireAuth)
+        {
+            string sAccessToken = GetAccessToken();
+            if (sAccessToken == null && fRequireAuth == true)
+                throw new Exception("Authentication failed, no access token");
+
+            HttpClient client = HttpClientCreate(sAccessToken);
+
+            return GetServicePostResponse(client, $"{m_apiRoot}/{sTarget}", content);
+        }
+
+        /*----------------------------------------------------------------------------
+        	%%Function: CallServicePost
+        	%%Qualified: Rwp.ApiInterop.CallServicePost<T>
+
+            Call the service put, and parse the result into the given type T
+        ----------------------------------------------------------------------------*/
+        public T1 CallServicePost<T1, T2>(string sTarget, T2 t2, bool fRequireAuth)
+        {
+            JavaScriptSerializer jsc = new JavaScriptSerializer();
+
+            string s = jsc.Serialize(t2);
+
+            HttpContent content = new StringContent(s);
+            HttpResponseMessage resp = CallServicePost(sTarget, content, fRequireAuth);
+
+            string sJson = GetContentAsString(resp);
+            
+            return jsc.Deserialize<T1>(sJson);
+        }
+        #endregion
 
         /*----------------------------------------------------------------------------
         	%%Function: GetContentAsString
