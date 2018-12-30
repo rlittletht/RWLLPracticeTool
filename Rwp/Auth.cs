@@ -19,6 +19,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Web;
 using System.Web.SessionState;
+using System.Windows.Forms;
 using Microsoft.Identity.Client;
 using Microsoft.Owin.Security.Notifications;
 using Owin;
@@ -74,6 +75,21 @@ namespace Rwp
             m_context = context;
             m_viewState = viewState;
             m_session = session;
+
+            LoadCachedPrivs();
+        }
+
+        void LoadCachedPrivs()
+        {
+            if (!IsAuthenticated())
+            {
+                // make sure current privs aren't leaked from before
+                UserData data = CurrentPrivs;
+                data.privs = UserPrivs.NotAuthenticated;
+                data.sIdentity = null;
+                data.sTenant = null;
+                CurrentPrivs = data;
+            }
         }
 
         [Serializable]
