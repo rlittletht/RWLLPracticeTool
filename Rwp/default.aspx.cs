@@ -115,7 +115,7 @@ namespace Rwp
             sCurYear = DateTime.UtcNow.Year.ToString();
 
             Message0.Text =
-                $"Redmond West Little League Practice Scheduler v1.9 (Server DateTime = {DateTime.UtcNow.AddHours(-8)} ({sCurYear})";
+                $"Redmond West Little League Practice Scheduler v2.alpha (Server DateTime = {DateTime.UtcNow.AddHours(-8)} ({sCurYear})";
 
             try
             {
