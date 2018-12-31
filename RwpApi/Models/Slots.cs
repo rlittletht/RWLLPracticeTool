@@ -94,7 +94,7 @@ namespace RwpApi
             Assert.AreEqual(sExpected, dttmActual.ToString("r"));
         }
 
-        public static RSR_CalItems GetCalendarItemsForTeam(string sTeam)
+        public static RSR_CalItems GetCalendarItemsForTeam(string sLinkID)
         {
             SqlWhere sw = new SqlWhere();
             RSR rsr;
@@ -104,7 +104,7 @@ namespace RwpApi
             sw.AddAliases(RwpSlot.s_mpAliases);
             try
             {
-                sw.Add(String.Format("$$rwllpractice$$.Reserved = '{0}'", Sql.Sqlify(sTeam)), SqlWhere.Op.And);
+                sw.Add(String.Format("$$rwllpractice$$.Reserved = (select TeamID from rwllcalendarlinks where linkid='{0}')", Sql.Sqlify(sLinkID)), SqlWhere.Op.And);
 
                 rsr = RSR.FromSR(Sql.ExecuteQuery(null, sw.GetWhere(RwpSlot.s_sSqlQueryString), slots,
                     Startup._sResourceConnString));
@@ -144,7 +144,7 @@ namespace RwpApi
             catch (Exception e)
             {
                 rci = RSR_CalItems.FromRSR(RSR.Failed(e));
-                rci.Reason = String.Format("{0} ({1})", rci.Reason, sTeam);
+                rci.Reason = String.Format("{0} ({1})", rci.Reason, sLinkID);
                 return rci;
             }
         }

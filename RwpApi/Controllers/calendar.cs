@@ -15,15 +15,9 @@ using RwpApi.Models;
 
 namespace RwpApi.Controllers
 {
+    [Authorize]
     public class CalendarController : ApiController
     {
-        [Route("api/calendar/GetCalendarForTeam/{team}")]
-        public IHttpActionResult GetCalendarForTeam(string team)
-        {
-            RSR_CalItems items = RwpSlots.GetCalendarItemsForTeam(team);
-            return Ok(items);
-        }
-
         [HttpPost]
         [Route("api/calendar/PostCalendarLink")]
         public IHttpActionResult PostCalendarLink([FromBody] CalendarLink linkItem)
@@ -41,6 +35,15 @@ namespace RwpApi.Controllers
 
             return Ok(rsr);
         }
+    }
 
+    public class OpenCalendarController : ApiController
+    {
+        [Route("api/opencalendar/GetCalendarForTeam/{linkID}")]
+        public IHttpActionResult GetCalendarForTeam(string linkID)
+        {
+            RSR_CalItems items = RwpSlots.GetCalendarItemsForTeam(linkID);
+            return Ok(items);
+        }
     }
 }

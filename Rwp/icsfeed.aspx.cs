@@ -14,27 +14,27 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            string sTeam = Request.QueryString["Team"];
+            string sLinkID = Request.QueryString["LinkID"];
 
-            if (sTeam == null)
+            if (sLinkID == null)
                 {
-                ErrorResponse.InnerText = "You must specify a Team in your request";
+                ErrorResponse.InnerText = "You must specify a link ID in your request";
                 return;
                 }
 
             m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
-            DoReport(sTeam);
+            DoReport(sLinkID);
         }
 
-        protected void DoReport(string sTeam)
+        protected void DoReport(string sLinkID)
         {
-            sTeam = sTeam.Replace(" ", "%20");
+            sLinkID = sLinkID.Replace(" ", "%20");
 
-            RSR_CalItems rci = m_apiInterop.CallService<RSR_CalItems>($"api/calendar/GetCalendarForTeam/{sTeam}", false);
+            RSR_CalItems rci = m_apiInterop.CallService<RSR_CalItems>($"api/opencalendar/GetCalendarForTeam/{sLinkID}", false);
             if (!rci.Result)
                 {
-                ErrorResponse.InnerText = String.Format("Failed to get calendar for {0}: {1}", sTeam, rci.Reason);
+                ErrorResponse.InnerText = String.Format("Failed to get calendar for {0}: {1}", sLinkID, rci.Reason);
                 return;
                 }
 
