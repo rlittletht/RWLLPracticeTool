@@ -15,8 +15,13 @@ namespace Rwp
     {
 #if PRODHOST
         static string s_sRoot = "";
-        #else
+        static string s_sFullRoot = "https://rwllpractice.azurewebsites.net";
+#elif STAGEHOST
         static string s_sRoot = "/rwp";
+        private static string s_sFullRoot = "https://thetasoft2.azurewebsites.net/rwp";
+#else
+        static string s_sRoot = "/rwp";
+        static string s_sFullRoot = "http://localhost/rwp";
 #endif
         private Auth m_auth;
         private ApiInterop m_apiInterop;
@@ -172,7 +177,7 @@ namespace Rwp
 
         string GetIcsLinkAddress(string LinkID)
         {
-            return $"http://localhost/rwp/icsfeed.aspx?linkID={LinkID.ToString()}";
+            return $"{s_sFullRoot}/icsfeed.aspx?linkID={LinkID.ToString()}";
         }
 
         #region Query/Data Binding

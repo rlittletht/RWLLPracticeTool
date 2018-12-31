@@ -144,6 +144,9 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         string GetUserId()
         {
+            if (ClaimsPrincipal.Current == null)
+                return null;
+
             return ClaimsPrincipal.Current.FindFirst(ClaimTypes.NameIdentifier).Value;
         }
 
@@ -219,7 +222,7 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         public HttpResponseMessage CallService(string sTarget, bool fRequireAuth)
         {
-            string sAccessToken = GetAccessToken();
+            string sAccessToken = fRequireAuth ? GetAccessToken() : null;
             if (sAccessToken == null && fRequireAuth == true)
                 throw new Exception("Authentication failed, no access token");
 
