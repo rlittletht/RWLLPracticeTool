@@ -5,8 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Script.Serialization;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json;
 using RwpApi.Models;
@@ -22,11 +24,23 @@ namespace RwpApi.Controllers
             return Ok(items);
         }
 
-        [Route("api/calendar/PutCalendarLink/{linkItem}")]
-        public IHttpActionResult PutCalendarLink(CalendarLink linkItem)
+        [HttpPost]
+        [Route("api/calendar/PostCalendarLink")]
+        public IHttpActionResult PostCalendarLink([FromBody] CalendarLink linkItem)
         {
             RSR rsr = CalendarLinks.CalendarLinkItem.AddCalendarLinkItem(linkItem);
+
             return Ok(rsr);
         }
+
+        [HttpGet]
+        [Route("api/calendar/RevokeCalendarLink/{guidLink}")]
+        public IHttpActionResult RevokeCalendarLink(Guid guidLink)
+        {
+            RSR rsr = CalendarLinks.CalendarLinkItem.RevokeCalendarLink(guidLink);
+
+            return Ok(rsr);
+        }
+
     }
 }

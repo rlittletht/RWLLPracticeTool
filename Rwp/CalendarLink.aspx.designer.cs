@@ -10,7 +10,7 @@
 namespace Rwp {
     
     
-    public partial class CalendarLink {
+    public partial class CalendarLinkPage {
         
         /// <summary>
         /// form1 control.
@@ -29,6 +29,15 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ImageButton LoginOutButton;
+        
+        /// <summary>
+        /// teamMenu control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList teamMenu;
         
         /// <summary>
         /// txtComment control.
@@ -56,5 +65,23 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnCreateLink;
+        
+        /// <summary>
+        /// divResults control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divResults;
+        
+        /// <summary>
+        /// DataGrid1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DataGrid DataGrid1;
     }
 }

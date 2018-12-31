@@ -348,7 +348,7 @@ namespace Rwp
 
                 sTeamIn = sAdminTeam;
 
-                if (data.sTeamName != null || data.sTeamName.Contains("Admin"))
+                if (data.sTeamName != null && data.sTeamName.Contains("Admin"))
                     sTeamIn = data.sTeamName;
                    
                 LoadPrivsForTeam(DBConn, sTeamIn, out sTeamOut, out sDivision);

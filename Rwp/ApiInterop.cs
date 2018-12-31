@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Identity.Client;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace Rwp
 {
@@ -58,6 +59,9 @@ namespace Rwp
                     }
                 }
             }
+
+            if (msg.StatusCode == HttpStatusCode.InternalServerError)
+                throw new Exception(msg.ReasonPhrase);
 
             return msg;
         }
@@ -305,7 +309,9 @@ namespace Rwp
 
             string s = jsc.Serialize(t2);
 
-            HttpContent content = new StringContent(s);
+            s = JsonConvert.SerializeObject(t2);
+
+            HttpContent content = new StringContent(s, Encoding.UTF8, "application/json");
             HttpResponseMessage resp = CallServicePost(sTarget, content, fRequireAuth);
 
             string sJson = GetContentAsString(resp);

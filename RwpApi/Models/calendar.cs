@@ -140,6 +140,8 @@ namespace RwpApi
 
             public static string s_sSqlInsert = "INSERT INTO rwllcalendarlinks (LinkID, TeamID, Authority, CreateDate, Comment) ";
 
+            public static string s_sSqlDelete = "DELETE FROM rwllcalendarlinks WHERE LinkID='{0}'";
+
             /*----------------------------------------------------------------------------
             	%%Function: SGenerateUpdateQuery
             	%%Qualified: RwpApi.CalendarLinks.CalendarLinkItem.SGenerateUpdateQuery
@@ -220,6 +222,53 @@ namespace RwpApi
 
                     SqlCommand sqlcmd = sql.CreateCommand();
                     sqlcmd.CommandText = sAdd;
+                    sqlcmd.Transaction = sql.Transaction;
+                    sqlcmd.ExecuteNonQuery();
+                }
+                catch (Exception exc)
+                {
+                    sql.Rollback();
+                    sql.Close();
+                    return RSR.Failed(exc);
+                }
+
+                sql.Commit();
+                sql.Close();
+                return RSR.Success();
+            }
+
+            /*----------------------------------------------------------------------------
+            	%%Function: RevokeCalendarLink
+            	%%Qualified: RwpApi.CalendarLinks.CalendarLinkItem.RevokeCalendarLink
+            	%%Contact: rlittle
+            	
+            ----------------------------------------------------------------------------*/
+            public static RSR RevokeCalendarLink(Guid guidLink)
+            {
+                RSR sr;
+
+                if (guidLink == Guid.Empty)
+                    return RSR.Failed("empty link id");
+
+                Sql sql;
+                
+                sr = RSR.FromSR(Sql.OpenConnection(out sql, Startup._sResourceConnString));
+                if (!sr.Result)
+                    return sr;
+
+                sr = RSR.FromSR(sql.BeginTransaction());
+                if (!sr.Result)
+                {
+                    sql.Close();
+                    return sr;
+                }
+
+                try
+                {
+                    string sDelete = String.Format(s_sSqlDelete, guidLink.ToString());
+
+                    SqlCommand sqlcmd = sql.CreateCommand();
+                    sqlcmd.CommandText = sDelete;
                     sqlcmd.Transaction = sql.Transaction;
                     sqlcmd.ExecuteNonQuery();
                 }

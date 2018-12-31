@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CalendarLink.aspx.cs" Inherits="Rwp.CalendarLink" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CalendarLink.aspx.cs" Inherits="Rwp.CalendarLinkPage" %>
 
 <!DOCTYPE html>
 
@@ -16,6 +16,8 @@
         <tr>
           <td>
             <div>
+              <asp:DropDownList ID="teamMenu" AutoPostBack="True" OnSelectedIndexChanged="OnTeamMenuItemChanged" runat="server"><asp:ListItem Value="">--- Unauthorized ---</asp:ListItem></asp:DropDownList>
+
               <p>To subscripe to your calendar, you will need an internet address for the iCalendar feed ("ics" or "iCal" feed).</p>
               <p>
                 This calendar link issue issued specifically to you and can be revoked by an administrator. Please make sure you enter a comment below so 
@@ -39,12 +41,45 @@
               </p>
             </div>
             <asp:Button ID="btnCreateLink" runat="server" Text="Create Link" OnClick="DoCreateLink" />
+            <div runat="server" ID="divResults"></div>
             </td>
         </tr>
-        <td>
+        <tr>
           <td>
+            <asp:DataGrid ID="DataGrid1" runat="server" BorderColor="black" BorderWidth="1" CellPadding="3"
+                          Wrap="False" Font-Name="Verdana" Font-Size="8pt" Font-Bold="True" AllowSorting="true" 
+                          AutoGenerateColumns="false" >
+              <Columns>
+                <asp:BoundColumn HeaderText="LinkID" ReadOnly="True" DataField="LinkID"
+                                 SortExpression="LinkID">
+                  <ItemStyle HorizontalAlign="Center"></ItemStyle>
+                  <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+                </asp:BoundColumn>
+                <asp:BoundColumn HeaderText="TeamID" ReadOnly="True" DataField="TeamID"
+                                 SortExpression="TeamID">
+                  <ItemStyle HorizontalAlign="Center"></ItemStyle>
+                  <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+                </asp:BoundColumn>
+                <asp:BoundColumn HeaderText="Authority" ReadOnly="True" DataField="Authority"
+                                 SortExpression="Authority">
+                  <ItemStyle HorizontalAlign="Center"></ItemStyle>
+                  <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+                </asp:BoundColumn>
+                <asp:BoundColumn HeaderText="CreateDate" ReadOnly="True" DataField="CreateDate"
+                                 SortExpression="CreateDate">
+                  <ItemStyle HorizontalAlign="Center"></ItemStyle>
+                  <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+                </asp:BoundColumn>
+                <asp:BoundColumn HeaderText="Comment" ReadOnly="True" DataField="Comment"
+                                 SortExpression="Comment">
+                  <ItemStyle HorizontalAlign="Center"></ItemStyle>
+                  <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+                </asp:BoundColumn>
+                <asp:ButtonColumn HeaderText="Revoke" ButtonType="LinkButton" Text="Revoke" CommandName="Delete" />
+              </Columns>
+            </asp:DataGrid>
           </td>
-        </td>
+        </tr>
     </div>
   </form>
 </body>
