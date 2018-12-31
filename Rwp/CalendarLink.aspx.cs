@@ -48,23 +48,6 @@ namespace Rwp
         }
         #endregion
 
-        string BuildSqlQuery(string sTeamID, string sSort)
-        {
-            string sWhere;
-            string sOrderBy;
-
-            if (!string.IsNullOrEmpty(sTeamID) && m_userData.privs != Auth.UserPrivs.AdminPrivs)
-                sWhere = $"where TeamID = '{Sql.Sqlify(sTeamID)}'";
-            else
-                sWhere = "";
-
-            if (!string.IsNullOrEmpty(sSort))
-                sOrderBy = $"order by {Sql.Sqlify(sSort)}";
-            else
-                sOrderBy = "";
-
-            return $"select LinkID, TeamID, Authority, CreateDate, Comment from rwllcalendarlinks {sWhere} {sOrderBy}";
-        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -81,8 +64,7 @@ namespace Rwp
             m_userData = m_auth.CurrentPrivs; // if they login, then we will load new privs
 
             m_auth.SetupLoginLogout();
-            DataGrid1.DeleteCommand += new DataGridCommandEventHandler(DataGrid_DeleteItem);
-
+            DataGrid1.ItemCommand += new DataGridCommandEventHandler(DataGrid_Command);
             if (!IsPostBack)
             {
                 if (m_auth.IsAuthenticated() && m_userData.privs == Auth.UserPrivs.NotAuthenticated)
@@ -101,11 +83,6 @@ namespace Rwp
                     BindSource();
                 }
             }
-        }
-
-        void BuildPageSqlQuery()
-        {
-            SqlQuery = BuildSqlQuery(teamMenu.SelectedValue, null);
         }
 
         void FillTeamList(Auth.UserData data)
@@ -159,6 +136,12 @@ namespace Rwp
             }
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: DoCreateLink
+        	%%Qualified: Rwp.CalendarLinkPage.DoCreateLink
+        	%%Contact: rlittle
+        	
+        ----------------------------------------------------------------------------*/
         protected void DoCreateLink(object sender, EventArgs e)
         {
             RSR sr;
@@ -182,13 +165,55 @@ namespace Rwp
             sr = m_apiInterop.CallServicePost<RSR, CalendarLink>("api/calendar/PostCalendarLink", link, true);
 
             ReportSr(sr, "CreateLink");
-            BindSource(); // force a refresh
+            txtCalendarFeedLink.Text = GetIcsLinkAddress(link.Link.ToString());
 
+            BindSource(); // force a refresh
+        }
+
+        string GetIcsLinkAddress(string LinkID)
+        {
+            return $"http://localhost/rwp/icsfeed.aspx?linkID={LinkID.ToString()}";
+        }
+
+        #region Query/Data Binding
+        /*----------------------------------------------------------------------------
+        	%%Function: BuildSqlQuery
+        	%%Qualified: Rwp.CalendarLinkPage.BuildSqlQuery
+        	%%Contact: rlittle
+        	
+        ----------------------------------------------------------------------------*/
+        string BuildSqlQuery(string sTeamID, string sSort)
+        {
+            string sWhere;
+            string sOrderBy;
+
+            if (!string.IsNullOrEmpty(sTeamID) && m_userData.privs != Auth.UserPrivs.AdminPrivs)
+                sWhere = $"where TeamID = '{Sql.Sqlify(sTeamID)}'";
+            else
+                sWhere = "";
+
+            if (!string.IsNullOrEmpty(sSort))
+                sOrderBy = $"order by {Sql.Sqlify(sSort)}";
+            else
+                sOrderBy = "";
+
+            return $"select LinkID, TeamID, Authority, CreateDate, Comment from rwllcalendarlinks {sWhere} {sOrderBy}";
+        }
+        
+        void BuildPageSqlQuery()
+        {
+            SqlQuery = BuildSqlQuery(teamMenu.SelectedValue, null);
         }
 
         private SqlCommand cmdMbrs;
         private SqlDataReader rdrMbrs;
         
+        /*----------------------------------------------------------------------------
+        	%%Function: BindSource
+        	%%Qualified: Rwp.CalendarLinkPage.BindSource
+        	%%Contact: rlittle
+        	
+        ----------------------------------------------------------------------------*/
         void BindSource()
         {
             if (String.IsNullOrEmpty(SqlQuery))
@@ -212,6 +237,37 @@ namespace Rwp
             }
         }
 
+
+        void DataGrid_Command(Object sender, DataGridCommandEventArgs e)
+        {
+            switch (((LinkButton) e.CommandSource).CommandName)
+            {
+                case "Delete":
+                    DataGrid_DeleteItem(sender, e);
+                    break;
+                case "Get Link":
+                    DataGrid_GetLink(sender, e);
+                    break;
+                default:
+                    // Do nothing.
+                    break;
+            }
+        }
+
+        void DataGrid_GetLink(Object sender, DataGridCommandEventArgs e)
+        {
+            TableCell itemCell = e.Item.Cells[0];
+            string linkID = itemCell.Text;
+
+            txtCalendarFeedLink.Text = GetIcsLinkAddress(linkID);
+        }
+
+        /*----------------------------------------------------------------------------
+        	%%Function: DataGrid_DeleteItem
+        	%%Qualified: Rwp.CalendarLinkPage.DataGrid_DeleteItem
+        	%%Contact: rlittle
+        	
+        ----------------------------------------------------------------------------*/
         void DataGrid_DeleteItem(Object sender, DataGridCommandEventArgs e)
         {
             // e.Item is the table row where the command is raised. For bound
@@ -226,7 +282,7 @@ namespace Rwp
 
             // Rebind the data source to refresh the DataGrid control.
             BindSource();
-BindSource();
         }
+        #endregion
     }
 }

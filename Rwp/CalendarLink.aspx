@@ -18,7 +18,7 @@
             <div>
               <asp:DropDownList ID="teamMenu" AutoPostBack="True" OnSelectedIndexChanged="OnTeamMenuItemChanged" runat="server"><asp:ListItem Value="">--- Unauthorized ---</asp:ListItem></asp:DropDownList>
 
-              <p>To subscripe to your calendar, you will need an internet address for the iCalendar feed ("ics" or "iCal" feed).</p>
+              <p>To subscribe to your calendar, you will need an internet address for the iCalendar feed ("ics" or "iCal" feed).</p>
               <p>
                 This calendar link issue issued specifically to you and can be revoked by an administrator. Please make sure you enter a comment below so 
                 administrators can identify which links have been issued (e.g. "Link created for Sports Engine website" or "Created link for 
@@ -30,7 +30,9 @@
                 share the link with will be able to access the calendar link. You can revoke a link at any time if you think it is being misused.
               </p>
               <p>
-                Comment for calendar link: <asp:TextBox ID="txtComment" runat="server">[Enter comment here]</asp:TextBox>
+                Comment for calendar link: <asp:TextBox ID="txtComment" runat="server" width="128"></asp:TextBox>
+                <asp:Button ID="btnCreateLink" runat="server" Text="Create Link" OnClick="DoCreateLink" />
+
               </p>
                 Copy and paste this internet address as your iCalendar feed:
                 <br />
@@ -40,7 +42,6 @@
               <p style="text-align: right">
               </p>
             </div>
-            <asp:Button ID="btnCreateLink" runat="server" Text="Create Link" OnClick="DoCreateLink" />
             <div runat="server" ID="divResults"></div>
             </td>
         </tr>
@@ -76,6 +77,7 @@
                   <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
                 </asp:BoundColumn>
                 <asp:ButtonColumn HeaderText="Revoke" ButtonType="LinkButton" Text="Revoke" CommandName="Delete" />
+                <asp:ButtonColumn HeaderText="Get Link" ButtonType="LinkButton" Text="Get Link" CommandName="GetLink" />
               </Columns>
             </asp:DataGrid>
           </td>
