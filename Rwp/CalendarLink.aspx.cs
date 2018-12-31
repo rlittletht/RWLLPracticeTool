@@ -245,7 +245,7 @@ namespace Rwp
                 case "Delete":
                     DataGrid_DeleteItem(sender, e);
                     break;
-                case "Get Link":
+                case "GetLink":
                     DataGrid_GetLink(sender, e);
                     break;
                 default:
