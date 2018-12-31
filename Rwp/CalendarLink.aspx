@@ -11,12 +11,15 @@
   <div class="masthead">calendar links</div>
   <form id="form1" runat="server">
     <div>
-      <asp:ImageButton ID="LoginOutButton" runat="server" ImageUrl="signin.png" CssClass="loginButton" />
+      <div class="mastHeadButtons">
+        <asp:ImageButton ID="GoHome" runat="server" ImageUrl="home.png" />
+        <asp:ImageButton ID="LoginOutButton" runat="server" ImageUrl="signin.png" />
+      </div>
       <table>
         <tr>
           <td>
             <div>
-              <asp:DropDownList ID="teamMenu" AutoPostBack="True" OnSelectedIndexChanged="OnTeamMenuItemChanged" runat="server"><asp:ListItem Value="">--- Unauthorized ---</asp:ListItem></asp:DropDownList>
+              Team: <asp:DropDownList ID="teamMenu" AutoPostBack="True" OnSelectedIndexChanged="OnTeamMenuItemChanged" runat="server"><asp:ListItem Value="">--- Unauthorized ---</asp:ListItem></asp:DropDownList>
 
               <p>To subscribe to your calendar, you will need an internet address for the iCalendar feed ("ics" or "iCal" feed).</p>
               <p>

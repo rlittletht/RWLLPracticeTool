@@ -287,8 +287,7 @@ namespace Rwp
         #region Commands
         protected void ShowICalFeedLink(object sender, EventArgs e)
         {
-            divCalendarFeedLink.Visible = true;
-            ShowingCalLink = true;
+            Response.Redirect($"{Startup.s_sFullRoot}/CalendarLink.aspx");
             // RunQuery(sender, e)
         }
 
@@ -538,6 +537,7 @@ namespace Rwp
         protected void OnTeamMenuItemChanged(object sender, EventArgs e)
         {
             // they have selected a new teamname to work as, load the privs for that
+            m_auth.LoadPrivs(DBConn, teamName);
             LoadPrivsAndSetupPage();
         }
     }

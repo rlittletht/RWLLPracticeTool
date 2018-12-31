@@ -127,6 +127,7 @@
     <Content Include="admin.aspx" />
     <Content Include="CalendarLink.aspx" />
     <Content Include="default.aspx" />
+    <Content Include="home.png" />
     <Content Include="icsfeed.aspx" />
     <Content Include="icsfeed_howto.html" />
     <Content Include="NewCalendarDialog.png" />

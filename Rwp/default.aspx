@@ -9,8 +9,10 @@
 </head>
 <body style="height: 244">
 <form id="Form1" runat="server" style="text-align: center" enctype="multipart/form-data">
+  <div class="mastHeadButtons">
+    <asp:ImageButton ID="LoginOutButton" runat="server" ImageUrl="signin.png" CssClass="loginButton" />
+  </div>
     <p style="display: table-cell; vertical-align: middle; height: 30pt; width: 24in; background: gold;">
-        <asp:ImageButton ID="LoginOutButton" runat="server" ImageUrl="signin.png" CssClass="loginButton" />
 
         <font face="Times" size="4">
             <asp:Label ID="Message0" align="Center" Font-Bold="True" BackColor="gold" Width="100%"

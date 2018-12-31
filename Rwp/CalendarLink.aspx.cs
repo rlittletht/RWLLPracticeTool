@@ -13,16 +13,6 @@ namespace Rwp
 {
     public partial class CalendarLinkPage : System.Web.UI.Page
     {
-#if PRODHOST
-        static string s_sRoot = "";
-        static string s_sFullRoot = "https://rwllpractice.azurewebsites.net";
-#elif STAGEHOST
-        static string s_sRoot = "/rwp";
-        private static string s_sFullRoot = "https://thetasoft2.azurewebsites.net/rwp";
-#else
-        static string s_sRoot = "/rwp";
-        static string s_sFullRoot = "http://localhost/rwp";
-#endif
         private Auth m_auth;
         private ApiInterop m_apiInterop;
         private Auth.UserData m_userData;
@@ -58,7 +48,7 @@ namespace Rwp
         {
             m_auth = new Auth(LoginOutButton, Request, Session,
                 Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState,
-                $"{s_sRoot}/CalendarLink.aspx", null, OnAfterLogin, null, null);
+                $"{Startup.s_sRoot}/CalendarLink.aspx", null, OnAfterLogin, null, null);
             m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
@@ -70,6 +60,8 @@ namespace Rwp
 
             m_auth.SetupLoginLogout();
             DataGrid1.ItemCommand += new DataGridCommandEventHandler(DataGrid_Command);
+            GoHome.Click += DoGoHome;
+
             if (!IsPostBack)
             {
                 if (m_auth.IsAuthenticated() && m_userData.privs == Auth.UserPrivs.NotAuthenticated)
@@ -88,6 +80,11 @@ namespace Rwp
                     BindSource();
                 }
             }
+        }
+
+        public void DoGoHome(object sender, ImageClickEventArgs args)
+        {
+            Response.Redirect(Startup.s_sFullRoot);
         }
 
         void FillTeamList(Auth.UserData data)
@@ -177,7 +174,7 @@ namespace Rwp
 
         string GetIcsLinkAddress(string LinkID)
         {
-            return $"{s_sFullRoot}/icsfeed.aspx?linkID={LinkID.ToString()}";
+            return $"{Startup.s_sFullRoot}/icsfeed.aspx?linkID={LinkID.ToString()}";
         }
 
         #region Query/Data Binding

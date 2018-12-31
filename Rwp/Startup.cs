@@ -19,6 +19,16 @@ namespace Rwp
 {
     public class Startup
     {
+#if PRODHOST
+        public static string s_sRoot = "";
+        public static string s_sFullRoot = "https://rwllpractice.azurewebsites.net";
+#elif STAGEHOST
+        public static string s_sRoot = "/rwp";
+        public static string s_sFullRoot = "https://thetasoft2.azurewebsites.net/rwp";
+#else
+        public static string s_sRoot = "/rwp";
+        public static string s_sFullRoot = "http://localhost/rwp";
+#endif
         // The Client ID is used by the application to uniquely identify itself to Azure AD.
         public static string clientId = System.Configuration.ConfigurationManager.AppSettings["ClientId"];
 

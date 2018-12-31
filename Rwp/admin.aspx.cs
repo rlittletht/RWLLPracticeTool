@@ -86,6 +86,12 @@ namespace Rwp
             EnableUIForAdmin();
 
             m_auth.SetupLoginLogout();
+            GoHome.Click += DoGoHome;
+        }
+
+        public void DoGoHome(object sender, ImageClickEventArgs args)
+        {
+            Response.Redirect(Startup.s_sFullRoot);
         }
 
         /*----------------------------------------------------------------------------
