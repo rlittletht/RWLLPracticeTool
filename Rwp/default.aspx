@@ -111,7 +111,7 @@
         </tr>
         <tr>
             <td style="text-align: center">
-                <a href="ReleaseNotes.aspx" target="_Blank">release notes</a>
+                <a href="ReleaseNotes.aspx" target="_blank">release notes</a>
             </td>
         </tr>
         <tr>

@@ -21,6 +21,8 @@ namespace Rwp
     {
         private HttpContext m_context;
         private HttpClient m_client;
+        private string m_sClientAccessToken; // used to determine if we can reuse a client
+
         private HttpServerUtility m_server;
         private string m_apiRoot;
 
@@ -115,6 +117,16 @@ namespace Rwp
         }
 
 
+        bool FNeAccessToken(string s1, string s2)
+        {
+            if (s1 == null && s2 == null)
+                return false;
+
+            if (s1 == null || s2 == null)
+                return true;
+
+            return String.Compare(s1, s2, StringComparison.Ordinal) != 0;
+        }
         /*----------------------------------------------------------------------------
         	%%Function: HttpClientCreate
         	%%Qualified: WebApp._default.HttpClientCreate
@@ -123,14 +135,18 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         HttpClient HttpClientCreate(string sAccessToken)
         {
-            if (m_client == null)
+            if (m_client == null || FNeAccessToken(sAccessToken, m_sClientAccessToken))
             {
                 HttpClient client = new HttpClient();
 
                 // we have setup our webapi to take Bearer authentication, so add our access token
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sAccessToken);
 
+                if (m_client != null)
+                    m_client.Dispose();
+
                 m_client = client;
+                m_sClientAccessToken = sAccessToken;
             }
 
             return m_client;
@@ -148,7 +164,7 @@ namespace Rwp
             if (ClaimsPrincipal.Current == null)
                 return null;
 
-            return ClaimsPrincipal.Current.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return ClaimsPrincipal.Current.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
         /*----------------------------------------------------------------------------

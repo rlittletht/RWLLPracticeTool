@@ -24,7 +24,6 @@ namespace Rwp
         protected void DoReport()
         {
             HttpResponseMessage resp = m_apiInterop.CallService("api/slot/GetSlots", true);
-
             Task<Stream> tskStream = resp.Content.ReadAsStreamAsync();
             tskStream.Wait();
 
