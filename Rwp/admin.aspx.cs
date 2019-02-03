@@ -160,7 +160,16 @@ namespace Rwp
                 return;
             }
 
-            sr = m_apiInterop.CallService<RSR>("api/slot/DeleteAllSlots", true);
+            try
+            {
+                sr = m_apiInterop.CallService<RSR>("api/slot/DeleteAllSlots", true);
+            }
+            catch (Exception exc)
+            {
+                sr = new RSR();
+                sr.Result = false;
+                sr.Reason = exc.Message;
+            }
 
             ReportSr(sr, "Delete All Slots");
         }

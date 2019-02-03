@@ -27,15 +27,16 @@ using TCore;
 
 namespace Rwp
 {
-    public partial class Auth
+    public class Auth
     {
+        private TCore.MsalWeb.Auth<UserPrivs> m_auth;
+
         private global::System.Web.UI.WebControls.ImageButton m_buttonLoginOut;
         private HttpRequest m_request;
         private string m_sAuthReturnAddress;
         private HttpContextBase m_context;
         private StateBag m_viewState;
         private HttpSessionState m_session;
-
         public delegate void LoginOutCallback(object sender, EventArgs e);
 
         LoginOutCallback m_onBeforeLogin;

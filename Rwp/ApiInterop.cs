@@ -13,6 +13,7 @@ using System.Web;
 using Microsoft.Identity.Client;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
+using TCore;
 
 namespace Rwp
 {
@@ -240,6 +241,11 @@ namespace Rwp
         public T CallService<T>(string sTarget, bool fRequireAuth)
         {
             HttpResponseMessage resp = CallService(sTarget, fRequireAuth);
+
+            if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new Exception("Service returned 'user is unauthorized'");
+            }
 
             string sJson = GetContentAsString(resp);
 
