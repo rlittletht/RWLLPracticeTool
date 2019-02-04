@@ -12,6 +12,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Notifications;
 using Microsoft.Owin.Security.OpenIdConnect;
 using Owin;
+using TCore.MsalWeb;
 
 [assembly: OwinStartup(typeof(Rwp.Startup))]
 

@@ -14,6 +14,7 @@ using Microsoft.Identity.Client;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using TCore;
+using TCore.MsalWeb;
 
 namespace Rwp
 {

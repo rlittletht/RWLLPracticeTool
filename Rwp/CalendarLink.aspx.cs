@@ -48,7 +48,7 @@ namespace Rwp
         {
             m_auth = new Auth(LoginOutButton, Request, Session,
                 Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState,
-                $"{Startup.s_sRoot}/CalendarLink.aspx", null, OnAfterLogin, null, null);
+                $"{Startup.s_sRoot}/CalendarLink.aspx", null, null);
             m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
@@ -115,13 +115,6 @@ namespace Rwp
         {
             m_userData = m_auth.LoadPrivs(DBConn, teamMenu.SelectedValue);
             BuildPageSqlQuery();
-            BindSource();
-        }
-
-        void OnAfterLogin(object sender, EventArgs e)
-        {
-            m_userData = m_auth.LoadPrivs(DBConn);
-            FillTeamList(m_userData);
             BindSource();
         }
 

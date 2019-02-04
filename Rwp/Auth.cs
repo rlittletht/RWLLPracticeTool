@@ -24,25 +24,29 @@ using Microsoft.Identity.Client;
 using Microsoft.Owin.Security.Notifications;
 using Owin;
 using TCore;
+using TCore.MsalWeb;
 
 namespace Rwp
 {
-    public class Auth
+    public class Auth : IAuthClient<Auth.UserData>
     {
-        private TCore.MsalWeb.Auth<UserPrivs> m_auth;
+        private TCore.MsalWeb.Auth<UserData> m_auth;
 
         private global::System.Web.UI.WebControls.ImageButton m_buttonLoginOut;
-        private HttpRequest m_request;
-        private string m_sAuthReturnAddress;
-        private HttpContextBase m_context;
-        private StateBag m_viewState;
-        private HttpSessionState m_session;
         public delegate void LoginOutCallback(object sender, EventArgs e);
 
         LoginOutCallback m_onBeforeLogin;
-        LoginOutCallback m_onAfterLogin;
         LoginOutCallback m_onBeforeLogout;
-        LoginOutCallback m_onAfterLogout;
+
+        public void BeforeLogin(object sender, EventArgs e)
+        {
+            m_onBeforeLogin?.Invoke(sender, e);
+        }
+
+        public void BeforeLogout(object sender, EventArgs e)
+        {
+            m_onBeforeLogout?.Invoke(sender, e);
+        }
 
         /*----------------------------------------------------------------------------
         	%%Function: Auth
@@ -62,35 +66,12 @@ namespace Rwp
             StateBag viewState,
             string sReturnAddress,
             LoginOutCallback onBeforeLogin,
-            LoginOutCallback onAfterLogin,
-            LoginOutCallback onBeforeLogout,
-            LoginOutCallback onAfterLogout)
+            LoginOutCallback onBeforeLogout)
         {
-            m_sAuthReturnAddress = sReturnAddress;
+            m_auth = new Auth<UserData>(request, session, context, context.GetOwinContext(), viewState, sReturnAddress, this);
             m_buttonLoginOut = button;
-            m_request = request;
             m_onBeforeLogin = onBeforeLogin;
-            m_onAfterLogin = onAfterLogin;
             m_onBeforeLogout = onBeforeLogout;
-            m_onAfterLogout = onAfterLogout;
-            m_context = context;
-            m_viewState = viewState;
-            m_session = session;
-
-            LoadCachedPrivs();
-        }
-
-        void LoadCachedPrivs()
-        {
-            if (!IsAuthenticated())
-            {
-                // make sure current privs aren't leaked from before
-                UserData data = CurrentPrivs;
-                data.privs = UserPrivs.NotAuthenticated;
-                data.sIdentity = null;
-                data.sTenant = null;
-                CurrentPrivs = data;
-            }
         }
 
         [Serializable]
@@ -113,51 +94,26 @@ namespace Rwp
             AdminPrivs
         };
 
-        T TGetState<T>(string sState, T tDefault)
+        public UserData CreateEmpty()
         {
-            T tValue = tDefault;
-
-            if (m_viewState[sState] == null)
-                m_viewState[sState] = tValue;
-            else
-                tValue = (T)m_viewState[sState];
-
-            return tValue;
+            return EmptyAuth();
         }
 
-        void SetState<T>(string sState, T tValue)
+        public bool AuthIsAuthenticated() => m_auth.CurrentPrivs.privs != Auth.UserPrivs.NotAuthenticated;
+
+        public bool AuthHasPrivileges() => m_auth.CurrentPrivs.privs != Auth.UserPrivs.NotAuthenticated &&
+                                           m_auth.CurrentPrivs.privs != Auth.UserPrivs.AuthenticatedNoPrivs;
+
+        public bool IsLoggedIn => m_auth.IsLoggedIn;
+
+        public UserData CurrentPrivs
         {
-            m_viewState[sState] = tValue;
+            get => m_auth.CurrentPrivs;
+            set => m_auth.CurrentPrivs = value;
         }
-
-        T TGetSessionState<T>(string sState, T tDefault)
-        {
-            T tValue = tDefault;
-
-            if (m_session[sState] == null)
-                m_session[sState] = tValue;
-            else
-                tValue = (T)m_session[sState];
-
-            return tValue;
-        }
-
-        void SetSessionState<T>(string sState, T tValue)
-        {
-            m_session[sState] = tValue;
-        }
-
-        public Auth.UserData CurrentPrivs
-        {
-            get => TGetSessionState("privs", new Auth.UserData() { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null });
-            set => SetSessionState("privs", value);
-        }
-
-        public bool IsLoggedIn  => CurrentPrivs.privs != Auth.UserPrivs.NotAuthenticated && CurrentPrivs.privs != Auth.UserPrivs.AuthenticatedNoPrivs;
-
         public bool IsAuthenticated()
         {
-            return IsSignedIn();
+            return m_auth.IsSignedIn();
         }
 
         public string Identity()
@@ -180,6 +136,18 @@ namespace Rwp
             return null;
         }
 
+        public void SetAuthenticated(bool fAuthenticated)
+        {
+            if (fAuthenticated)
+            {
+                UserData data = m_auth.CurrentPrivs;
+                data.privs = UserPrivs.AuthenticatedNoPrivs;
+                m_auth.CurrentPrivs = data;
+            }
+            else
+                m_auth.CurrentPrivs = EmptyAuth();
+
+        }
         public static UserData EmptyAuth()
         {
             return new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
@@ -406,16 +374,12 @@ namespace Rwp
 
         public void DoSignInClick(object sender, ImageClickEventArgs args)
         {
-            m_onBeforeLogin?.Invoke(sender, args);
-            SignIn(m_request.IsAuthenticated, m_sAuthReturnAddress);
-            m_onAfterLogin?.Invoke(sender, args);
+            m_auth.SignIn(sender, args);
         }
 
         public void DoSignOutClick(object sender, ImageClickEventArgs args)
         {
-            m_onBeforeLogout?.Invoke(sender, args);
-            SignOut();
-            m_onAfterLogout?.Invoke(sender, args);
+            m_auth.SignOut(sender, args);
         }
 
         public void SetupLoginLogout()
@@ -432,78 +396,6 @@ namespace Rwp
                 m_buttonLoginOut.Click += DoSignInClick;
                 m_buttonLoginOut.ImageUrl = "signin.png";
             }
-        }
-
-        /// <summary>
-        /// Send an OpenID Connect sign-in request.
-        /// Alternatively, you can just decorate the SignIn method with the [Authorize] attribute
-        /// </summary>
-        public void SignIn(bool fIsAuthenticated, string sReturnAddress)
-        {
-            if (!IsAuthenticated())
-            {
-                HttpContext.Current.GetOwinContext().Authentication.Challenge(
-                    new AuthenticationProperties { RedirectUri = sReturnAddress},
-                    OpenIdConnectAuthenticationDefaults.AuthenticationType);
-            }
-        }
-
-        /// <summary>
-        /// Send an OpenID Connect sign-out request.
-        /// </summary>
-        public void SignOut()
-        {
-            HttpContext.Current.GetOwinContext().Authentication.SignOut(
-                OpenIdConnectAuthenticationDefaults.AuthenticationType,
-                CookieAuthenticationDefaults.AuthenticationType);
-        }
-
-        protected void ValidateLogin(bool fIsAuthenticated)
-        {
-            SignIn(IsAuthenticated(), m_sAuthReturnAddress);
-        }
-
-
-        /*----------------------------------------------------------------------------
-        	%%Function: GetUserId
-        	%%Qualified: WebApp._default.GetUserId
-        	
-            convenient way to get the current user id (so we can get to the right
-            TokenCache)
-        ----------------------------------------------------------------------------*/
-        string GetUserId()
-        {
-            return ClaimsPrincipal.Current.FindFirst(ClaimTypes.NameIdentifier).Value;
-        }
-
-        /*----------------------------------------------------------------------------
-        	%%Function: IsSignedIn
-        	%%Qualified: WebApp._default.IsSignedIn
-        	
-            return true if the signin process is complete -- this includes making 
-            sure there is an entry for this userid in the TokenCache
-        ----------------------------------------------------------------------------*/
-        bool IsSignedIn()
-        {
-            return m_request.IsAuthenticated && FTokenCachePopulated();
-        }
-
-        /*----------------------------------------------------------------------------
-        	%%Function: FTokenCachePopulated
-        	%%Qualified: WebApp._default.FTokenCachePopulated
-        	
-        	return true if our TokenCache has been populated for the current 
-            UserId.  Since our TokenCache is currently only stored in the session, 
-            if our session ever gets reset, we might get into a state where there
-            is a cookie for auth (and will let us automatically login), but the
-            TokenCache never got populated (since it is only populated during the
-            actual authentication process). If this is the case, we need to treat
-            this as if the user weren't logged in. The user will SignIn again, 
-            populating the TokenCache.
-        ----------------------------------------------------------------------------*/
-        bool FTokenCachePopulated()
-        {
-            return MSALSessionCache.CacheExists(GetUserId(), m_context);
         }
     }
 }

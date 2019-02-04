@@ -105,7 +105,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
+            m_auth = new Auth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, OnBeforeSignout);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
