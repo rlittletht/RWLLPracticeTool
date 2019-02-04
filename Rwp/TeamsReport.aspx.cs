@@ -23,7 +23,7 @@ namespace Rwp
 
 	    protected void DoReport()
 	    {
-	        HttpResponseMessage resp = m_apiInterop.CallService("api/team/GetTeams", false);
+	        HttpResponseMessage resp = m_apiInterop.CallService("api/team/GetTeams", true);
 
 	        Task<Stream> tskStream = resp.Content.ReadAsStreamAsync();
 	        tskStream.Wait();

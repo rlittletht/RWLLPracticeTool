@@ -279,10 +279,12 @@
       <Project>{0fe8c023-8694-4e19-9fb0-ea38e5b8798b}</Project>
       <Name>StatusResult</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\liblet\cs\TCore.MsalWeb\TCore.MsalWeb\TCore.MsalWeb.csproj">
+      <Project>{2a614abe-23ae-4064-bd31-4ea1bcc4dae0}</Project>
+      <Name>TCore.MsalWeb</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Liblets\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

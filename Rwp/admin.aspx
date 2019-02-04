@@ -9,11 +9,11 @@
     <script language="javascript">
         function DoDownloadTeams()
         {
-            window.open("TeamsReport.aspx");
+            window.open("TeamsReport.aspx", "_blank");
         }
 		function DoDownloadSlots()
 		{
-			window.open("SlotsReport.aspx");
+			window.open("SlotsReport.aspx", "_blank");
 		}
     </script>
 </head>
