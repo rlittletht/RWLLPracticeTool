@@ -26,7 +26,7 @@ namespace Rwp
 {
     public partial class default1 : System.Web.UI.Page
     {
-        private Auth m_auth;
+        private RwpAuth m_rwpAuth;
         static string s_sRoot = "/rwp";
         private SqlConnection DBConn;
         private string sqlStrSorted;
@@ -98,14 +98,14 @@ namespace Rwp
 
         #endregion
 
-        private bool IsLoggedIn => m_auth.IsLoggedIn;
-        private bool LoggedInAsAdmin => m_auth.CurrentPrivs.privs == Auth.UserPrivs.AdminPrivs;
+        private bool IsLoggedIn => m_rwpAuth.IsLoggedIn;
+        private bool LoggedInAsAdmin => m_rwpAuth.CurrentPrivs.privs == RwpAuth.UserPrivs.AdminPrivs;
         
         private string sCurYear;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, OnBeforeSignout);
+            m_rwpAuth = new RwpAuth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, OnBeforeSignout);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
@@ -126,7 +126,7 @@ namespace Rwp
                 Message0.Text = exc.Message;
             }
             
-            m_auth.SetupLoginLogout();
+            m_rwpAuth.SetupLoginLogout();
         }
 
         void LoadPrivsAndSetupPage()
@@ -140,7 +140,7 @@ namespace Rwp
             {
                 divCalendarFeedLink.Visible = ShowingCalLink;
 
-                Auth.UserData data = LoadPrivs();
+                RwpAuth.UserData data = LoadPrivs();
 
                 if (!IsLoggedIn)
                     SetLoggedOff();
@@ -154,7 +154,7 @@ namespace Rwp
 
         #region Auth/Privs
 
-        void ShowHideAdmin(Auth.UserData data)
+        void ShowHideAdmin(RwpAuth.UserData data)
         {
             if (!LoggedInAsAdmin)
             {
@@ -174,12 +174,12 @@ namespace Rwp
 
         void SetLoggedOff()
         {
-            m_auth.SetLoggedOff();
+            m_rwpAuth.SetLoggedOff();
 
             SqlBase = "";
         }
 
-        void FillTeamList(Auth.UserData data)
+        void FillTeamList(RwpAuth.UserData data)
         {
             int i = 0;
             int iChecked = -1;
@@ -200,22 +200,22 @@ namespace Rwp
                 teamMenu.SelectedIndex = iChecked;
         }
 
-        Auth.UserData LoadPrivs()
+        RwpAuth.UserData LoadPrivs()
         {
-            if (!m_auth.IsAuthenticated())
-                return Auth.EmptyAuth();
+            if (!m_rwpAuth.IsAuthenticated())
+                return RwpAuth.EmptyAuth();
 
-            Auth.UserData userData;
+            RwpAuth.UserData userData;
                 
-            m_auth.LoadPrivs(DBConn);
+            m_rwpAuth.LoadPrivs(DBConn);
 
-            userData = m_auth.CurrentPrivs;
+            userData = m_rwpAuth.CurrentPrivs;
 
             FillTeamList(userData);
 
-            if (m_auth.IsLoggedIn)
+            if (m_rwpAuth.IsLoggedIn)
             {
-                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity()})";
+                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_rwpAuth.Identity()})";
 
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
@@ -230,7 +230,7 @@ namespace Rwp
             else
             {
                 SetLoggedOff();
-                Message1.Text = $"User '{m_auth.Tenant()}\\{m_auth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
+                Message1.Text = $"User '{m_rwpAuth.Tenant()}\\{m_rwpAuth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
                 Message1.ForeColor = System.Drawing.Color.Red;
             }
 
@@ -541,7 +541,7 @@ namespace Rwp
         protected void OnTeamMenuItemChanged(object sender, EventArgs e)
         {
             // they have selected a new teamname to work as, load the privs for that
-            m_auth.LoadPrivs(DBConn, teamName);
+            m_rwpAuth.LoadPrivs(DBConn, teamName);
             LoadPrivsAndSetupPage();
         }
     }

@@ -13,9 +13,9 @@ namespace Rwp
 {
     public partial class CalendarLinkPage : System.Web.UI.Page
     {
-        private Auth m_auth;
+        private RwpAuth m_auth;
         private ApiInterop m_apiInterop;
-        private Auth.UserData m_userData;
+        private RwpAuth.UserData m_userData;
         private SqlConnection DBConn;
 
         #region Persisted ViewState
@@ -46,7 +46,7 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, Session,
+            m_auth = new RwpAuth(LoginOutButton, Request, Session,
                 Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState,
                 $"{Startup.s_sRoot}/CalendarLink.aspx", null, null);
             m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
@@ -64,7 +64,7 @@ namespace Rwp
 
             if (!IsPostBack)
             {
-                if (m_auth.IsAuthenticated() && m_userData.privs == Auth.UserPrivs.NotAuthenticated)
+                if (m_auth.IsAuthenticated() && m_userData.privs == RwpAuth.UserPrivs.NotAuthenticated)
                     m_userData = m_auth.LoadPrivs(DBConn);
 
                 FillTeamList(m_userData);
@@ -87,7 +87,7 @@ namespace Rwp
             Response.Redirect(Startup.s_sFullRoot);
         }
 
-        void FillTeamList(Auth.UserData data)
+        void FillTeamList(RwpAuth.UserData data)
         {
             int i = 0;
             int iChecked = -1;
@@ -182,7 +182,7 @@ namespace Rwp
             string sWhere;
             string sOrderBy;
 
-            if (!string.IsNullOrEmpty(sTeamID) && m_userData.privs != Auth.UserPrivs.AdminPrivs)
+            if (!string.IsNullOrEmpty(sTeamID) && m_userData.privs != RwpAuth.UserPrivs.AdminPrivs)
                 sWhere = $"where TeamID = '{Sql.Sqlify(sTeamID)}'";
             else
                 sWhere = "";

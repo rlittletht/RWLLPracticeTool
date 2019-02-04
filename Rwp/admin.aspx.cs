@@ -23,9 +23,9 @@ namespace Rwp
         static string s_sRoot = "/rwp";
         #endif
 
-        private Auth m_auth;
+        private RwpAuth m_auth;
         private SqlConnection DBConn;
-        private Auth.UserData m_userData;
+        private RwpAuth.UserData m_userData;
         private ApiInterop m_apiInterop;
 
         static string ExtractServerNameFromConnection(string sConnection)
@@ -71,7 +71,7 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new Auth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/admin.aspx", null, null);
+            m_auth = new RwpAuth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/admin.aspx", null, null);
             m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
@@ -118,7 +118,7 @@ namespace Rwp
         {
             RSR sr = new RSR();
 
-            if (m_userData.privs != Auth.UserPrivs.AdminPrivs)
+            if (m_userData.privs != RwpAuth.UserPrivs.AdminPrivs)
             {
                 sr.Result = false;
                 sr.Reason = $"User does not have administrative privileges";
@@ -132,7 +132,7 @@ namespace Rwp
 
         void EnableUIForAdmin()
         {
-            bool fAdmin = m_userData.privs == Auth.UserPrivs.AdminPrivs;
+            bool fAdmin = m_userData.privs == RwpAuth.UserPrivs.AdminPrivs;
 
             btnDownloadTeams.Enabled = fAdmin;
             btnClearTeams.Enabled = fAdmin;

@@ -28,7 +28,7 @@ using TCore.MsalWeb;
 
 namespace Rwp
 {
-    public class Auth : IAuthClient<Auth.UserData>
+    public class RwpAuth : IAuthClient<RwpAuth.UserData>
     {
         private TCore.MsalWeb.Auth<UserData> m_auth;
 
@@ -58,7 +58,7 @@ namespace Rwp
 
             to grab current privs or setup for logging in/out, call this.LoadPrivs
         ----------------------------------------------------------------------------*/
-        public Auth(
+        public RwpAuth(
             global::System.Web.UI.WebControls.ImageButton button, 
             HttpRequest request,
             HttpSessionState session,
@@ -99,10 +99,10 @@ namespace Rwp
             return EmptyAuth();
         }
 
-        public bool AuthIsAuthenticated() => m_auth.CurrentPrivs.privs != Auth.UserPrivs.NotAuthenticated;
+        public bool AuthIsAuthenticated() => m_auth.CurrentPrivs.privs != RwpAuth.UserPrivs.NotAuthenticated;
 
-        public bool AuthHasPrivileges() => m_auth.CurrentPrivs.privs != Auth.UserPrivs.NotAuthenticated &&
-                                           m_auth.CurrentPrivs.privs != Auth.UserPrivs.AuthenticatedNoPrivs;
+        public bool AuthHasPrivileges() => m_auth.CurrentPrivs.privs != RwpAuth.UserPrivs.NotAuthenticated &&
+                                           m_auth.CurrentPrivs.privs != RwpAuth.UserPrivs.AuthenticatedNoPrivs;
 
         public bool IsLoggedIn => m_auth.IsLoggedIn;
 
@@ -150,12 +150,12 @@ namespace Rwp
         }
         public static UserData EmptyAuth()
         {
-            return new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
+            return new RwpAuth.UserData { privs = RwpAuth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
         }
 
         public void SetLoggedOff()
         {
-            CurrentPrivs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
+            CurrentPrivs = new RwpAuth.UserData { privs = RwpAuth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
         }
 
         void GetTeamListAndDefaultForQuery(SqlConnection DBConn, string sqlStrLogin, string sTeamNameSelected, out List<string> plsTeams, out string sTeam, out string sAdminTeam)
