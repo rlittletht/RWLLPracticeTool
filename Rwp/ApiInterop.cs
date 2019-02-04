@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Runtime.Remoting.Contexts;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Identity.Client;
@@ -224,9 +225,9 @@ namespace Rwp
             this as if the user weren't logged in. The user will SignIn again, 
             populating the TokenCache.
         ----------------------------------------------------------------------------*/
-        public bool FTokenCachePopulated()
+        public bool FTokenCachePopulated(ref string sResult)
         {
-            return MSALSessionCache.CacheExists(GetUserId(), GetContextBase());
+            return MSALSessionCache.CacheExists(GetUserId(), GetContextBase(), ref sResult);
         }
 
         #region Helper Service Calls

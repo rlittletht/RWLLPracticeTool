@@ -191,6 +191,7 @@
         </Columns>
     </asp:DataGrid>
 </center>
+  <div id="divResults" runat="server"></div>
 <br><br><br>
     <div class="notice">
         <h1>NOTICES:  </h1>

@@ -58,14 +58,16 @@ namespace Rwp
 
             m_userData = m_auth.CurrentPrivs; // if they login, then we will load new privs
 
-            m_auth.SetupLoginLogout();
+            m_auth.SetupLoginLogout(out string sResults);
+            divResults.InnerText += sResults;
             DataGrid1.ItemCommand += new DataGridCommandEventHandler(DataGrid_Command);
             GoHome.Click += DoGoHome;
 
             if (!IsPostBack)
             {
-                if (m_auth.IsAuthenticated() && m_userData.privs == Auth.UserPrivs.NotAuthenticated)
-                    m_userData = m_auth.LoadPrivs(DBConn);
+                if (m_auth.IsAuthenticated(out string sResult) && m_userData.privs == Auth.UserPrivs.NotAuthenticated)
+                    m_userData = m_auth.LoadPrivs(DBConn, out sResults);
+                divResults.InnerText += sResult + sResults;
 
                 FillTeamList(m_userData);
 
@@ -84,7 +86,7 @@ namespace Rwp
 
         public void DoGoHome(object sender, ImageClickEventArgs args)
         {
-            Response.Redirect(Startup.s_sFullRoot);
+            Response.Redirect(Startup.s_sFullRoot, false);
         }
 
         void FillTeamList(Auth.UserData data)
@@ -113,14 +115,14 @@ namespace Rwp
 
         protected void OnTeamMenuItemChanged(object sender, EventArgs e)
         {
-            m_userData = m_auth.LoadPrivs(DBConn, teamMenu.SelectedValue);
+            m_userData = m_auth.LoadPrivs(DBConn, out string sResults, teamMenu.SelectedValue);
             BuildPageSqlQuery();
             BindSource();
         }
 
         void OnAfterLogin(object sender, EventArgs e)
         {
-            m_userData = m_auth.LoadPrivs(DBConn);
+            m_userData = m_auth.LoadPrivs(DBConn, out string sResults);
             FillTeamList(m_userData);
             BindSource();
         }
@@ -156,7 +158,9 @@ namespace Rwp
             }
 
             string sComment = txtComment.Text;
-            string sAuthority = m_auth.Identity();
+            string sAuthority = m_auth.Identity(out string sResults);
+            divResults.InnerText += sResults;
+
             string sTeam = m_auth.CurrentPrivs.sTeamName;
             Guid guidLinkID = System.Guid.NewGuid();
             CalendarLink link = new CalendarLink()

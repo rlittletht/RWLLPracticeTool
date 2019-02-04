@@ -110,7 +110,7 @@ namespace Rwp
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
 
-            DBConn = new SqlConnection(sSqlConnectionString);
+            DBConn = null; // new SqlConnection(sSqlConnectionString);
 
             sCurYear = DateTime.UtcNow.Year.ToString();
 
@@ -126,7 +126,8 @@ namespace Rwp
                 Message0.Text = exc.Message;
             }
             
-            m_auth.SetupLoginLogout();
+            m_auth.SetupLoginLogout(out string sResults);
+            divResults.InnerText += sResults;
         }
 
         void LoadPrivsAndSetupPage()
@@ -202,12 +203,17 @@ namespace Rwp
 
         Auth.UserData LoadPrivs()
         {
-            if (!m_auth.IsAuthenticated())
+            if (!m_auth.IsAuthenticated(out string sResult))
+            {
+                divResults.InnerText += sResult;   
                 return Auth.EmptyAuth();
+            }
+            divResults.InnerText += sResult;
 
             Auth.UserData userData;
                 
-            m_auth.LoadPrivs(DBConn);
+            m_auth.LoadPrivs(DBConn, out sResult);
+            divResults.InnerText += sResult;
 
             userData = m_auth.CurrentPrivs;
 
@@ -215,7 +221,8 @@ namespace Rwp
 
             if (m_auth.IsLoggedIn)
             {
-                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity()})";
+                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity(out string sResults)})";
+                divResults.InnerText += sResults;
 
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
@@ -230,7 +237,9 @@ namespace Rwp
             else
             {
                 SetLoggedOff();
-                Message1.Text = $"User '{m_auth.Tenant()}\\{m_auth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
+                string sResults;
+                Message1.Text = $"User '{m_auth.Tenant(out sResults)}\\{m_auth.Identity(out sResults)} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
+                divResults.InnerText += sResults;
                 Message1.ForeColor = System.Drawing.Color.Red;
             }
 
@@ -241,19 +250,20 @@ namespace Rwp
         #region Bindings
         void BindFieldDropdown()
         {
+            return;
             DBConn.Open();
             // populate the fieldMenu
             string sql= "exec usp_PopulateFieldList";
-            cmdMbrs = DBConn.CreateCommand();
-
-            cmdMbrs.CommandText = sql;
-            rdrMbrs = cmdMbrs.ExecuteReader();
-            fieldMenu.DataSource = rdrMbrs;
-            fieldMenu.DataTextField = "Field";
-            fieldMenu.DataValueField = "Field";
-            fieldMenu.DataBind();
-            rdrMbrs.Close();
-            cmdMbrs.Dispose();
+            using (cmdMbrs = DBConn.CreateCommand())
+            {
+                cmdMbrs.CommandText = sql;
+                rdrMbrs = cmdMbrs.ExecuteReader();
+                fieldMenu.DataSource = rdrMbrs;
+                fieldMenu.DataTextField = "Field";
+                fieldMenu.DataValueField = "Field";
+                fieldMenu.DataBind();
+                rdrMbrs.Close();
+            }
             DBConn.Close();
         }
 
@@ -266,14 +276,17 @@ namespace Rwp
             }
             else
             {
+                return;
                 DBConn.Open();
-                cmdMbrs = DBConn.CreateCommand();
-                cmdMbrs.CommandText = sqlStrSorted;
-                rdrMbrs = cmdMbrs.ExecuteReader();
-                DataGrid1.DataSource = rdrMbrs;
-                DataGrid1.DataBind();
-                rdrMbrs.Close();
-                cmdMbrs.Dispose();
+                using (cmdMbrs = DBConn.CreateCommand())
+                {
+                    cmdMbrs.CommandText = sqlStrSorted;
+                    rdrMbrs = cmdMbrs.ExecuteReader();
+                    DataGrid1.DataSource = rdrMbrs;
+                    DataGrid1.DataBind();
+                    rdrMbrs.Close();
+                }
+
                 DBConn.Close();
             }
         }
@@ -287,7 +300,7 @@ namespace Rwp
         #region Commands
         protected void ShowICalFeedLink(object sender, EventArgs e)
         {
-            Response.Redirect($"{Startup.s_sFullRoot}/CalendarLink.aspx");
+            Response.Redirect($"{Startup.s_sFullRoot}/CalendarLink.aspx", false);
             // RunQuery(sender, e)
         }
 
@@ -399,37 +412,39 @@ namespace Rwp
             int temp;
 
             DataGrid1.EditItemIndex = e.Item.ItemIndex;
-            if (DataGrid1.Columns[0].HeaderText == "Release")
+            if (DataGrid1.Columns[0].HeaderText == "Release" && false)
             {
                 DBConn.Open();
                 SQLcmd = "exec usp_UpdateSlots 'Rel', '" + Sql.Sqlify(teamName) + "','" +
                          Sql.Sqlify(e.Item.Cells[2].Text) + "'";
-                cmdMbrs = DBConn.CreateCommand();
-                cmdMbrs.CommandText = SQLcmd;
-                rdrMbrs = cmdMbrs.ExecuteReader();
-                temp = -1;
-                while (rdrMbrs.Read())
-                    temp = rdrMbrs.GetInt32(0);
-
-                if (temp == 0)
+                using (cmdMbrs = DBConn.CreateCommand())
                 {
-                    Message2.Text = "Release successful";
-                    Message2.ForeColor = System.Drawing.Color.Green;
+                    cmdMbrs.CommandText = SQLcmd;
+                    rdrMbrs = cmdMbrs.ExecuteReader();
+                    temp = -1;
+                    while (rdrMbrs.Read())
+                        temp = rdrMbrs.GetInt32(0);
+
+                    if (temp == 0)
+                    {
+                        Message2.Text = "Release successful";
+                        Message2.ForeColor = System.Drawing.Color.Green;
+                    }
+
+                    if (temp == -1)
+                    {
+                        Message2.Text = "Error releasing field";
+                        Message2.ForeColor = System.Drawing.Color.Red;
+                    }
+
+                    DataGrid1.EditItemIndex = -1;
+                    rdrMbrs.Close();
                 }
 
-                if (temp == -1)
-                {
-                    Message2.Text = "Error releasing field";
-                    Message2.ForeColor = System.Drawing.Color.Red;
-                }
-
-                DataGrid1.EditItemIndex = -1;
-                rdrMbrs.Close();
-                cmdMbrs.Dispose();
                 DBConn.Close();
             }
 
-            if (DataGrid1.Columns[0].HeaderText == "Reserve")
+            if (DataGrid1.Columns[0].HeaderText == "Reserve" && false)
             {
                 DBConn.Open();
                 if (LoggedInAsAdmin && teamName == "Administrator")
@@ -438,51 +453,53 @@ namespace Rwp
                     SQLcmd = "exec usp_UpdateSlots 'Res'";
 
                 SQLcmd = SQLcmd + ", '" + Sql.Sqlify(teamName) + "','" + Sql.Sqlify(e.Item.Cells[2].Text) + "'";
-                cmdMbrs = DBConn.CreateCommand();
-                cmdMbrs.CommandText = SQLcmd;
-                rdrMbrs = cmdMbrs.ExecuteReader();
-                temp = -3;
-                if (rdrMbrs.Read())
-                    temp = rdrMbrs.GetInt32(0);
+                using (cmdMbrs = DBConn.CreateCommand())
+                {
+                    cmdMbrs.CommandText = SQLcmd;
+                    rdrMbrs = cmdMbrs.ExecuteReader();
+                    temp = -3;
+                    if (rdrMbrs.Read())
+                        temp = rdrMbrs.GetInt32(0);
 
-                if (temp == 0)
-                {
-                    Message2.Text = "Reservation successful";
-                    Message2.ForeColor = System.Drawing.Color.Green;
-                }
-                else if (temp == -1)
-                {
-                    Message2.Text = "Field already reserved";
-                    Message2.ForeColor = System.Drawing.Color.Red;
-                }
-                else if (temp == -2)
-                {
-                    Message2.Text = "Only two fields can be reserved per day";
-                    Message2.ForeColor = System.Drawing.Color.Red;
-                }
-                else if (temp == -3)
-                {
-                    Message2.Text = "Error reserving field";
-                    Message2.ForeColor = System.Drawing.Color.Red;
-                }
-                else if (temp == -4)
-                {
-                    Message2.Text = "Only one H5*/H6* can be reserved per week";
-                    Message2.ForeColor = System.Drawing.Color.Red;
-                }
-                else
-                {
-                    Message2.Text = "Unknown error reserving field (" + temp + ")";
-                    Message2.ForeColor = System.Drawing.Color.Red;
+                    if (temp == 0)
+                    {
+                        Message2.Text = "Reservation successful";
+                        Message2.ForeColor = System.Drawing.Color.Green;
+                    }
+                    else if (temp == -1)
+                    {
+                        Message2.Text = "Field already reserved";
+                        Message2.ForeColor = System.Drawing.Color.Red;
+                    }
+                    else if (temp == -2)
+                    {
+                        Message2.Text = "Only two fields can be reserved per day";
+                        Message2.ForeColor = System.Drawing.Color.Red;
+                    }
+                    else if (temp == -3)
+                    {
+                        Message2.Text = "Error reserving field";
+                        Message2.ForeColor = System.Drawing.Color.Red;
+                    }
+                    else if (temp == -4)
+                    {
+                        Message2.Text = "Only one H5*/H6* can be reserved per week";
+                        Message2.ForeColor = System.Drawing.Color.Red;
+                    }
+                    else
+                    {
+                        Message2.Text = "Unknown error reserving field (" + temp + ")";
+                        Message2.ForeColor = System.Drawing.Color.Red;
+                    }
+
+                    DataGrid1.EditItemIndex = -1;
+                    // return to list of reserved fields
+                    DataGrid1.Columns[0].HeaderText = "Release";
+                    SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
+                    sqlStrSorted = SqlBase + ",Date";
+                    rdrMbrs.Close();
                 }
 
-                DataGrid1.EditItemIndex = -1;
-                // return to list of reserved fields
-                DataGrid1.Columns[0].HeaderText = "Release";
-                SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
-                sqlStrSorted = SqlBase + ",Date";
-                rdrMbrs.Close();
-                cmdMbrs.Dispose();
                 DBConn.Close();
             }
 
@@ -537,7 +554,7 @@ namespace Rwp
         protected void OnTeamMenuItemChanged(object sender, EventArgs e)
         {
             // they have selected a new teamname to work as, load the privs for that
-            m_auth.LoadPrivs(DBConn, teamName);
+            m_auth.LoadPrivs(DBConn, out string sResults, teamName);
             LoadPrivsAndSetupPage();
         }
     }

@@ -55,7 +55,7 @@ namespace Rwp
         // we need to provide a way for the page to know that there is no cache, and to 
         // treat that like a logged-out state. the user will login again, which will
         // populate the cache
-        public static bool CacheExists(string userId, HttpContextBase httpContext)
+        public static bool CacheExists(string userId, HttpContextBase httpContext, ref string sResult)
         {
             string cacheId = userId + "_TokenCache";
             bool exists = false;
@@ -65,6 +65,7 @@ namespace Rwp
                 exists = true;
 
             SessionLock.ExitReadLock();
+            sResult = $"{sResult}, cacheId: {cacheId}, exists: {exists}";
             return exists;
         }
 

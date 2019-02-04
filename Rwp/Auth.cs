@@ -77,12 +77,12 @@ namespace Rwp
             m_viewState = viewState;
             m_session = session;
 
-            LoadCachedPrivs();
+            LoadCachedPrivs(out string sResults);
         }
 
-        void LoadCachedPrivs()
+        void LoadCachedPrivs(out string sResult)
         {
-            if (!IsAuthenticated())
+            if (!IsAuthenticated(out sResult))
             {
                 // make sure current privs aren't leaked from before
                 UserData data = CurrentPrivs;
@@ -155,23 +155,24 @@ namespace Rwp
 
         public bool IsLoggedIn  => CurrentPrivs.privs != Auth.UserPrivs.NotAuthenticated && CurrentPrivs.privs != Auth.UserPrivs.AuthenticatedNoPrivs;
 
-        public bool IsAuthenticated()
+        public bool IsAuthenticated(out string sResult)
         {
-            return IsSignedIn();
+            return IsSignedIn(out sResult);
         }
 
-        public string Identity()
+        public string Identity(out string sResult)
         {
-            if (IsAuthenticated())
-                return System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
+            if (IsAuthenticated(out sResult))
+                return "rlittle@thetasoft.com"; // System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
 
             return null;
         }
 
-        public string Tenant()
+        public string Tenant(out string sResult)
         {
-            if (IsAuthenticated())
+            if (IsAuthenticated(out sResult))
             {
+                return "9188040d-6c67-4c5b-b112-36a304b66dad";
                 Regex rex = new Regex("https://login.microsoftonline.com/([^/]*)/");
 
                 return rex.Match(System.Security.Claims.ClaimsPrincipal.Current.FindFirst("iss")?.Value).Groups[1].Value;
@@ -196,39 +197,46 @@ namespace Rwp
             plsTeams = null;
             sAdminTeam = null;
 
-            SqlCommand cmdMbrs = DBConn.CreateCommand();
-            cmdMbrs.CommandText = sqlStrLogin;
-            SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
+            sTeam = "Administrator";
+            sAdminTeam = "Administrator";
 
-            // there may be multiple returns, get them all
-            // the last one will be the default (unless some form of "Admin" is there, then the last one of those will be the default,
-            // or if they requested a specific team name
-            while (rdrMbrs.Read())
+            plsTeams = new List<string>() { "Administrator", "AAA Birds", "AAA Bees"};
+            return;
+
+            using (SqlCommand cmdMbrs = DBConn.CreateCommand())
             {
-                if (plsTeams == null)
-                    plsTeams = new List<string>();
-
-                string sTeamName = rdrMbrs.GetString(0);
-                plsTeams.Add(sTeamName);
-
-                // admin is the default unless there is a preferred team name.
-                // (even if there is a preferred team name, we will still return an "admin team" name
-                // so the caller knows we are an admin)
-                if (sTeamName.Contains("Admin"))
+                cmdMbrs.CommandText = sqlStrLogin;
+                using (SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader())
                 {
-                    sAdminTeam = sTeamName;
+                    // there may be multiple returns, get them all
+                    // the last one will be the default (unless some form of "Admin" is there, then the last one of those will be the default,
+                    // or if they requested a specific team name
+                    while (rdrMbrs.Read())
+                    {
+                        if (plsTeams == null)
+                            plsTeams = new List<string>();
 
-                    if (sTeamNameSelected == null)
-                        sTeam = sTeamName;
+                        string sTeamName = rdrMbrs.GetString(0);
+                        plsTeams.Add(sTeamName);
+
+                        // admin is the default unless there is a preferred team name.
+                        // (even if there is a preferred team name, we will still return an "admin team" name
+                        // so the caller knows we are an admin)
+                        if (sTeamName.Contains("Admin"))
+                        {
+                            sAdminTeam = sTeamName;
+
+                            if (sTeamNameSelected == null)
+                                sTeam = sTeamName;
+                        }
+
+                        if (sTeamName == sTeamNameSelected)
+                            sTeam = sTeamName;
+                    }
+
+                    rdrMbrs.Close();
                 }
-
-                if (sTeamName == sTeamNameSelected)
-                    sTeam = sTeamName;
             }
-
-            rdrMbrs.Close();
-            cmdMbrs.Dispose();
-
         }
 
                 
@@ -249,18 +257,23 @@ namespace Rwp
             string sqlStrLogin =
                 $"SELECT TeamName, Division from rwllTeams where TeamName = '{Sql.Sqlify(sTeamNameIn)}'";
 
-            SqlCommand cmdMbrs = DBConn.CreateCommand();
-            cmdMbrs.CommandText = sqlStrLogin;
-            SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader();
+            sTeamName = "Administrator";
+            sDivision = "X";
+            return;
 
-            while (rdrMbrs.Read())
+            using (SqlCommand cmdMbrs = DBConn.CreateCommand())
             {
-                sTeamName = rdrMbrs.GetString(0);
-                sDivision = rdrMbrs.GetString(1);
+                cmdMbrs.CommandText = sqlStrLogin;
+                using (SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader())
+                {
+                    while (rdrMbrs.Read())
+                    {
+                        sTeamName = rdrMbrs.GetString(0);
+                        sDivision = rdrMbrs.GetString(1);
+                    }
+                    rdrMbrs.Close();
+                }
             }
-
-            rdrMbrs.Close();
-            cmdMbrs.Dispose();
         }
 
         // they might be asking for a specific team (if they are switching who they are acting as)
@@ -284,10 +297,10 @@ namespace Rwp
               of authorized teams, or it might be the team name from the session cache
             
         ----------------------------------------------------------------------------*/
-        public UserData LoadPrivs(SqlConnection DBConn, string sTeamNameSelected = null)
+        public UserData LoadPrivs(SqlConnection DBConn, out string sResults, string sTeamNameSelected = null)
         {
-            string sAuthIdentity = Identity();
-            string sTenant = Tenant();
+            string sAuthIdentity = Identity(out sResults);
+            string sTenant = Tenant(out sResults);
             bool fSoftTeamName = false;
 
             UserData data;
@@ -313,12 +326,12 @@ namespace Rwp
 
             CurrentPrivs = data;
 
-            if (sAuthIdentity == null || !IsAuthenticated())
+            if (sAuthIdentity == null || !IsAuthenticated(out sResults))
                 return data;
 
             data.sIdentity = sAuthIdentity;
 
-            DBConn.Open();
+            // DBConn.Open();
 
             // first, get the list of teams we are authorized for...
             // (we might have a requested team name, if so, use that as the default)
@@ -382,7 +395,7 @@ namespace Rwp
                 LoadPrivsForTeam(DBConn, data.sTeamName, out data.sTeamName, out data.sDivision);
             }
 
-            DBConn.Close();
+            // DBConn.Close();
 
             if (string.IsNullOrEmpty(data.sTeamName))
             {
@@ -406,8 +419,9 @@ namespace Rwp
         public void DoSignInClick(object sender, ImageClickEventArgs args)
         {
             m_onBeforeLogin?.Invoke(sender, args);
-            SignIn(m_request.IsAuthenticated, m_sAuthReturnAddress);
-            m_onAfterLogin?.Invoke(sender, args);
+            SetSessionState("DebugLoggedIn", true);
+            // SignIn(m_request.IsAuthenticated, m_sAuthReturnAddress, out string sResults);
+            // m_onAfterLogin?.Invoke(sender, args);
         }
 
         public void DoSignOutClick(object sender, ImageClickEventArgs args)
@@ -417,9 +431,9 @@ namespace Rwp
             m_onAfterLogout?.Invoke(sender, args);
         }
 
-        public void SetupLoginLogout()
+        public void SetupLoginLogout(out string sResults)
         {
-            if (IsAuthenticated())
+            if (IsAuthenticated(out sResults))
             {
                 m_buttonLoginOut.Click -= DoSignInClick;
                 m_buttonLoginOut.Click += DoSignOutClick;
@@ -437,9 +451,9 @@ namespace Rwp
         /// Send an OpenID Connect sign-in request.
         /// Alternatively, you can just decorate the SignIn method with the [Authorize] attribute
         /// </summary>
-        public void SignIn(bool fIsAuthenticated, string sReturnAddress)
+        public void SignIn(bool fIsAuthenticated, string sReturnAddress, out string sResults)
         {
-            if (!IsAuthenticated())
+            if (!IsAuthenticated(out sResults))
             {
                 HttpContext.Current.GetOwinContext().Authentication.Challenge(
                     new AuthenticationProperties { RedirectUri = sReturnAddress},
@@ -457,9 +471,9 @@ namespace Rwp
                 CookieAuthenticationDefaults.AuthenticationType);
         }
 
-        protected void ValidateLogin(bool fIsAuthenticated)
+        protected void ValidateLogin(bool fIsAuthenticated, out string sResults)
         {
-            SignIn(IsAuthenticated(), m_sAuthReturnAddress);
+            SignIn(IsAuthenticated(out sResults), m_sAuthReturnAddress, out sResults);
         }
 
 
@@ -472,6 +486,8 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         string GetUserId()
         {
+            throw new Exception("NYI DEBUG");
+
             return ClaimsPrincipal.Current.FindFirst(ClaimTypes.NameIdentifier).Value;
         }
 
@@ -482,9 +498,15 @@ namespace Rwp
             return true if the signin process is complete -- this includes making 
             sure there is an entry for this userid in the TokenCache
         ----------------------------------------------------------------------------*/
-        bool IsSignedIn()
+        bool IsSignedIn(out string sResult)
         {
-            return m_request.IsAuthenticated && FTokenCachePopulated();
+            bool f = TGetSessionState<bool>("DebugLoggedIn", false);
+            sResult = $"DebugLoggedIn: {f}";
+            return f;
+
+            sResult = $"IsAuthenticated: {m_request.IsAuthenticated}";
+
+            return m_request.IsAuthenticated && FTokenCachePopulated(ref sResult);
         }
 
         /*----------------------------------------------------------------------------
@@ -500,9 +522,10 @@ namespace Rwp
             this as if the user weren't logged in. The user will SignIn again, 
             populating the TokenCache.
         ----------------------------------------------------------------------------*/
-        bool FTokenCachePopulated()
+        bool FTokenCachePopulated(ref string sResult)
         {
-            return MSALSessionCache.CacheExists(GetUserId(), m_context);
+            return true;
+            return MSALSessionCache.CacheExists(GetUserId(), m_context, ref sResult);
         }
     }
 }

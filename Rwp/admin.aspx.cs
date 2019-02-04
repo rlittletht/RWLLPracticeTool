@@ -79,19 +79,21 @@ namespace Rwp
 
             DBConn = new SqlConnection(sSqlConnectionString);
 
-            m_userData = m_auth.LoadPrivs(DBConn);
+            m_userData = m_auth.LoadPrivs(DBConn, out string sResults);
+            divError.InnerText += sResults;
             ipClient.InnerText = Request.UserHostAddress;
 
-            CheckServiceServerConsistency(sSqlConnectionString);
+            //CheckServiceServerConsistency(sSqlConnectionString);
             EnableUIForAdmin();
 
-            m_auth.SetupLoginLogout();
+            m_auth.SetupLoginLogout(out sResults);
+            divError.InnerText += sResults;
             GoHome.Click += DoGoHome;
         }
 
         public void DoGoHome(object sender, ImageClickEventArgs args)
         {
-            Response.Redirect(Startup.s_sFullRoot);
+            Response.Redirect(Startup.s_sFullRoot, false);
         }
 
         /*----------------------------------------------------------------------------
