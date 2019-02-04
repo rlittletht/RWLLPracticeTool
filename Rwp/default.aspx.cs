@@ -253,6 +253,7 @@ namespace Rwp
             fieldMenu.DataValueField = "Field";
             fieldMenu.DataBind();
             rdrMbrs.Close();
+            rdrMbrs.Dispose();
             cmdMbrs.Dispose();
             DBConn.Close();
         }
@@ -273,6 +274,7 @@ namespace Rwp
                 DataGrid1.DataSource = rdrMbrs;
                 DataGrid1.DataBind();
                 rdrMbrs.Close();
+                rdrMbrs.Dispose();
                 cmdMbrs.Dispose();
                 DBConn.Close();
             }
@@ -425,6 +427,7 @@ namespace Rwp
 
                 DataGrid1.EditItemIndex = -1;
                 rdrMbrs.Close();
+                rdrMbrs.Dispose();
                 cmdMbrs.Dispose();
                 DBConn.Close();
             }
@@ -482,6 +485,7 @@ namespace Rwp
                 SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
                 sqlStrSorted = SqlBase + ",Date";
                 rdrMbrs.Close();
+                rdrMbrs.Dispose();
                 cmdMbrs.Dispose();
                 DBConn.Close();
             }
