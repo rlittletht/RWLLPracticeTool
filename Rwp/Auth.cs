@@ -227,8 +227,8 @@ namespace Rwp
             }
 
             rdrMbrs.Close();
+            rdrMbrs.Dispose();
             cmdMbrs.Dispose();
-
         }
 
                 
@@ -260,6 +260,7 @@ namespace Rwp
             }
 
             rdrMbrs.Close();
+            rdrMbrs.Dispose();
             cmdMbrs.Dispose();
         }
 
