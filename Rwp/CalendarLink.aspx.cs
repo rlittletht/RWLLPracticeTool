@@ -46,15 +46,15 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new RwpAuth(LoginOutButton, Request, Session,
-                Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState,
-                $"{Startup.s_sRoot}/CalendarLink.aspx", null, null);
-            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
-
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
 
             DBConn = new SqlConnection(sSqlConnectionString);
+
+            m_auth = new RwpAuth(DBConn, LoginOutButton, Request, Session,
+                Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState,
+                $"{Startup.s_sRoot}/CalendarLink.aspx", null, null);
+            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
 
             m_userData = m_auth.CurrentPrivs; // if they login, then we will load new privs
 
@@ -64,8 +64,8 @@ namespace Rwp
 
             if (!IsPostBack)
             {
-                if (m_auth.IsAuthenticated() && m_userData.privs == RwpAuth.UserPrivs.NotAuthenticated)
-                    m_userData = m_auth.LoadPrivs(DBConn);
+                m_auth.LoadAuthAndPrivs();
+                m_userData = m_auth.CurrentPrivs;
 
                 FillTeamList(m_userData);
 
@@ -113,7 +113,7 @@ namespace Rwp
 
         protected void OnTeamMenuItemChanged(object sender, EventArgs e)
         {
-            m_userData = m_auth.LoadPrivs(DBConn, teamMenu.SelectedValue);
+            m_userData = m_auth.LoadTeamPrivs(DBConn, teamMenu.SelectedValue);
             BuildPageSqlQuery();
             BindSource();
         }

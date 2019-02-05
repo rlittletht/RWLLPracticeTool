@@ -35,18 +35,10 @@ namespace Rwp
         private global::System.Web.UI.WebControls.ImageButton m_buttonLoginOut;
         public delegate void LoginOutCallback(object sender, EventArgs e);
 
+        private SqlConnection m_sqlConn;
+
         LoginOutCallback m_onBeforeLogin;
         LoginOutCallback m_onBeforeLogout;
-
-        public void BeforeLogin(object sender, EventArgs e)
-        {
-            m_onBeforeLogin?.Invoke(sender, e);
-        }
-
-        public void BeforeLogout(object sender, EventArgs e)
-        {
-            m_onBeforeLogout?.Invoke(sender, e);
-        }
 
         /*----------------------------------------------------------------------------
         	%%Function: Auth
@@ -59,6 +51,7 @@ namespace Rwp
             to grab current privs or setup for logging in/out, call this.LoadPrivs
         ----------------------------------------------------------------------------*/
         public RwpAuth(
+            SqlConnection sqlConn,
             global::System.Web.UI.WebControls.ImageButton button, 
             HttpRequest request,
             HttpSessionState session,
@@ -68,6 +61,7 @@ namespace Rwp
             LoginOutCallback onBeforeLogin,
             LoginOutCallback onBeforeLogout)
         {
+            m_sqlConn = sqlConn;
             m_auth = new Auth<UserData>(request, session, context, context.GetOwinContext(), viewState, sReturnAddress, this);
             m_buttonLoginOut = button;
             m_onBeforeLogin = onBeforeLogin;
@@ -94,61 +88,84 @@ namespace Rwp
             AdminPrivs
         };
 
-        public UserData CreateEmpty()
+        public UserData CreateEmptyAuthPrivData()
         {
-            return EmptyAuth();
+            return EmptyAuthPrivs();
         }
 
-        public bool AuthIsAuthenticated() => m_auth.CurrentPrivs.privs != RwpAuth.UserPrivs.NotAuthenticated;
-
-        public bool AuthHasPrivileges() => m_auth.CurrentPrivs.privs != RwpAuth.UserPrivs.NotAuthenticated &&
-                                           m_auth.CurrentPrivs.privs != RwpAuth.UserPrivs.AuthenticatedNoPrivs;
+        public bool AuthHasPrivileges() => m_auth.AuthPrivData.privs != RwpAuth.UserPrivs.NotAuthenticated &&
+                                           m_auth.AuthPrivData.privs != RwpAuth.UserPrivs.AuthenticatedNoPrivs;
 
         public bool IsLoggedIn => m_auth.IsLoggedIn;
 
         public UserData CurrentPrivs
         {
-            get => m_auth.CurrentPrivs;
-            set => m_auth.CurrentPrivs = value;
-        }
-        public bool IsAuthenticated()
-        {
-            return m_auth.IsSignedIn();
+            get => m_auth.AuthPrivData;
+            set => m_auth.AuthPrivData = value;
         }
 
-        public string Identity()
-        {
-            if (IsAuthenticated())
-                return System.Security.Claims.ClaimsPrincipal.Current.FindFirst("preferred_username")?.Value;
 
-            return null;
+        public bool IsAuthenticated() => m_auth.IsSignedIn();
+        public string Identity() => m_auth.Identity();
+        public string Tenant() => m_auth.Tenant();
+
+        public void BeforeLogin(object sender, EventArgs e)
+        {
+            m_onBeforeLogin?.Invoke(sender, e);
         }
 
-        public string Tenant()
+        public void BeforeLogout(object sender, EventArgs e)
         {
-            if (IsAuthenticated())
-            {
-                Regex rex = new Regex("https://login.microsoftonline.com/([^/]*)/");
+            m_onBeforeLogout?.Invoke(sender, e);
+        }
 
-                return rex.Match(System.Security.Claims.ClaimsPrincipal.Current.FindFirst("iss")?.Value).Groups[1].Value;
-            }
+        /*----------------------------------------------------------------------------
+        	%%Function: LoadPrivileges
+        	%%Qualified: Rwp.RwpAuth.LoadPrivileges
+        	
+            called during authentication startup to load the privileges for the
+            authenticated user
+        ----------------------------------------------------------------------------*/
+        public void LoadPrivileges()
+        {
+            if (!m_auth.IsAuthenticated())
+                throw new Exception("load privileges called when not authenticated");
 
-            return null;
+            LoadPrivsInternal(m_sqlConn, null);
         }
 
         public void SetAuthenticated(bool fAuthenticated)
         {
             if (fAuthenticated)
             {
-                UserData data = m_auth.CurrentPrivs;
+                UserData data = m_auth.AuthPrivData;
                 data.privs = UserPrivs.AuthenticatedNoPrivs;
-                m_auth.CurrentPrivs = data;
+                m_auth.AuthPrivData = data;
             }
             else
-                m_auth.CurrentPrivs = EmptyAuth();
+                m_auth.AuthPrivData = EmptyAuthPrivs();
 
         }
-        public static UserData EmptyAuth()
+
+        public UserData LoadAuthAndPrivs()
+        {
+            m_auth.LoadAuthPrivs();
+            return m_auth.AuthPrivData;
+        }
+
+        public bool IsCacheDataValid(UserData data, string sIdentity, string sTenant)
+        {
+            if (data.privs == UserPrivs.NotAuthenticated)
+                return false;
+
+            if (data.privs == UserPrivs.AuthenticatedNoPrivs && sIdentity != null)
+                return false;
+
+            return String.Compare(sIdentity, data.sIdentity, StringComparison.Ordinal) == 0 &&
+                   String.Compare(sTenant, data.sTenant, StringComparison.Ordinal) == 0;
+        }
+
+        public static UserData EmptyAuthPrivs()
         {
             return new RwpAuth.UserData { privs = RwpAuth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
         }
@@ -232,6 +249,10 @@ namespace Rwp
             cmdMbrs.Dispose();
         }
 
+        public UserData LoadTeamPrivs(SqlConnection DBConn, string sTeamNameSelected)
+        {
+            return LoadPrivsInternal(DBConn, sTeamNameSelected);
+        }
         // they might be asking for a specific team (if they are switching who they are acting as)
         /*----------------------------------------------------------------------------
         	%%Function: LoadPrivs
@@ -253,7 +274,7 @@ namespace Rwp
               of authorized teams, or it might be the team name from the session cache
             
         ----------------------------------------------------------------------------*/
-        public UserData LoadPrivs(SqlConnection DBConn, string sTeamNameSelected = null)
+        private UserData LoadPrivsInternal(SqlConnection DBConn, string sTeamNameSelected)
         {
             string sAuthIdentity = Identity();
             string sTenant = Tenant();

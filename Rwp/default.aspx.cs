@@ -105,12 +105,11 @@ namespace Rwp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_rwpAuth = new RwpAuth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, OnBeforeSignout);
-
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
 
             DBConn = new SqlConnection(sSqlConnectionString);
+            m_rwpAuth = new RwpAuth(DBConn, LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, OnBeforeSignout);
 
             sCurYear = DateTime.UtcNow.Year.ToString();
 
@@ -140,7 +139,7 @@ namespace Rwp
             {
                 divCalendarFeedLink.Visible = ShowingCalLink;
 
-                RwpAuth.UserData data = LoadPrivs();
+                RwpAuth.UserData data = LoadAuthPrivs();
 
                 if (!IsLoggedIn)
                     SetLoggedOff();
@@ -200,16 +199,24 @@ namespace Rwp
                 teamMenu.SelectedIndex = iChecked;
         }
 
-        RwpAuth.UserData LoadPrivs()
+        /*----------------------------------------------------------------------------
+        	%%Function: LoadAuthPrivs
+        	%%Qualified: Rwp.default1.LoadAuthPrivs
+        	
+            load the authentication and privileges information for the signed in 
+            user (or empty if not authenticated).
+
+            This populates the UI for the page and controls what teams the user will
+            be able to see. Later, if they choose to "act on behalf" of someone by
+            choosing that team in the dropdown, then those team privileges will be 
+            loaded again using m_rwpAuth.LoadTeamPrivs
+        ----------------------------------------------------------------------------*/
+        RwpAuth.UserData LoadAuthPrivs()
         {
+            RwpAuth.UserData userData = m_rwpAuth.LoadAuthAndPrivs();
+
             if (!m_rwpAuth.IsAuthenticated())
-                return RwpAuth.EmptyAuth();
-
-            RwpAuth.UserData userData;
-                
-            m_rwpAuth.LoadPrivs(DBConn);
-
-            userData = m_rwpAuth.CurrentPrivs;
+                return userData;    // it will be empty
 
             FillTeamList(userData);
 
@@ -541,7 +548,7 @@ namespace Rwp
         protected void OnTeamMenuItemChanged(object sender, EventArgs e)
         {
             // they have selected a new teamname to work as, load the privs for that
-            m_rwpAuth.LoadPrivs(DBConn, teamName);
+            m_rwpAuth.LoadTeamPrivs(DBConn, teamName);
             LoadPrivsAndSetupPage();
         }
     }

@@ -71,15 +71,17 @@ namespace Rwp
         ----------------------------------------------------------------------------*/
         protected void Page_Load(object sender, EventArgs e)
         {
-            m_auth = new RwpAuth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/admin.aspx", null, null);
-            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
-
             ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings["dbSchedule"];
             string sSqlConnectionString = conn.ConnectionString;
 
             DBConn = new SqlConnection(sSqlConnectionString);
 
-            m_userData = m_auth.LoadPrivs(DBConn);
+            m_auth = new RwpAuth(DBConn, LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/admin.aspx", null, null);
+            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
+
+            m_auth.LoadAuthAndPrivs();
+            m_userData = m_auth.CurrentPrivs;
+
             ipClient.InnerText = Request.UserHostAddress;
 
             CheckServiceServerConsistency(sSqlConnectionString);
