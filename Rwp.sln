@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatusResult", "..\liblet\c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RwpApi", "RwpApi\RwpApi.csproj", "{8F4AADA4-9527-4815-997D-4C39BBB4B0DF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCore.MsalWeb", "..\liblet\cs\TCore.MsalWeb\TCore.MsalWeb\TCore.MsalWeb.csproj", "{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Liblets", "Liblets", "{2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}"
 EndProject
 Global
@@ -166,32 +164,6 @@ Global
 		{8F4AADA4-9527-4815-997D-4C39BBB4B0DF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8F4AADA4-9527-4815-997D-4C39BBB4B0DF}.Release-Thetasoft2|Any CPU.ActiveCfg = Release|Any CPU
 		{8F4AADA4-9527-4815-997D-4C39BBB4B0DF}.Release-Thetasoft2|Any CPU.Build.0 = Release|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.AzureDebug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.AzureDebug|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.AzureStagingDebug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.AzureStagingDebug|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugLocalHostLocalSvcLocalData|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugLocalHostLocalSvcLocalData|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugLocalHostLocalSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugLocalHostLocalSvcProdData|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugLocalHostStageSvcStageData|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugLocalHostStageSvcStageData|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugProdHostProdSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugProdHostProdSvcProdData|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugStageHostStageSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugStageHostStageSvcProdData|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugStageHostStageSvcStageData|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.DebugStageHostStageSvcStageData|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.IxStaging|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.IxStaging|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.ObelixStaging|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.ObelixStaging|Any CPU.Build.0 = Debug|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Release-Thetasoft2|Any CPU.ActiveCfg = Release|Any CPU
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Release-Thetasoft2|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -199,7 +171,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D2383C17-0D82-41B0-8C18-A14253C050C7} = {2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}
 		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B} = {2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}
-		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0} = {2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {68C3C350-8CF2-43FF-A087-0FD5DC1524E1}
