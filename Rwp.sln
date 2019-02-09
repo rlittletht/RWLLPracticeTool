@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCore.MsalWeb", "..\liblet\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Liblets", "Liblets", "{2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCore.Exceptions", "..\liblet\cs\TCore.Exceptions\TCore.Exceptions.csproj", "{CC88C933-98AF-4C54-832A-1C4F587AAA54}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AzureDebug|Any CPU = AzureDebug|Any CPU
@@ -192,6 +194,32 @@ Global
 		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Release-Thetasoft2|Any CPU.ActiveCfg = Release|Any CPU
 		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0}.Release-Thetasoft2|Any CPU.Build.0 = Release|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.AzureDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.AzureDebug|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.AzureStagingDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.AzureStagingDebug|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugLocalHostLocalSvcLocalData|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugLocalHostLocalSvcLocalData|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugLocalHostLocalSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugLocalHostLocalSvcProdData|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugLocalHostStageSvcStageData|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugLocalHostStageSvcStageData|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugProdHostProdSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugProdHostProdSvcProdData|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugStageHostStageSvcProdData|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugStageHostStageSvcProdData|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugStageHostStageSvcStageData|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.DebugStageHostStageSvcStageData|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.IxStaging|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.IxStaging|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.ObelixStaging|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.ObelixStaging|Any CPU.Build.0 = Debug|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.Release-Thetasoft2|Any CPU.ActiveCfg = Release|Any CPU
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54}.Release-Thetasoft2|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -200,6 +228,7 @@ Global
 		{D2383C17-0D82-41B0-8C18-A14253C050C7} = {2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}
 		{0FE8C023-8694-4E19-9FB0-EA38E5B8798B} = {2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}
 		{2A614ABE-23AE-4064-BD31-4EA1BCC4DAE0} = {2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}
+		{CC88C933-98AF-4C54-832A-1C4F587AAA54} = {2FF6E2BF-F6C5-418D-9D67-EEB3B53EDAB4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {68C3C350-8CF2-43FF-A087-0FD5DC1524E1}
