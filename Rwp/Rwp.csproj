@@ -285,6 +285,10 @@
       <Project>{0fe8c023-8694-4e19-9fb0-ea38e5b8798b}</Project>
       <Name>StatusResult</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\liblet\cs\TCore.Exceptions\TCore.Exceptions.csproj">
+      <Project>{cc88c933-98af-4c54-832a-1c4f587aaa54}</Project>
+      <Name>TCore.Exceptions</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

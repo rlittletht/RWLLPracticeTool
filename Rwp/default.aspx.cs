@@ -359,7 +359,7 @@ namespace Rwp
                 if (ShowingReserved)
                 {
                     DataGrid1.Columns[0].HeaderText = "Release";
-                    SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
+                    SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(showAllReserved.Checked ? "Administrator" : teamName) + "',1,'00/00/00'," + "''";
                     sqlStrSorted = SqlBase + ",Date";
                 }
                 else
