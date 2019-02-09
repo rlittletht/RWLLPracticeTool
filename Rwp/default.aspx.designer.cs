@@ -58,6 +58,15 @@ namespace Rwp {
         protected global::System.Web.UI.WebControls.Button ShowReservedButton;
         
         /// <summary>
+        /// showAllReserved control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox showAllReserved;
+        
+        /// <summary>
         /// ShowICalFeedLinkButton control.
         /// </summary>
         /// <remarks>

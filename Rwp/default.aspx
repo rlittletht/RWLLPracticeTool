@@ -32,6 +32,7 @@
 	                    <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
                             <font face="Verdana" size="2">
                             <asp:Button OnClick="ShowReserved" autopostback="true" Text="Show Reserved" Font-Bold="true" ID="ShowReservedButton" runat="server" />&nbsp;
+                            <asp:CheckBox runat="server" id="showAllReserved"/>Show All
                             <asp:Button OnClick="ShowICalFeedLink" autopostback="true" Text="Get iCal Feed" Font-Bold="true" ID="ShowICalFeedLinkButton" runat="server"/>
                             Team: 
                             <asp:DropDownList ID="teamMenu" AutoPostBack="True" OnSelectedIndexChanged="OnTeamMenuItemChanged" runat="server"><asp:ListItem Value="">--- Unauthorized ---</asp:ListItem></asp:DropDownList>
@@ -83,14 +84,14 @@
                                 <asp:ListItem Value="30">30</asp:ListItem>
                                 <asp:ListItem Value="31">31</asp:ListItem>
                             </asp:DropDownList>
-                            <asp:Button OnClick="ShowAvailable" autopostback="true" Text="Show Available By Date" Font-Bold="true" ID="ShowAvailableButton" runat="server" />
+                            <asp:Button OnClick="ShowAvailable" autopostback="true" Text="Available By Date" Font-Bold="true" ID="ShowAvailableButton" runat="server" />
                             &nbsp;&nbsp;&nbsp;&nbsp;
                         </td>
                         <td align="center">&nbsp;&nbsp;&nbsp;&nbsp;
                             <asp:DropDownList runat="server" Height="25px" Width="80px" ID="fieldMenu">
                                 <asp:ListItem Value="">----</asp:ListItem>
                             </asp:DropDownList>
-                            <asp:Button OnClick="ShowAvailableByField" autopostback="true" Text="Show Available By Field" Font-Bold="true" ID="ShowAvaliableByFieldButton" runat="server" />
+                            <asp:Button OnClick="ShowAvailableByField" autopostback="true" Text="Available By Field" Font-Bold="true" ID="ShowAvaliableByFieldButton" runat="server" />
                             &nbsp;&nbsp;&nbsp;&nbsp;
                         </td>
                     </tr>

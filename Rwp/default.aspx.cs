@@ -352,7 +352,7 @@ namespace Rwp
                 if (ShowingReserved)
                 {
                     DataGrid1.Columns[0].HeaderText = "Release";
-                    SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
+                    SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(showAllReserved.Checked ? "ShowAll" : teamName) + "',1,'00/00/00'," + "''";
                     sqlStrSorted = SqlBase + ",Date";
                 }
                 else
@@ -533,6 +533,12 @@ namespace Rwp
                     && IsEnabled && !(bool) ShowingReserved)
                 {
                     link.Enabled = false;
+                }
+
+                if (ShowingReserved && showAllReserved.Checked)
+                {
+                    link.Enabled = false;
+                    link.ToolTip = "Can't release in ShowAll";
                 }
             }
         }
