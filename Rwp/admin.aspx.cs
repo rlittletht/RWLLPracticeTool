@@ -87,6 +87,8 @@ namespace Rwp
 
             m_auth.SetupLoginLogout();
             GoHome.Click += DoGoHome;
+            if (!IsPostBack)
+                rowAddUser.Visible = false;
         }
 
         public void DoGoHome(object sender, ImageClickEventArgs args)
@@ -293,5 +295,60 @@ namespace Rwp
 		    btnClearAllSlots.Enabled = true;
 			btnClearLastYear.Enabled = true;
 		}
-	}
+
+        protected void DoShowAddUser(object sender, EventArgs e)
+        {
+            if (rowAddUser.Visible == false)
+            {
+                txtAddIdenity.Text = "";
+                txtAddTenant.Text = "9188040d-6c67-4c5b-b112-36a304b66dad";
+                txtAddTeamName.Text = "";
+                txtAddDivision.Text = "";
+                txtAddEmail.Text = "";
+                chkAddTeam.Checked = false;
+
+            }
+            rowAddUser.Visible = !rowAddUser.Visible;
+        }
+
+        protected void DoAddUser(object sender, EventArgs e)
+        {
+            RSR sr = CheckAdmin();
+
+            if (!sr.Result)
+            {
+                ReportSr(sr, "ipc");
+                return;
+            }
+
+            string sIdentity = txtAddIdenity.Text;
+            string sTenant = txtAddTenant.Text;
+            string sTeamName = txtAddTeamName.Text;
+            string sDivision = txtAddDivision.Text;
+            string sEmail = txtAddEmail.Text;
+            bool fAddTeam = chkAddTeam.Checked;
+
+            string sQuery = $"api/team/AddTeamUser?Identity={sIdentity}" +
+                            $"&Tenant={sTenant}" +
+                            $"&TeamName={sTeamName}" +
+                            $"&Division={sDivision}" +
+                            $"&Email={sEmail}" +
+                            $"&AddTeam={fAddTeam}";
+
+            sr = m_apiInterop.CallService<RSR>(sQuery, true);
+            if (sr.Succeeded)
+            {
+                rowAddUser.Visible = false;
+                ReportSr(sr, "AddTeamUser");
+            }
+
+            ReportSr(sr, "AddTeamUser");
+        }
+
+        protected void CancelAddUser(object sender, EventArgs e)
+        {
+            rowAddUser.Visible = false;
+        }
+
+    }
 }

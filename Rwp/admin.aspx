@@ -88,6 +88,28 @@
 					<p>Upload the given slots to the database.</p>
 				</td>
 			</tr>
+      <tr>
+        <td>
+          <asp:Button ID="btnAddUser" runat="server" Text="Add User" OnClick="DoShowAddUser" />
+        </td>
+        <td>
+          <p>Add a user/team association</p>
+        </td>
+      </tr>
+      <tr runat="server" id="rowAddUser">
+        <td>
+          <asp:Button ID="btnDoAddUser" runat="server" Text="Add" OnClick="DoAddUser" />
+          <asp:Button ID="btnCancelAddUser" runat="server" Text="Cancel" OnClick="CancelAddUser" />
+        </td>
+        <td>
+          <nobr>CreateTeam? <asp:CheckBox runat="server" id="chkAddTeam"/></nobr>
+          <nobr>Identity (email): <asp:TextBox runat="server" id="txtAddIdenity"></asp:TextBox></nobr>
+          <nobr>Tenant: <asp:TextBox runat="server" id="txtAddTenant" width="3in">9188040d-6c67-4c5b-b112-36a304b66dad</asp:TextBox></nobr>
+          <nobr>Team Name: <asp:TextBox runat="server" id="txtAddTeamName"></asp:TextBox></nobr>
+          <nobr>Division: <asp:TextBox runat="server" id="txtAddDivision" width=".25in"></asp:TextBox></nobr>
+          <nobr>Email (blank OK): <asp:TextBox runat="server" id="txtAddEmail"></asp:TextBox></nobr>
+        </td>
+      </tr>
 			<tr>
 				<td colspan=2>
 					Results:

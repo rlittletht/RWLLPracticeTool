@@ -263,6 +263,9 @@ namespace Rwp
                 throw new Exception("Service returned 'user is unauthorized'");
             }
 
+            if (resp.StatusCode != HttpStatusCode.OK)
+                throw new Exception(resp.ReasonPhrase);
+
             string sJson = GetContentAsString(resp);
 
             JavaScriptSerializer jsc = new JavaScriptSerializer();
