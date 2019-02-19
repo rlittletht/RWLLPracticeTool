@@ -147,6 +147,7 @@
     <None Include="packages.config" />
     <Content Include="SecretSettings.config" />
     <None Include="Properties\PublishProfiles\LocalHost.pubxml" />
+    <None Include="Properties\PublishProfiles\Production.pubxml" />
     <None Include="Properties\PublishProfiles\StagingServer %28Thetasoft2%29.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - FTP.pubxml" />
     <None Include="Web.Debug.config">
