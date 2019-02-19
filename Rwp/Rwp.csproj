@@ -135,7 +135,9 @@
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\IxStaging.pubxml" />
     <None Include="Properties\PublishProfiles\Local.pubxml" />
+    <None Include="Properties\PublishProfiles\Production.pubxml" />
     <None Include="Properties\PublishProfiles\rwllpractice - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\rwllpractice - FTP1.pubxml" />
     <None Include="Properties\PublishProfiles\rwllpractice - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\thetasoft2 - FTP.pubxml" />

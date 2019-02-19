@@ -27,7 +27,11 @@ namespace Rwp
     public partial class default1 : System.Web.UI.Page
     {
         private Auth m_auth;
+#if PRODHOST
+        static string s_sRoot = "";
+#else
         static string s_sRoot = "/rwp";
+#endif
         private SqlConnection DBConn;
         private string sqlStrSorted;
         private SqlCommand cmdMbrs;
