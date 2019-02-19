@@ -2,47 +2,32 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Rwp.RwpSvc;
 
 namespace Rwp
 {
     public partial class SlotsReport : System.Web.UI.Page
     {
+        private ApiInterop m_apiInterop;
+
         protected void Page_Load(object sender, EventArgs e)
         {
+            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
+
             DoReport();
-        }
-
-
-        private RSR CheckIP()
-        {
-            RSR sr = new RSR();
-
-            if (String.Compare(Request.UserHostAddress, "73.83.16.112") != 0
-                && String.Compare(Request.UserHostAddress, "::1") != 0
-                && !Request.UserHostAddress.StartsWith("192.168.1."))
-                {
-                sr.Result = false;
-                sr.Reason = String.Format("admin operations illegal from current ip address: {0}",
-                                          Request.UserHostAddress);
-                return sr;
-                }
-
-            sr.Result = true;
-            return sr;
         }
 
         protected void DoReport()
         {
-            if (!CheckIP().Result)
-                return;
+            HttpResponseMessage resp = m_apiInterop.CallService("api/slot/GetSlots", true);
+            Task<Stream> tskStream = resp.Content.ReadAsStreamAsync();
+            tskStream.Wait();
 
-            PracticeClient rspClient = new PracticeClient("BasicHttpBinding_PracticeStream");
-
-            Stream stm = rspClient.GetCsvSlots();
+            Stream stm = tskStream.Result;
             TextReader tr = new StreamReader(stm);
 
             Response.Clear();
@@ -52,15 +37,15 @@ namespace Rwp
             string sLine;
 
             while ((sLine = tr.ReadLine()) != null)
-                {
+            {
                 Response.Write(sLine);
                 Response.Write("\n");
-                }
+            }
 
-            //    	    Response.Write(s);
             Response.Write("\n");
             Response.Flush();
             Response.End();
+            //HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
     }
 }

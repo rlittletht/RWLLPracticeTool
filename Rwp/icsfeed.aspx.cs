@@ -5,33 +5,36 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Rwp.RwpSvc;
 
 namespace Rwp
 {
     public partial class icsfeed : System.Web.UI.Page
     {
+        private ApiInterop m_apiInterop;
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            string sTeam = Request.QueryString["Team"];
+            string sLinkID = Request.QueryString["LinkID"];
 
-            if (sTeam == null)
+            if (sLinkID == null)
                 {
-                ErrorResponse.InnerText = "You must specify a Team in your request";
+                ErrorResponse.InnerText = "You must specify a link ID in your request";
                 return;
                 }
 
-            DoReport(sTeam);
+            m_apiInterop = new ApiInterop(Context, Server, Startup.apiRoot);
+
+            DoReport(sLinkID);
         }
 
-        protected void DoReport(string sTeam)
+        protected void DoReport(string sLinkID)
         {
-            PracticeClient rspClient = new PracticeClient("BasicHttpBinding_PracticeStream");
+            sLinkID = sLinkID.Replace(" ", "%20");
 
-            RSR_CalItems rci = rspClient.GetCalendarForTeam(sTeam);
+            RSR_CalItems rci = m_apiInterop.CallService<RSR_CalItems>($"api/opencalendar/GetCalendarForTeam/{sLinkID}", false);
             if (!rci.Result)
                 {
-                ErrorResponse.InnerText = String.Format("Failed to get calendar for {0}: {1}", sTeam, rci.Reason);
+                ErrorResponse.InnerText = String.Format("Failed to get calendar for {0}: {1}", sLinkID, rci.Reason);
                 return;
                 }
 

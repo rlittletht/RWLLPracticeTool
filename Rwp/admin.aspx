@@ -9,17 +9,21 @@
     <script language="javascript">
         function DoDownloadTeams()
         {
-            window.open("TeamsReport.aspx");
+            window.open("TeamsReport.aspx", "_blank");
         }
 		function DoDownloadSlots()
 		{
-			window.open("SlotsReport.aspx");
+			window.open("SlotsReport.aspx", "_blank");
 		}
     </script>
 </head>
 <body>
+  <form id="form1" runat="server">
+    <div class="mastHeadButtons">
+      <asp:ImageButton ID="GoHome" runat="server" ImageUrl="home.png" />
+      <asp:ImageButton ID="LoginOutButton" runat="server" ImageUrl="signin.png" />
+    </div>
     <div class="masthead">admin services</div>
-    <form id="form1" runat="server">
     <div>
         <p>Annual cleanup</p>
         <p>client ip address: <span id="ipClient" runat="server"></span> </p>

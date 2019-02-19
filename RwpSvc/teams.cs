@@ -85,8 +85,8 @@ namespace RwpSvc
     			public RwpTeam(SqlDataReader sqlr)
 				{
     				m_sName = sqlr.GetString((int)iColumns.iName);
-					m_sDivision = sqlr.GetString((int)iColumns.iDivision);
-					m_sPassword = sqlr.GetString((int)iColumns.iPassword);
+					m_sDivision = sqlr.IsDBNull((int)iColumns.iDivision) ? null : sqlr.GetString((int)iColumns.iDivision);
+					m_sPassword = sqlr.IsDBNull((int)iColumns.iPassword) ? null : sqlr.GetString((int)iColumns.iPassword);
 					m_dttmCreated = sqlr.IsDBNull((int)iColumns.iCreated) ? (DateTime?)null : sqlr.GetDateTime((int)iColumns.iCreated);
 					m_dttmUpdated = sqlr.IsDBNull((int)iColumns.iUpdated) ? (DateTime?)null : sqlr.GetDateTime((int)iColumns.iUpdated);
 					m_cFieldsReleased = sqlr.GetInt32((int)iColumns.iFieldsReleased);
