@@ -286,6 +286,12 @@ namespace RwpApi.Models
                 return RSR.Failed(s);
             }
 
+            struct TeamInfo
+            {
+                public string TeamName;
+                public string Division;
+            }
+
             /* P R E F L I G H T */
             /*----------------------------------------------------------------------------
                 %%Function: Preflight
@@ -293,16 +299,44 @@ namespace RwpApi.Models
                 %%Contact: rlittle
 
             ----------------------------------------------------------------------------*/
-            public RSR Preflight(TCore.Sql sql)
+            public RSR Preflight(TCore.Sql sql, out bool fTeamExists, out bool fAuthExists)
             {
                 List<string> plsFail = new List<string>();
+                fTeamExists = false;
+                fAuthExists = false;
 
                 CheckLength(m_sName, "TeamName", 50, plsFail);
                 CheckLength(m_sDivision, "Division", 10, plsFail);
-                CheckLength(m_sPassword, "PW", 20, plsFail);
+
+                if (!Guid.TryParse(m_sTenant, out Guid g))
+                    plsFail.Add($"not a valid guid: {m_sTenant}");
+
+                // check to see if the team already exists
+                if (Sql.NExecuteScalar(sql, $"select count(*) from rwllteams where TeamName='{m_sName}'", null, 0) != 0)
+                {
+                    fTeamExists = true;
+                    SqlQueryReadLine<TeamInfo> readLine = new SqlQueryReadLine<TeamInfo>(
+                        (SqlReader sqlr, ref TeamInfo ti) =>
+                        {
+                            ti.TeamName = sqlr.Reader.GetString(0);
+                            ti.Division = sqlr.Reader.GetString(1);
+                        });
+
+                    Sql.ExecuteQuery(sql, $"SELECT TeamName, Division FROM rwllteams WHERE TeamName='{m_sName}'",
+                        readLine, null);
+
+                    if (String.Compare(m_sDivision, readLine.Value.Division) != 0)
+                    {
+                        plsFail.Add($"division mismatch with existing team {m_sName}: {m_sDivision} != {readLine.Value.Division}");
+                    }
+                }
+
+                // check to see if the auth already exists
+                if (Sql.NExecuteScalar(sql, $"select count(*) from rwllauth where PrimaryIdentity='{m_sIdentity}' AND Tenant='{m_sTenant}' AND TeamID='{m_sName}'", null, 0) != 0)
+                    fAuthExists = true;
 
                 if (plsFail.Count > 0)
-                    return SRFromPls("preflight failed", plsFail);
+                    return SRFromPls($"preflight failed for team {m_sName}", plsFail);
 
                 return RSR.Success();
             }
@@ -393,18 +427,6 @@ namespace RwpApi.Models
                     rwpt.Name = GetStringVal(rgs, "TEAMNAME");
                     if (rwpt.Name == "")
                         return RSR.Success();
-
-                    sw.Add(String.Format("$$rwllteams$$.TeamName = '{0}'", Sql.Sqlify(rwpt.Name)), SqlWhere.Op.And);
-                    SqlReader sqlr = new SqlReader(sql);
-                    if (sqlr.FExecuteQuery(sw.GetWhere(RwpTeam.s_sSqlQueryString), Startup._sResourceConnString)
-                        && sqlr.Reader.Read())
-                    {
-                        sqlr.Close();
-                        // found a match.  for now, this is an error
-                        throw new Exception(String.Format("team name {0} already exists", rwpt.Name));
-                    }
-
-                    sqlr.Close();
 
                     rwpt.Division = GetStringValNullable(rgs, "DIVISION");
                     rwpt.Password = GetStringValNullable(rgs, "PW");
@@ -529,29 +551,38 @@ namespace RwpApi.Models
                         continue;
 
                     // at this point, rwpt is a fully loaded team; check for errors and generate a passowrd if necessary
-                    sr = rwpt.Preflight(sql);
+                    bool fTeamExists = false;
+                    bool fAuthExists = false;
+
+                    sr = rwpt.Preflight(sql, out fTeamExists, out fAuthExists);
                     if (!sr.Result)
                         throw new Exception(String.Format("Failed to preflight line {0}: {1}", iLine - 1, sr.Reason));
 
-                    if (rwpt.Created == null)
-                        rwpt.Created = DateTime.Now;
+                    if (!fTeamExists)
+                    {
+                        if (rwpt.Created == null)
+                            rwpt.Created = DateTime.Now;
 
-                    if (rwpt.Updated == null)
-                        rwpt.Updated = rwpt.Created;
+                        if (rwpt.Updated == null)
+                            rwpt.Updated = rwpt.Created;
 
-                    if (rwpt.ReleasedCagesDate == null)
-                        rwpt.ReleasedCagesDate = DateTime.Parse("1/1/2013");
+                        if (rwpt.ReleasedCagesDate == null)
+                            rwpt.ReleasedCagesDate = DateTime.Parse("1/1/2013");
 
-                    if (rwpt.ReleasedFieldsDate == null)
-                        rwpt.ReleasedFieldsDate = DateTime.Parse("1/1/2013");
+                        if (rwpt.ReleasedFieldsDate == null)
+                            rwpt.ReleasedFieldsDate = DateTime.Parse("1/1/2013");
 
-                    // at this point, we would insert...
-                    string sInsert = rwpt.SGenerateUpdateQuery(sql, fAdd);
+                        // at this point, we would insert...
+                        string sInsert = rwpt.SGenerateUpdateQuery(sql, fAdd);
 
-                    SqlCommand sqlcmd = sql.CreateCommand();
-                    sqlcmd.CommandText = sInsert;
-                    sqlcmd.Transaction = sql.Transaction;
-                    sqlcmd.ExecuteNonQuery();
+                        Sql.ExecuteNonQuery(sql, sInsert, null);
+                    }
+
+                    // now, add to the auth table (again checking to see if this already exists)
+                    if (!fAuthExists)
+                    {
+                        InsertAuthUser(rwpt.Identity, rwpt.Name, Guid.Parse(rwpt.Tenant), sql);
+                    }
                 }
             }
             catch (Exception e)
@@ -607,12 +638,7 @@ namespace RwpApi.Models
                 }
 
                 // now we have a team; insert the user into the table
-                string sInsertUser =
-                    $"INSERT INTO rwllauth (PrimaryIdentity, Tenant, TeamID) VALUES ('{sIdentity}', '{tenant}', '{sTeamName}')";
-
-                rsr = RSR.FromSR(Sql.ExecuteNonQuery(sql, sInsertUser, null));
-                if (!rsr.Succeeded)
-                    throw new Exception($"{rsr.Reason} ({sInsertUser})");
+                rsr = InsertAuthUser(sIdentity, sTeamName, tenant, sql);
                 sql.Commit();
             }
             catch (Exception exc)
@@ -627,6 +653,18 @@ namespace RwpApi.Models
                 sql.Close();
             }
 
+            return rsr;
+        }
+
+        private static RSR InsertAuthUser(string sIdentity, string sTeamName, Guid tenant, Sql sql)
+        {
+            RSR rsr;
+            string sInsertUser =
+                $"INSERT INTO rwllauth (PrimaryIdentity, Tenant, TeamID) VALUES ('{sIdentity}', '{tenant}', '{sTeamName}')";
+
+            rsr = RSR.FromSR(Sql.ExecuteNonQuery(sql, sInsertUser, null));
+            if (!rsr.Succeeded)
+                throw new Exception($"{rsr.Reason} ({sInsertUser})");
             return rsr;
         }
     }
