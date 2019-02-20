@@ -57,5 +57,18 @@ namespace RwpApi.Controllers
             return Ok(sr);
         }
 
+        [HttpGet]
+        [Route("api/team/AddTeamUser")]
+        public IHttpActionResult AddTeamUser([FromUri] string Identity, [FromUri] string Tenant, [FromUri] string TeamName, [FromUri] string Division, [FromUri] string Email, [FromUri] bool AddTeam)
+        {
+            RSR sr;
+
+            if (String.IsNullOrEmpty(Email))
+                Email = Identity;
+
+            sr = Teams.AddTeamUser(Identity, Tenant, TeamName, Division, Email, AddTeam);
+            return Ok(sr);
+        }
+
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Data.Sql;
+using NUnit.Framework.Constraints;
 using TCore;
 
 // ================================================================================
@@ -598,6 +599,63 @@ namespace RwpApi.Models
         {
             return RSR.FromSR(Sql.ExecuteNonQuery("DELETE FROM rwllteams WHERE TeamName <> 'Administrator'",
                 Startup._sResourceConnString));
+        }
+
+        public static RSR AddTeamUser(string sIdentity, string sTenant, string sTeamName, string sDivision,
+            string sEmail, bool fAddTeam)
+        {
+            Sql sql = null;
+            Sql.OpenConnection(out sql, Startup._sResourceConnString);
+            RSR rsr = RSR.Failed("unknown");
+
+            try
+            {
+                sIdentity = Sql.Sqlify(sIdentity);
+                sTeamName = Sql.Sqlify(sTeamName);
+                sDivision = Sql.Sqlify(sDivision);
+                Guid tenant = Guid.Parse(sTenant);
+
+                // first, check to see if the team exists
+                int c = sql.NExecuteScalar($"select Count(*) from rwllteams where TeamName='{sTeamName}'");
+
+                if (c != 1 && !fAddTeam)
+                    throw new Exception($"team {sTeamName} does not exist and we were not asked to add the team");
+
+                sql.BeginTransaction();
+                if (c != 1)
+                {
+                    // add the team
+                    string sInsertTeam =
+                        $"INSERT INTO rwllteams (TeamName, Division, PW, DateCreated, DateUpdated, FieldsReleaseCount, CagesReleaseCount, ReleasedFieldsToday, ReleasedFieldsDate, ReleasedCagesToday, ReleasedCagesDate, Email1, Email2)" +
+                        $"VALUES ('{sTeamName}', '{sDivision}', '', '{DateTime.Now}', '{DateTime.Now}', 0, 0, 0, '1/1/2013', 0, '1/1/2013', '{sEmail}', '')";
+
+                    rsr = RSR.FromSR(Sql.ExecuteNonQuery(sql, sInsertTeam, null));
+                    if (!rsr.Succeeded)
+                        throw new Exception($"{rsr.Reason} ({sInsertTeam})");
+                }
+
+                // now we have a team; insert the user into the table
+                string sInsertUser =
+                    $"INSERT INTO rwllauth (PrimaryIdentity, Tenant, TeamID) VALUES ('{sIdentity}', '{tenant}', '{sTeamName}')";
+
+                rsr = RSR.FromSR(Sql.ExecuteNonQuery(sql, sInsertUser, null));
+                if (!rsr.Succeeded)
+                    throw new Exception($"{rsr.Reason} ({sInsertUser})");
+                sql.Commit();
+            }
+            catch (Exception exc)
+            {
+                rsr = RSR.Failed(exc);
+            }
+            finally
+            {
+                if (sql.InTransaction)
+                    sql.Rollback();
+
+                sql.Close();
+            }
+
+            return rsr;
         }
     }
 }
