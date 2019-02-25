@@ -39,6 +39,8 @@ namespace RwpApi.Models
             DateTime? m_dttmReleasedCagesDate;
             string m_sEmail1;
             string m_sEmail2;
+            private string m_sIdentity;
+            private string m_sTenant;
 
             enum iColumns
             {
@@ -54,7 +56,9 @@ namespace RwpApi.Models
                 iCagesReleasedToday,
                 iReleasedCagesDate,
                 iEmail1,
-                iEmail2
+                iEmail2,
+                iIdentity,
+                iTenant,
             };
 
             public string Name
@@ -135,6 +139,18 @@ namespace RwpApi.Models
                 set { m_sEmail2 = value; }
             }
 
+            public string Identity
+            {
+                get { return m_sIdentity; }
+                set { m_sIdentity = value; }
+            }
+
+            public string Tenant
+            {
+                get { return m_sTenant; }
+                set { m_sTenant = value; }
+            }
+
             /* R W P  T E A M */
             /*----------------------------------------------------------------------------
                 %%Function: RwpTeam
@@ -165,6 +181,9 @@ namespace RwpApi.Models
                     : sqlr.GetDateTime((int) iColumns.iReleasedCagesDate);
                 m_sEmail1 = sqlr.IsDBNull((int) iColumns.iEmail1) ? null : sqlr.GetString((int) iColumns.iEmail1);
                 m_sEmail2 = sqlr.IsDBNull((int) iColumns.iEmail2) ? null : sqlr.GetString((int) iColumns.iEmail2);
+                m_sIdentity = sqlr.GetString((int)iColumns.iIdentity);
+                m_sTenant = sqlr.GetString((int)iColumns.iTenant);
+
             }
 
             public static string s_sSqlQueryString =
@@ -172,12 +191,15 @@ namespace RwpApi.Models
                 "$$rwllteams$$.TeamName, $$rwllteams$$.Division, $$rwllteams$$.PW, $$rwllteams$$.DateCreated, " +
                 "$$rwllteams$$.Dateupdated, $$rwllteams$$.FieldsReleaseCount, $$rwllteams$$.CagesReleaseCount, " +
                 "$$rwllteams$$.ReleasedFieldsToday, $$rwllteams$$.ReleasedFieldsDate, $$rwllteams$$.ReleasedCagesToday, " +
-                "$$rwllteams$$.ReleasedCagesDate, $$rwllteams$$.Email1, $$rwllteams$$.Email2 " +
-                "FROM $$#rwllteams$$";
+                "$$rwllteams$$.ReleasedCagesDate, $$rwllteams$$.Email1, $$rwllteams$$.Email2, $$rwllauth$$.PrimaryIdentity, $$rwllauth$$.Tenant " +
+                "FROM $$#rwllteams$$ " +
+                "INNER JOIN $$#rwllauth$$ " +
+                "ON $$rwllauth$$.TeamID = $$rwllteams$$.TeamName";
 
             public static Dictionary<string, string> s_mpAliases = new Dictionary<string, string>
             {
                 {"rwllteams", "RWT"},
+                {"rwllauth", "RWA"}
             };
 
             public RwpTeam()
@@ -233,56 +255,6 @@ namespace RwpApi.Models
                     m_cCagesReleasedToday, sValuesExtra);
                 return String.Format("{0} {1}", sQueryBase, sQueryValues);
             }
-            /* S  G E N  R A N D O M  P A S S W O R D */
-            /*----------------------------------------------------------------------------
-                %%Function: SGenRandomPassword
-                %%Qualified: RwpSvc.Practice:Teams:RwpTeam.SGenRandomPassword
-                %%Contact: rlittle
-
-            ----------------------------------------------------------------------------*/
-
-            public static string SGenRandomPassword(Random rnd, string sTeamName)
-            {
-                int c = 8; // 8 chars
-                string sPassword = "";
-                int l = System.Environment.TickCount;
-
-                // assuming a structure of {Sport} {Division} {Firstname} {Lastname}, we
-                // can make a slightly less random password
-                int iNameFirst = sTeamName.IndexOf(' ');
-                if (iNameFirst >= 0)
-                    iNameFirst = sTeamName.IndexOf(' ', iNameFirst + 1);
-                int iNameLast = -1;
-                if (iNameFirst >= 0)
-                    iNameLast = sTeamName.IndexOf(' ', iNameFirst + 1);
-
-                if (iNameFirst >= 0 && iNameLast >= 0 && iNameFirst + 2 < iNameLast && iNameLast + 2 < sTeamName.Length)
-                {
-                    sPassword += sTeamName.Substring(iNameFirst + 1, 2).ToLower() +
-                                 sTeamName.Substring(iNameLast + 1, 2).ToLower();
-                    c = 4;
-                }
-
-                char ch;
-
-                for (int i = 0; i < c; i++)
-                {
-                    int n = rnd.Next(26, 35);
-                    if (n < 26)
-                    {
-                        ch = (char) ('a' + n);
-                        sPassword += ch;
-                    }
-
-                    if (n >= 26)
-                    {
-                        ch = (char) ('0' + (n - 26));
-                        sPassword += ch;
-                    }
-                }
-
-                return sPassword;
-            }
 
             /* C H E C K  L E N G T H */
             /*----------------------------------------------------------------------------
@@ -314,6 +286,12 @@ namespace RwpApi.Models
                 return RSR.Failed(s);
             }
 
+            struct TeamInfo
+            {
+                public string TeamName;
+                public string Division;
+            }
+
             /* P R E F L I G H T */
             /*----------------------------------------------------------------------------
                 %%Function: Preflight
@@ -321,16 +299,44 @@ namespace RwpApi.Models
                 %%Contact: rlittle
 
             ----------------------------------------------------------------------------*/
-            public RSR Preflight(TCore.Sql sql)
+            public RSR Preflight(TCore.Sql sql, out bool fTeamExists, out bool fAuthExists)
             {
                 List<string> plsFail = new List<string>();
+                fTeamExists = false;
+                fAuthExists = false;
 
                 CheckLength(m_sName, "TeamName", 50, plsFail);
                 CheckLength(m_sDivision, "Division", 10, plsFail);
-                CheckLength(m_sPassword, "PW", 20, plsFail);
+
+                if (!Guid.TryParse(m_sTenant, out Guid g))
+                    plsFail.Add($"not a valid guid: {m_sTenant}");
+
+                // check to see if the team already exists
+                if (Sql.NExecuteScalar(sql, $"select count(*) from rwllteams where TeamName='{m_sName}'", null, 0) != 0)
+                {
+                    fTeamExists = true;
+                    SqlQueryReadLine<TeamInfo> readLine = new SqlQueryReadLine<TeamInfo>(
+                        (SqlReader sqlr, ref TeamInfo ti) =>
+                        {
+                            ti.TeamName = sqlr.Reader.GetString(0);
+                            ti.Division = sqlr.Reader.GetString(1);
+                        });
+
+                    Sql.ExecuteQuery(sql, $"SELECT TeamName, Division FROM rwllteams WHERE TeamName='{m_sName}'",
+                        readLine, null);
+
+                    if (String.Compare(m_sDivision, readLine.Value.Division) != 0)
+                    {
+                        plsFail.Add($"division mismatch with existing team {m_sName}: {m_sDivision} != {readLine.Value.Division}");
+                    }
+                }
+
+                // check to see if the auth already exists
+                if (Sql.NExecuteScalar(sql, $"select count(*) from rwllauth where PrimaryIdentity='{m_sIdentity}' AND Tenant='{m_sTenant}' AND TeamID='{m_sName}'", null, 0) != 0)
+                    fAuthExists = true;
 
                 if (plsFail.Count > 0)
-                    return SRFromPls("preflight failed", plsFail);
+                    return SRFromPls($"preflight failed for team {m_sName}", plsFail);
 
                 return RSR.Success();
             }
@@ -345,7 +351,7 @@ namespace RwpApi.Models
             {
                 "TeamName", "Division", "PW", "DateCreated", "DateUpdated", "FieldsReleaseCount", "CagesReleaseCount",
                 "ReleasedFieldsToday", "ReleasedFieldsDate", "ReleasedCagesToday", "ReleasedCagesDate", "Email1",
-                "Email2"
+                "Email2", "Identity", "Tenant"
             };
 
             /* C S V  T E A M S */
@@ -394,7 +400,8 @@ namespace RwpApi.Models
                 mpColData.Add("ReleasedCagesDate", DttmValOrNull(rwpt.ReleasedCagesDate));
                 mpColData.Add("Email1", StringValOrNull(rwpt.Email1));
                 mpColData.Add("Email2", StringValOrNull(rwpt.Email2));
-
+                mpColData.Add("Identity", StringValOrNull(rwpt.Identity));
+                mpColData.Add("Tenant", StringValOrNull(rwpt.Tenant));
                 return CsvMake(mpColData);
             }
 
@@ -421,18 +428,6 @@ namespace RwpApi.Models
                     if (rwpt.Name == "")
                         return RSR.Success();
 
-                    sw.Add(String.Format("$$rwllteams$$.TeamName = '{0}'", Sql.Sqlify(rwpt.Name)), SqlWhere.Op.And);
-                    SqlReader sqlr = new SqlReader(sql);
-                    if (sqlr.FExecuteQuery(sw.GetWhere(RwpTeam.s_sSqlQueryString), Startup._sResourceConnString)
-                        && sqlr.Reader.Read())
-                    {
-                        sqlr.Close();
-                        // found a match.  for now, this is an error
-                        throw new Exception(String.Format("team name {0} already exists", rwpt.Name));
-                    }
-
-                    sqlr.Close();
-
                     rwpt.Division = GetStringValNullable(rgs, "DIVISION");
                     rwpt.Password = GetStringValNullable(rgs, "PW");
                     rwpt.Created = GetDateValNullable(rgs, "DATECREATED");
@@ -445,6 +440,8 @@ namespace RwpApi.Models
                     rwpt.ReleasedCagesDate = GetDateValNullable(rgs, "RELEASEDCAGESDATE");
                     rwpt.Email1 = GetStringValNullable(rgs, "EMAIL1");
                     rwpt.Email2 = GetStringValNullable(rgs, "EMAIL2");
+                    rwpt.Identity = GetStringValNullable(rgs, "IDENTITY");
+                    rwpt.Tenant = GetStringValNullable(rgs, "TENANT");
                 }
                 catch (Exception e)
                 {
@@ -527,7 +524,6 @@ namespace RwpApi.Models
             RwpTeam rwpt;
             bool fAdd;
             List<string> plsDiff;
-
             try
             {
                 while ((sLine = tr.ReadLine()) != null)
@@ -546,6 +542,7 @@ namespace RwpApi.Models
                         continue;
                     }
 
+                    
                     sr = csv.LoadRwptFromCsv(sLine, sql, out rwpt, out fAdd, out plsDiff);
                     if (!sr.Result)
                         throw new Exception(String.Format("Failed to process line {0}: {1}", iLine - 1, sr.Reason));
@@ -554,32 +551,38 @@ namespace RwpApi.Models
                         continue;
 
                     // at this point, rwpt is a fully loaded team; check for errors and generate a passowrd if necessary
-                    sr = rwpt.Preflight(sql);
+                    bool fTeamExists = false;
+                    bool fAuthExists = false;
+
+                    sr = rwpt.Preflight(sql, out fTeamExists, out fAuthExists);
                     if (!sr.Result)
                         throw new Exception(String.Format("Failed to preflight line {0}: {1}", iLine - 1, sr.Reason));
 
-                    if (string.IsNullOrEmpty(rwpt.Password))
-                        rwpt.Password = RwpTeam.SGenRandomPassword(rnd, rwpt.Name);
+                    if (!fTeamExists)
+                    {
+                        if (rwpt.Created == null)
+                            rwpt.Created = DateTime.Now;
 
-                    if (rwpt.Created == null)
-                        rwpt.Created = DateTime.Now;
+                        if (rwpt.Updated == null)
+                            rwpt.Updated = rwpt.Created;
 
-                    if (rwpt.Updated == null)
-                        rwpt.Updated = rwpt.Created;
+                        if (rwpt.ReleasedCagesDate == null)
+                            rwpt.ReleasedCagesDate = DateTime.Parse("1/1/2013");
 
-                    if (rwpt.ReleasedCagesDate == null)
-                        rwpt.ReleasedCagesDate = DateTime.Parse("1/1/2013");
+                        if (rwpt.ReleasedFieldsDate == null)
+                            rwpt.ReleasedFieldsDate = DateTime.Parse("1/1/2013");
 
-                    if (rwpt.ReleasedFieldsDate == null)
-                        rwpt.ReleasedFieldsDate = DateTime.Parse("1/1/2013");
+                        // at this point, we would insert...
+                        string sInsert = rwpt.SGenerateUpdateQuery(sql, fAdd);
 
-                    // at this point, we would insert...
-                    string sInsert = rwpt.SGenerateUpdateQuery(sql, fAdd);
+                        Sql.ExecuteNonQuery(sql, sInsert, null);
+                    }
 
-                    SqlCommand sqlcmd = sql.CreateCommand();
-                    sqlcmd.CommandText = sInsert;
-                    sqlcmd.Transaction = sql.Transaction;
-                    sqlcmd.ExecuteNonQuery();
+                    // now, add to the auth table (again checking to see if this already exists)
+                    if (!fAuthExists)
+                    {
+                        InsertAuthUser(rwpt.Identity, rwpt.Name, Guid.Parse(rwpt.Tenant), sql);
+                    }
                 }
             }
             catch (Exception e)
@@ -635,12 +638,7 @@ namespace RwpApi.Models
                 }
 
                 // now we have a team; insert the user into the table
-                string sInsertUser =
-                    $"INSERT INTO rwllauth (PrimaryIdentity, Tenant, TeamID) VALUES ('{sIdentity}', '{tenant}', '{sTeamName}')";
-
-                rsr = RSR.FromSR(Sql.ExecuteNonQuery(sql, sInsertUser, null));
-                if (!rsr.Succeeded)
-                    throw new Exception($"{rsr.Reason} ({sInsertUser})");
+                rsr = InsertAuthUser(sIdentity, sTeamName, tenant, sql);
                 sql.Commit();
             }
             catch (Exception exc)
@@ -655,6 +653,18 @@ namespace RwpApi.Models
                 sql.Close();
             }
 
+            return rsr;
+        }
+
+        private static RSR InsertAuthUser(string sIdentity, string sTeamName, Guid tenant, Sql sql)
+        {
+            RSR rsr;
+            string sInsertUser =
+                $"INSERT INTO rwllauth (PrimaryIdentity, Tenant, TeamID) VALUES ('{sIdentity}', '{tenant}', '{sTeamName}')";
+
+            rsr = RSR.FromSR(Sql.ExecuteNonQuery(sql, sInsertUser, null));
+            if (!rsr.Succeeded)
+                throw new Exception($"{rsr.Reason} ({sInsertUser})");
             return rsr;
         }
     }
