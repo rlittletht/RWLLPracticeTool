@@ -66,7 +66,7 @@ namespace Rwp
                     RedirectUri = redirectUri,
                     // PostLogoutRedirectUri is the page that users will be redirected to after sign-out. In this case, it is using the home page
                     PostLogoutRedirectUri = redirectUri,
-                    Scope = $"{scopeWebApi} {OpenIdConnectScope.OpenIdProfile} offline_access user.read",
+                    Scope = $"{scopeWebApi} {OpenIdConnectScope.OpenIdProfile} offline_access", // don't use user.read anymore -- causes scope failure
                     // ResponseType is set to request the id_token - which contains basic information about the signed-in user
                     ResponseType = OpenIdConnectResponseType.CodeIdToken,
                     // ValidateIssuer set to false to allow personal and work accounts from any organization to sign in to your application
