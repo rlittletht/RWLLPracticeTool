@@ -8,136 +8,145 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
+/* Update information about a slot -- Reserve or Release it
 
+*/
+ALTER proc [dbo].[usp_UpdateSlots] (@TranType varchar(3),
+									@Team  varchar(50),
+									@SlotNo  varchar(50))
+AS
 
+SET nocount ON
 
+DECLARE 
+	@FieldType nvarchar(50),
+	@Division varchar(10),
+	@reservedInThisDay int,
+	@fieldPerDay int,
+	@cagesPerDay int,
+	@ReleasedFieldsToday int,
+	@ReleasedCagesToday int,
+	@ReleasedFieldsDate smalldatetime,
+	@ReleasedCagesDate smalldatetime
 
-ALTER proc [dbo].[usp_UpdateSlots]
-(@TranType varchar(3),
-@Team  varchar(50),
-@SlotNo  varchar(50)
-
-) as
-set nocount on
-DECLARE @FieldType nvarchar(50),
-@Division varchar(10),
-@reservedInThisDay int,
-@fieldPerDay int,
-@cagesPerDay int,
-@ReleasedFieldsToday int,
-@ReleasedCagesToday int,
-@ReleasedFieldsDate smalldatetime,
-@ReleasedCagesDate smalldatetime
-
-SELECT  @ReleasedFieldsToday = ReleasedFieldsToday,
-@ReleasedCagesToday = ReleasedCagesToday,
-@ReleasedFieldsDate = ReleasedFieldsDate,
-@ReleasedCagesDate = ReleasedCagesDate
-FROM rwllteams WHERE teamname = @team
+-- Get information about the team
+SELECT  
+	@ReleasedFieldsToday = ReleasedFieldsToday,
+	@ReleasedCagesToday = ReleasedCagesToday,
+	@ReleasedFieldsDate = ReleasedFieldsDate,
+	@ReleasedCagesDate = ReleasedCagesDate
+FROM 
+	rwllteams 
+WHERE 
+	teamname = @team
 
 SELECT @Division = division from rwllTeams where TeamName = @team
+
 -- For fields
 DECLARE @FieldsReleaseCount int
+
 SELECT  @FieldsReleaseCount =  FieldsReleaseCount FROM rwllteams WHERE teamname = @team
 SELECT  @fieldPerDay = FieldReservationsPerDay from rwlldivisions where DivisionName = @Division
+
 -- For Cages
 DECLARE @CagesReleaseCount int
+
 SELECT  @CagesReleaseCount =  CagesReleaseCount FROM rwllteams WHERE teamname = @team
 SELECT  @cagesPerDay = CageReservationsPerDay from rwlldivisions where DivisionName = @Division
 
 If @TranType = 'Rel'
-BEGIN
+	BEGIN
+		DECLARE @CurrentDate nvarchar(255) = convert(varchar, DateAdd(hh, -8, getdate()), 101)
+		DECLARE @ReservedFieldDate nvarchar(255)
+		DECLARE @DateOfReservation nvarchar(255)
 
-DECLARE @CurrentDate nvarchar(255) = convert(varchar, DateAdd(hh, -8, getdate()), 101)
-DECLARE @ReservedFieldDate nvarchar(255)
-DECLARE @DateOfReservation nvarchar(255)
+		IF (@ReleasedFieldsDate <> @CurrentDate)
+			BEGIN
+				UPDATE rwllteams SET FieldsReleaseCount = FieldsReleaseCount + @ReleasedFieldsToday WHERE teamname = @team
+				UPDATE rwllteams SET ReleasedFieldsDate = convert(varchar, DateAdd(hh, -8, getdate()), 101),ReleasedFieldsToday = 0  WHERE teamname = @team
+			END
+		IF (@ReleasedCagesDate <> @CurrentDate)
+			BEGIN
+				UPDATE rwllteams SET CagesReleaseCount = CagesReleaseCount + @ReleasedCagesToday WHERE teamname = @team
+				UPDATE rwllteams SET ReleasedCagesDate = convert(varchar, DateAdd(hh, -8, getdate()), 101),ReleasedCagesToday = 0  WHERE teamname = @team
+			END
 
-IF (@ReleasedFieldsDate <> @CurrentDate)
-BEGIN
-UPDATE rwllteams SET FieldsReleaseCount = FieldsReleaseCount + @ReleasedFieldsToday WHERE teamname = @team
-UPDATE rwllteams SET ReleasedFieldsDate = convert(varchar, DateAdd(hh, -8, getdate()), 101),ReleasedFieldsToday = 0  WHERE teamname = @team
-END
-IF (@ReleasedCagesDate <> @CurrentDate)
-BEGIN
-UPDATE rwllteams SET CagesReleaseCount = CagesReleaseCount + @ReleasedCagesToday WHERE teamname = @team
-UPDATE rwllteams SET ReleasedCagesDate = convert(varchar, DateAdd(hh, -8, getdate()), 101),ReleasedCagesToday = 0  WHERE teamname = @team
-END
+		SELECT  @FieldType = [Type], @ReservedFieldDate = convert(varchar,[Date], 101), @DateOfReservation = convert(varchar,ReserveDatetime, 101) FROM rwllpractice WHERE SlotNo = @SlotNo and Reserved <> 'Available'
 
-SELECT  @FieldType = [Type], @ReservedFieldDate = convert(varchar,[Date], 101), @DateOfReservation = convert(varchar,ReserveDatetime, 101) FROM rwllpractice WHERE SlotNo = @SlotNo and Reserved <> 'Available'
+		IF @ReservedFieldDate > @CurrentDate
+			BEGIN
+				UPDATE rwllpractice SET Reserved = 'Available', ReserveDatetime = null, ReleaseDatetime = convert(varchar, DateAdd(hh, -8, getdate()), 101),ReleaseTeam = @team  WHERE SlotNo = @SlotNo and Reserved <> 'Available'
+				IF @FieldType = 'Field'
+					BEGIN
+						IF(@ReleasedFieldsToday = @fieldPerDay)
+							BEGIN
+								UPDATE rwllteams SET FieldsReleaseCount = FieldsReleaseCount + 1 WHERE teamname = @team
+							END
+						ELSE
+							BEGIN
+								UPDATE rwllteams SET ReleasedFieldsToday = ReleasedFieldsToday + 1 WHERE teamname = @team
+							END
+					END
+				ELSE
+					BEGIN
+						IF(@ReleasedCagesToday = @cagesPerDay)
+							BEGIN
+								UPDATE rwllteams SET CagesReleaseCount = CagesReleaseCount + 1 WHERE teamname = @team
+							END
+						ELSE
+							BEGIN
+								UPDATE rwllteams SET ReleasedCagesToday = ReleasedCagesToday + 1 WHERE teamname = @team
+							END
+					END
 
-IF @ReservedFieldDate > @CurrentDate
-BEGIN
-UPDATE rwllpractice SET Reserved = 'Available', ReserveDatetime = null, ReleaseDatetime = convert(varchar, DateAdd(hh, -8, getdate()), 101),ReleaseTeam = @team  WHERE SlotNo = @SlotNo and Reserved <> 'Available'
-
-IF @FieldType = 'Field'
-BEGIN
-IF(@ReleasedFieldsToday = @fieldPerDay)
-BEGIN
-UPDATE rwllteams SET FieldsReleaseCount = FieldsReleaseCount + 1 WHERE teamname = @team
-END
+				SELECT 0
+			END
+	END
 ELSE
-BEGIN
-UPDATE rwllteams SET ReleasedFieldsToday = ReleasedFieldsToday + 1 WHERE teamname = @team
-END
-END
-ELSE
-BEGIN
-IF(@ReleasedCagesToday = @cagesPerDay)
-BEGIN
-UPDATE rwllteams SET CagesReleaseCount = CagesReleaseCount + 1 WHERE teamname = @team
-END
-ELSE
-BEGIN
-UPDATE rwllteams SET ReleasedCagesToday = ReleasedCagesToday + 1 WHERE teamname = @team
-END
-END
+	BEGIN
+		UPDATE 
+		   rwllpractice
+		SET 
+		   Reserved = @Team, ReserveDatetime = DateAdd(hh, -8, getdate())
+		WHERE 
+		   SlotNo = @SlotNo
 
-select 0
-END
-END
-ELSE
-BEGIN
-UPDATE rwllpractice
-SET Reserved = @Team, ReserveDatetime = DateAdd(hh, -8, getdate())
-WHERE SlotNo = @SlotNo
+		SELECT @FieldType = [Type] FROM rwllpractice WHERE SlotNo = @SlotNo
 
-SELECT @FieldType = [Type] FROM rwllpractice WHERE SlotNo = @SlotNo
--- Reserved in selected day
-SELECT @reservedInThisDay = Count(*) FROM rwllpractice Where Reserved = @team and convert(varchar, ReserveDatetime, 101)  = convert(varchar, DateAdd(hh, -8, getdate()), 101) and [Type] = @FieldType
+	   -- Reserved in selected day
+	   SELECT @reservedInThisDay = Count(*) FROM rwllpractice Where Reserved = @team and convert(varchar, ReserveDatetime, 101)  = convert(varchar, DateAdd(hh, -8, getdate()), 101) and [Type] = @FieldType
 
+		IF @FieldType = 'Field'
+			BEGIN
+				IF @FieldsReleaseCount > 0 AND (@fieldPerDay <= @reservedInThisDay)
+					BEGIN
+						UPDATE rwllteams SET FieldsReleaseCount = FieldsReleaseCount - 1 WHERE teamname = @team
+					END
+				ELSE
+					BEGIN
+						IF @ReleasedFieldsToday > 0
+							BEGIN
+								UPDATE rwllteams SET ReleasedFieldsToday = ReleasedFieldsToday - 1 WHERE teamname = @team
+							END
+					END
+			END
+		ELSE
+			BEGIN
+				IF @CagesReleaseCount > 0 AND (@cagesPerDay <= @reservedInThisDay)
+					BEGIN
+						UPDATE rwllteams SET CagesReleaseCount = CagesReleaseCount - 1 WHERE teamname = @team
+					END
+				ELSE
+					BEGIN
+						IF @ReleasedCagesToday > 0
+							BEGIN
+								UPDATE rwllteams SET ReleasedCagesToday = ReleasedCagesToday - 1 WHERE teamname = @team
+							END
+					END
+			END
 
-IF @FieldType = 'Field'
-BEGIN
-IF @FieldsReleaseCount > 0 AND (@fieldPerDay <= @reservedInThisDay)
-BEGIN
-UPDATE rwllteams SET FieldsReleaseCount = FieldsReleaseCount - 1 WHERE teamname = @team
-END
-ELSE
-BEGIN
-IF @ReleasedFieldsToday > 0
-BEGIN
-UPDATE rwllteams SET ReleasedFieldsToday = ReleasedFieldsToday - 1 WHERE teamname = @team
-END
-END
-END
-ELSE
-BEGIN
-IF @CagesReleaseCount > 0 AND (@cagesPerDay <= @reservedInThisDay)
-BEGIN
-UPDATE rwllteams SET CagesReleaseCount = CagesReleaseCount - 1 WHERE teamname = @team
-END
-ELSE
-BEGIN
-IF @ReleasedCagesToday > 0
-BEGIN
-UPDATE rwllteams SET ReleasedCagesToday = ReleasedCagesToday - 1 WHERE teamname = @team
-END
-END
-END
-
-
-select 0
-END
+		SELECT 0
+	END
 
 
 --IF Exists (select * from rwllpractice
@@ -243,7 +252,6 @@ END
 --set ReserveDatetime = dateadd(dd, -2, getdate() )
 --where Venue = @Venue and Field = @Field and Date = @Date and StartTime = @StartTime
 --END
-
 
 EndProc:
 
