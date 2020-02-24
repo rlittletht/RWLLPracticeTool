@@ -14,6 +14,8 @@ GO
    @ShowDate - the date to show slots for
    @VenueName - the field to show info for
    @Sort	  - how should this be sorted? ("StartTime" | ... ) 
+   @WindowStart- this is the UTC start of the window for considering
+				the number of events reserved in a time period
 
    NOTE for UTC: ShowDate is the the first minute of the 24 hour
    period we want to consider. So if you want 2/2/2020 in PST (UTC-8), 
@@ -25,6 +27,7 @@ ALTER PROC [dbo].[usp_DisplaySlotsEx] (@TeamName  VARCHAR(50),
                                        @ShowSlots TINYINT, 
                                        @ShowDate  VARCHAR(32), 
                                        @VenueName NVARCHAR(255) = '', 
+									   @WindowStart DateTime2,
                                        @Sort      VARCHAR(20) = 'StartTime') 
 AS 
 
@@ -76,7 +79,7 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 				--EXEC @CageStatus  =  usp_ReservedByDate @TeamName,@ShowDate, 'Cage' 
 				IF @VenueName = '' 
 					BEGIN 
-						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field] ) AS IsEnabled, 
+						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field], @WindowStart) AS IsEnabled, 
 							   slotno, [week], [status], venue, field, 
 							   SlotStart, 
 							   LEFT(DATENAME(dw, SlotStart), 3), 
@@ -92,7 +95,7 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 								AND [type] = 'Field' 
 								AND Charindex(@Division, divisions) <> 0 
 							UNION 
-								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field]) AS IsEnabled, 
+								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field], @WindowStart) AS IsEnabled, 
 										slotno, [week], [status], venue, field, 
 										SlotStart, 
 										LEFT(DATENAME(dw, SlotStart), 3), 
@@ -110,7 +113,7 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 					END 
 				ELSE 
 					BEGIN 
-						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field] ) AS IsEnabled, 
+						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field], @WindowStart) AS IsEnabled, 
 								slotno, [week], [status], venue, field, 
 								SlotStart,
 								LEFT(DATENAME(dw, SlotStart), 3), 
@@ -125,7 +128,7 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 								AND [type] = 'Field' 
 								AND Charindex(@Division, divisions) <> 0 
 							UNION 
-								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field]) AS IsEnabled, 
+								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field], @WindowStart) AS IsEnabled, 
 										slotno, [week], [status], venue, field, 
 										SlotStart,
 										LEFT(DATENAME(dw, SlotStart), 3), 

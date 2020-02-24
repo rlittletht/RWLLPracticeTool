@@ -236,8 +236,14 @@ namespace Rwp
                 Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
                 DataGrid1.Columns[0].HeaderText = "Release";
-                SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," +
-                          "''";
+                SqlBase = "exec usp_DisplaySlotsEx '"
+                          + Sql.Sqlify(teamName)
+                          + "',1,'"
+                          + sCurYear
+                          + "-01-01',"
+                          + "'', '"
+                          + GetWindowStartForQuery(60 * 12)
+                          + "'";
                 if (!String.IsNullOrEmpty(SqlBase))
                     sqlStrSorted = SqlBase + ",SlotStart";
                 ShowHideAdmin(userData);
@@ -361,6 +367,36 @@ namespace Rwp
 
         #region Query/Data
 
+        /*----------------------------------------------------------------------------
+        	%%Function: GetWindowStartForQuery
+        	%%Qualified: Rwp.default1.GetWindowStartForQuery
+        	
+            Take the current date/time and turn it into the start of the reset window.
+
+            (If this was just midnight, then truncate the hour from the datetime, and
+            that's your reset window. Not so simple when it resets at a different time
+
+            minutesOffsetForReset is the number of minutes into the day that is the
+            reset point. (midnight = 0 minutes. noon = 12 * 60 minutes)
+        ----------------------------------------------------------------------------*/
+        private DateTime GetWindowStartForQuery(long minutesOffsetForReset)
+        {
+            DateTime dttmCur = DateTime.UtcNow;
+
+            // convert this to local time according to the users timezone
+            dttmCur = TimeZoneInfo.ConvertTimeFromUtc(dttmCur, timeZoneInfo);
+
+            DateTime dttmReset = dttmCur.Date;
+            dttmReset = dttmReset.AddMinutes(minutesOffsetForReset);
+
+            // if we are beyond today's reset, then yesterday is the correct reset
+            if (dttmReset > dttmCur)
+                dttmReset = dttmReset.AddDays(-1);
+
+            // and now return in UTC
+            return TimeZoneInfo.ConvertTimeToUtc(dttmReset, timeZoneInfo);
+        }
+
         protected string LocalDateTimeFromObject(object o)
         {
             if (o is System.DBNull)
@@ -402,7 +438,7 @@ namespace Rwp
 
         private string GetDateStringForQuery()
         {
-            string sDateShort = monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + "2019"; //sCurYear;
+            string sDateShort = monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear;
 
             DateTime dttm = DateTime.Parse(sDateShort);
             return dttm.ToUniversalTime().ToString();
@@ -416,7 +452,12 @@ namespace Rwp
                 if (ShowingReserved)
                 {
                     DataGrid1.Columns[0].HeaderText = "Release";
-                    SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(showAllReserved.Checked ? "ShowAll" : teamName) + "',1,'00/00/00'," + "''";
+                    SqlBase = "exec usp_DisplaySlotsEx '"
+                              + Sql.Sqlify(showAllReserved.Checked ? "ShowAll" : teamName)
+                              + "',1,'00/00/00',"
+                              + "'', '"
+                              + GetWindowStartForQuery(60 * 12)
+                              + "'";
                     sqlStrSorted = SqlBase + ",SlotStart";
                 }
                 else
@@ -424,18 +465,27 @@ namespace Rwp
                     DataGrid1.Columns[0].HeaderText = "Reserve";
                     if (ShowingAvailableByField)
                     {
-                        SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamNameForAvailableSlots) + "',2,'" +
-                                     GetDateStringForQuery() +
-                                     "','" +
-                                     fieldMenu.SelectedItem.Value + "'";
+                        SqlBase = "exec usp_DisplaySlotsEx '"
+                                  + Sql.Sqlify(teamNameForAvailableSlots)
+                                  + "',2,'"
+                                  + GetDateStringForQuery()
+                                  + "','"
+                                  + fieldMenu.SelectedItem.Value
+                                  + "', '"
+                                  + GetWindowStartForQuery(60 * 12)
+                                  + "'";
                         sqlStrSorted = SqlBase + ",SlotStart";
                     }
                     else
                     {
-                        SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamNameForAvailableSlots) + "',2,'" +
-                                      GetDateStringForQuery() +
-                                     "'," +
-                                     "''";
+                        SqlBase = "exec usp_DisplaySlotsEx '"
+                                  + Sql.Sqlify(teamNameForAvailableSlots)
+                                  + "',2,'"
+                                  + GetDateStringForQuery()
+                                  + "',"
+                                  + "'', '"
+                                  + GetWindowStartForQuery(60 * 12)
+                                  + "'";
                         sqlStrSorted = SqlBase + ",SlotStart";
                     }
                 }
@@ -546,7 +596,12 @@ namespace Rwp
                 DataGrid1.EditItemIndex = -1;
                 // return to list of reserved fields
                 DataGrid1.Columns[0].HeaderText = "Release";
-                SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
+                SqlBase = "exec usp_DisplaySlotsEx '"
+                          + Sql.Sqlify(teamName)
+                          + "',1,'00/00/00',"
+                          + "'', '"
+                          + GetWindowStartForQuery(60 * 12)
+                          + "'";
                 sqlStrSorted = SqlBase + ",SlotStart";
                 rdrMbrs.Close();
                 rdrMbrs.Dispose();
