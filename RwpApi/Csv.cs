@@ -183,7 +183,7 @@ namespace RwpApi
             %%Contact: rlittle
 
         ----------------------------------------------------------------------------*/
-        protected DateTime? GetDateValNullable(string[] rgs, string s)
+        protected DateTime? GetDateValNullable(string[] rgs, string s, TimeZoneInfo tzi = null)
         {
             string sNew;
 
@@ -197,7 +197,12 @@ namespace RwpApi
             if (sNew.Length == 0)
                 return null;
 
-            return DateTime.Parse(sNew);
+            DateTime dttm = DateTime.Parse(sNew);
+            
+            if (tzi != null)
+                dttm = TimeZoneInfo.ConvertTimeToUtc(dttm, tzi);
+
+            return dttm;
         }
 
         /* G E T  D A T E  V A L */
@@ -207,9 +212,9 @@ namespace RwpApi
             %%Contact: rlittle
 
         ----------------------------------------------------------------------------*/
-        protected DateTime GetDateVal(string[] rgs, string s)
+        protected DateTime GetDateVal(string[] rgs, string s, TimeZoneInfo tzi = null)
         {
-            DateTime? dttm = GetDateValNullable(rgs, s);
+            DateTime? dttm = GetDateValNullable(rgs, s, tzi);
 
             if (dttm == null)
                 throw new Exception(String.Format("cannot fetch date value for {0}", s));

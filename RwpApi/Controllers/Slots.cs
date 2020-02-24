@@ -17,13 +17,17 @@ namespace RwpApi.Controllers
     public class SlotController : ApiController
     {
         [Route("api/slot/GetSlots")]
-        public HttpResponseMessage GetSlots()
+        public HttpResponseMessage GetSlots(string TimeZoneID)
         {
             Stream stm = new MemoryStream(4096);
 
             RwpSlots slots = new RwpSlots();
 
-            slots.GetCsv(stm);
+            TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+            if (tzi == null)
+                throw new Exception($"cannot load timezone {TimeZoneID}");
+
+            slots.GetCsv(stm, tzi);
             stm.Flush();
             stm.Seek(0, SeekOrigin.Begin);
 
@@ -58,13 +62,20 @@ namespace RwpApi.Controllers
         [Route("api/slot/PutSlots")]
         public IHttpActionResult PutSlots(HttpRequestMessage request)
         {
+            string TimeZoneID = "Pacific Standard Time";
+
             Task<Stream> stm = request.Content.ReadAsStreamAsync();
+
+            // need to figure out how to pass this as a parameter
+            TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+            if (tzi == null)
+                throw new Exception($"cannot load timezone {TimeZoneID}");
 
             stm.Wait();
 
             RSR sr;
 
-            sr = RwpSlots.ImportCsv(stm.Result);
+            sr = RwpSlots.ImportCsv(stm.Result, tzi);
             return Ok(sr);
         }
     }

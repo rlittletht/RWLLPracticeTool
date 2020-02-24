@@ -20,6 +20,7 @@ namespace RwpApi
     public class RwpSlots : TCore.IQueryResult
     {
         List<RwpSlot> m_plrwps;
+        TimeZoneInfo m_tzi;
 
         public RwpSlots()
         {
@@ -126,14 +127,14 @@ namespace RwpApi
                     {
                         CalItem ci = new CalItem();
 
-                        ci.Start = StartTimeFromDateAndTime(slot.SlotDate, slot.StartTime);
-                        ci.End = StartTimeFromDateAndTime(slot.SlotDate, slot.EndTime);
+                        ci.Start = StartTimeFromDateAndTime(slot.SlotStart, slot.StartTime);
+                        ci.End = StartTimeFromDateAndTime(slot.SlotStart, slot.EndTime);
                         ci.Location = String.Format("{0}: {1}", slot.Venue, slot.Field);
                         ci.Title = String.Format("Team Practice: {0}", slot.Reserved);
                         ci.Description =
                             String.Format("Redmond West Little League team practice at {0} ({1}), for team {2}",
                                 slot.Venue, slot.Field, slot.Reserved);
-                        ci.UID = String.Format("{0}-rwllpractice-{1}", slot.Slot, slot.SlotDate.ToString("yyyyMMdd"));
+                        ci.UID = String.Format("{0}-rwllpractice-{1}", slot.Slot, slot.SlotStart.ToString("yyyyMMdd"));
                         plci.Add(ci);
                     }
                 }
@@ -159,11 +160,11 @@ namespace RwpApi
             string m_sStatus;
             string m_sVenue;
             string m_sField;
-            DateTime m_dttmSlotDate;
+            DateTime m_dttmSlotStart;
             string m_sWeekday;
             string m_sStartTime;
             string m_sEndTime;
-            string m_sHours;
+            int m_nSlotLength;
             string m_sReserved;
             string m_sDivisions;
             DateTime? m_dttmReserved;
@@ -178,11 +179,8 @@ namespace RwpApi
                 iStatus,
                 iVenue,
                 iField,
-                iSlotDate,
-                iWeekday,
-                iStartTime,
-                iEndTime,
-                iHour,
+                iSlotStart,
+                iSlotLength,
                 iReserved,
                 iDivisions,
                 iReservedDate,
@@ -222,10 +220,10 @@ namespace RwpApi
                 set { m_sField = value; }
             }
 
-            public DateTime SlotDate
+            public DateTime SlotStart
             {
-                get { return m_dttmSlotDate; }
-                set { m_dttmSlotDate = value; }
+                get { return m_dttmSlotStart; }
+                set { m_dttmSlotStart = value; }
             }
 
             public string Weekday
@@ -246,10 +244,10 @@ namespace RwpApi
                 set { m_sEndTime = value; }
             }
 
-            public string Hours
+            public int SlotLength
             {
-                get { return m_sHours; }
-                set { m_sHours = value; }
+                get { return m_nSlotLength; }
+                set { m_nSlotLength = value; }
             }
 
             public string Reserved
@@ -302,11 +300,8 @@ namespace RwpApi
                 m_sStatus = sqlr.GetString((int) iColumns.iStatus);
                 m_sVenue = sqlr.GetString((int) iColumns.iVenue);
                 m_sField = sqlr.GetString((int) iColumns.iField);
-                m_dttmSlotDate = sqlr.GetDateTime((int) iColumns.iSlotDate);
-                m_sWeekday = sqlr.GetString((int) iColumns.iWeekday);
-                m_sStartTime = sqlr.GetString((int) iColumns.iStartTime);
-                m_sEndTime = sqlr.GetString((int) iColumns.iEndTime);
-                m_sHours = sqlr.GetString((int) iColumns.iHour);
+                m_dttmSlotStart = sqlr.GetDateTime((int) iColumns.iSlotStart);
+                m_nSlotLength = sqlr.GetInt32((int) iColumns.iSlotLength);
                 m_sReserved = sqlr.GetString((int) iColumns.iReserved);
                 m_sDivisions = sqlr.GetString((int) iColumns.iDivisions);
                 m_dttmReserved = sqlr.IsDBNull((int) iColumns.iReservedDate)
@@ -324,10 +319,10 @@ namespace RwpApi
             public static string s_sSqlQueryString =
                 "SELECT " +
                 "$$rwllpractice$$.SlotNo, $$rwllpractice$$.Week, $$rwllpractice$$.Status, $$rwllpractice$$.Venue, " +
-                "$$rwllpractice$$.Field, $$rwllpractice$$.Date, $$rwllpractice$$.Weekday, $$rwllpractice$$.StartTime, " +
-                "$$rwllpractice$$.EndTime, $$rwllpractice$$.Hours, $$rwllpractice$$.Reserved, " +
-                "$$rwllpractice$$.Divisions, $$rwllpractice$$.ReserveDatetime, $$rwllpractice$$.Type, " +
-                "$$rwllpractice$$.ReleaseDatetime, $$rwllpractice$$.ReleaseTeam " +
+                "$$rwllpractice$$.Field, $$rwllpractice$$.SlotStart, " +
+                "$$rwllpractice$$.SlotLength, $$rwllpractice$$.Reserved, " +
+                "$$rwllpractice$$.Divisions, $$rwllpractice$$.SlotReservedDatetime, $$rwllpractice$$.Type, " +
+                "$$rwllpractice$$.SlotReleasedDatetime, $$rwllpractice$$.ReleaseTeam " +
                 "FROM $$#rwllpractice$$";
 
             public static Dictionary<string, string> s_mpAliases = new Dictionary<string, string>
@@ -341,8 +336,8 @@ namespace RwpApi
 
             public static string s_sSqlInsert =
                 "INSERT INTO rwllpractice " +
-                "(SlotNo, Week, Status, Venue, Field, Date, Weekday, StartTime, EndTime, Hours, Reserved, " +
-                "Divisions, Type{0}) "; // We will append ReserveDatetime, ReleaseDatetime, ReleaseTeam as needed
+                "(SlotNo, Week, Status, Venue, Field, SlotStart, SlotLength, Reserved, " +
+                "Divisions, Type{0}) "; // We will append SlotReservedDatetime, SlotReleasedDatetime, ReleaseTeam as needed
 
             public string SGenerateUpdateQuery(TCore.Sql sql, bool fAdd)
             {
@@ -351,19 +346,19 @@ namespace RwpApi
                 string sInsertExtra = "";
                 string sValuesExtra = "";
                 string sValuesTemplate =
-                    "VALUES ({0},{1},'{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}'{13})";
+                    "VALUES ({0},{1},'{2}','{3}','{4}','{5}',{6},'{7}','{8}','{9}'{10})";
 
                 // let's figure out if we're going to include ReserveDatetime, ReleaseDatetime, ReleaseTeam
                 if (m_dttmReserved != null)
                 {
-                    sInsertExtra += ", ReserveDatetime";
+                    sInsertExtra += ", SlotReservedDatetime";
                     sValuesExtra += String.Format(",'{0}'",
                         m_dttmReserved.Value.ToString("M/d/yyyy HH:mm"));
                 }
 
                 if (m_dttmReleased != null)
                 {
-                    sInsertExtra += ", ReleaseDatetime";
+                    sInsertExtra += ", SlotReleasedDatetime";
                     sValuesExtra += String.Format(",'{0}'",
                         m_dttmReleased.Value.ToString("M/d/yyyy HH:mm"));
                 }
@@ -376,8 +371,8 @@ namespace RwpApi
 
                 string sQueryBase = String.Format(s_sSqlInsert, sInsertExtra);
                 string sQueryValues = String.Format(sValuesTemplate, m_nSlot, m_flWeek, m_sStatus, Sql.Sqlify(m_sVenue),
-                    Sql.Sqlify(m_sField), m_dttmSlotDate.ToString("M/d/yyyy HH:mm"),
-                    m_sWeekday, m_sStartTime, m_sEndTime, m_sHours, Sql.Sqlify(m_sReserved),
+                    Sql.Sqlify(m_sField), m_dttmSlotStart.ToString("M/d/yyyy HH:mm"),
+                    m_nSlotLength, Sql.Sqlify(m_sReserved),
                     Sql.Sqlify(m_sDivisions), m_sType, sValuesExtra);
 
                 return String.Format("{0} {1}", sQueryBase, sQueryValues);
@@ -438,8 +433,6 @@ namespace RwpApi
                 CheckLength(m_sStatus, "Status", 255, plsFail);
                 CheckLength(m_sVenue, "Venue", 255, plsFail);
                 CheckLength(m_sField, "Field", 255, plsFail);
-                if (!s_plsWeekdays.Contains(m_sWeekday.ToUpper()))
-                    plsFail.Add(String.Format("Weekday '{0}' is not valid", m_sWeekday));
                 CheckLength(m_sReserved, "Reserved", 255, plsFail);
                 CheckLength(m_sDivisions, "Divisions", 15, plsFail);
                 CheckLength(m_sType, "Type", 50, plsFail);
@@ -460,8 +453,8 @@ namespace RwpApi
         {
             readonly string[] m_rgsStaticHeaderSlots = new string[]
             {
-                "SlotNo", "Week", "Status", "Venue", "Field", "Date", "Weekday", "StartTime", "EndTime", "Hours",
-                "Reserved", "Divisions", "ReserveDatetime", "Type", "ReleaseDatetime", "ReleaseTeam"
+                "SlotNo", "Week", "Status", "Venue", "Field", "SlotStart", "SlotLength",
+                "Reserved", "Divisions", "SlotReservedDatetime", "Type", "SlotReleasedDatetime", "ReleaseTeam"
             };
 
             /* C S V  T E A M S */
@@ -502,16 +495,13 @@ namespace RwpApi
                 mpColData.Add("Status", rwps.Status);
                 mpColData.Add("Venue", rwps.Venue);
                 mpColData.Add("Field", rwps.Field);
-                mpColData.Add("Date", DttmValOrNull(rwps.SlotDate));
-                mpColData.Add("Weekday", rwps.Weekday);
-                mpColData.Add("StartTime", rwps.StartTime);
-                mpColData.Add("EndTime", rwps.EndTime);
-                mpColData.Add("Hours", rwps.Hours);
+                mpColData.Add("SlotStart", DttmValOrNull(rwps.SlotStart));
+                mpColData.Add("SlotLength", rwps.SlotLength.ToString());
                 mpColData.Add("Reserved", rwps.Reserved);
                 mpColData.Add("Divisions", rwps.Divisions);
-                mpColData.Add("ReserveDatetime", DttmValOrNull(rwps.ReservedDate));
+                mpColData.Add("SlotReservedDatetime", DttmValOrNull(rwps.ReservedDate));
                 mpColData.Add("Type", rwps.Type);
-                mpColData.Add("ReleaseDatetime", DttmValOrNull(rwps.Released));
+                mpColData.Add("SlotReleasedDatetime", DttmValOrNull(rwps.Released));
                 mpColData.Add("ReleaseTeam", StringValOrNull(rwps.ReleaseTeam));
 
                 return CsvMake(mpColData);
@@ -524,7 +514,7 @@ namespace RwpApi
                 %%Contact: rlittle
 
             ----------------------------------------------------------------------------*/
-            public RSR LoadRwpsFromCsv(string sLine, Sql sql, out RwpSlot rwps, out bool fAdd, out List<string> plsDiff)
+            public RSR LoadRwpsFromCsv(string sLine, Sql sql, out RwpSlot rwps, out bool fAdd, out List<string> plsDiff, TimeZoneInfo tzi)
             {
                 string[] rgs = LineToArray(sLine);
                 SqlWhere sw = new SqlWhere();
@@ -559,16 +549,13 @@ namespace RwpApi
                     rwps.Status = GetStringVal(rgs, "STATUS");
                     rwps.Venue = GetStringVal(rgs, "VENUE");
                     rwps.Field = GetStringVal(rgs, "FIELD");
-                    rwps.SlotDate = GetDateVal(rgs, "DATE");
-                    rwps.Weekday = GetStringVal(rgs, "WEEKDAY");
-                    rwps.StartTime = GetStringVal(rgs, "STARTTIME");
-                    rwps.EndTime = GetStringVal(rgs, "ENDTIME");
-                    rwps.Hours = GetStringVal(rgs, "HOURS");
+                    rwps.SlotStart = GetDateVal(rgs, "SLOTSTART", tzi);
+                    rwps.SlotLength = GetIntVal(rgs, "SLOTLENGTH");
                     rwps.Reserved = GetStringVal(rgs, "RESERVED");
                     rwps.Divisions = GetStringVal(rgs, "DIVISIONS");
-                    rwps.ReservedDate = GetDateValNullable(rgs, "RESERVEDATETIME");
+                    rwps.ReservedDate = GetDateValNullable(rgs, "SLOTRESERVEDDATETIME", tzi);
                     rwps.Type = GetStringVal(rgs, "TYPE");
-                    rwps.Released = GetDateValNullable(rgs, "RELEASEDATETIME");
+                    rwps.Released = GetDateValNullable(rgs, "SLOTRELEASEDDATETIME", tzi);
                     rwps.ReleaseTeam = GetStringValNullable(rgs, "RELEASETEAM");
                 }
                 catch (Exception e)
@@ -590,7 +577,15 @@ namespace RwpApi
         ----------------------------------------------------------------------------*/
         public bool FAddResultRow(SqlReader sqlr, int iRecordSet)
         {
-            m_plrwps.Add(new RwpSlot(sqlr.Reader));
+            RwpSlot slot = new RwpSlot(sqlr.Reader);
+
+            // convert UTC dates to the local timezone of the user
+            slot.SlotStart = TimeZoneInfo.ConvertTimeFromUtc(slot.SlotStart, m_tzi);
+            slot.Released = slot.Released != null ? TimeZoneInfo.ConvertTimeFromUtc((DateTime)slot.Released, m_tzi) : (DateTime?)null ;
+            slot.ReservedDate = slot.ReservedDate != null ? TimeZoneInfo.ConvertTimeFromUtc((DateTime)slot.ReservedDate, m_tzi) : (DateTime?)null;
+
+            m_plrwps.Add(slot);
+
             return true;
         }
 
@@ -601,11 +596,13 @@ namespace RwpApi
             %%Contact: rlittle
 
         ----------------------------------------------------------------------------*/
-        public SR GetCsv(Stream stm)
+        public SR GetCsv(Stream stm, TimeZoneInfo tzi)
         {
             CsvSlots csvs = new CsvSlots();
             SqlWhere sw = new SqlWhere();
             TextWriter tw = new StreamWriter(stm);
+
+            m_tzi = tzi;
 
             sw.AddAliases(RwpSlot.s_mpAliases);
 
@@ -627,7 +624,7 @@ namespace RwpApi
             %%Contact: rlittle
 
         ----------------------------------------------------------------------------*/
-        public static RSR ImportCsv(Stream stm)
+        public static RSR ImportCsv(Stream stm, TimeZoneInfo tzi)
         {
             RSR sr;
             Sql sql;
@@ -672,7 +669,7 @@ namespace RwpApi
                         continue;
                     }
 
-                    sr = csv.LoadRwpsFromCsv(sLine, sql, out rwps, out fAdd, out plsDiff);
+                    sr = csv.LoadRwpsFromCsv(sLine, sql, out rwps, out fAdd, out plsDiff, tzi);
                     if (!sr.Result)
                         throw new Exception(String.Format("Failed to process line {0}: {1}", iLine - 1, sr.Reason));
 
