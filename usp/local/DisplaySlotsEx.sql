@@ -50,9 +50,6 @@ SELECT @SQLPrefixDefaultEnabled = 'SELECT ' + CHAR(39) + CHAR(39);
 
 SELECT @SQLSuffix = ' as IsEnabled, SlotNo,Week,Status,Venue,Field,'
 	+'SlotStart, '
-	+'LEFT(DATENAME(dw, SlotStart), 3), '
-	+'CONCAT(LEFT(RIGHT(CONVERT(varchar(25), SlotStart, 22), 11), 5), '' '', RIGHT(CONVERT(varchar(25), SlotStart, 22), 2)), '
-	+'CONCAT(LEFT(RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 11), 5), '' '', RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 2)), '
 	+'SlotLength, '
 	+'Reserved,Divisions,'
 	+'SlotReservedDatetime '
@@ -82,9 +79,6 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field], @WindowStart) AS IsEnabled, 
 							   slotno, [week], [status], venue, field, 
 							   SlotStart, 
-							   LEFT(DATENAME(dw, SlotStart), 3), 
-							   CONCAT(LEFT(RIGHT(CONVERT(varchar(25), SlotStart, 22), 11), 5), ' ', RIGHT(CONVERT(varchar(25), SlotStart, 22), 2)), 
-							   CONCAT(LEFT(RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 11), 5), ' ', RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 2)), 
 							   SlotLength, 
 							   reserved, divisions, 
 							   SlotReservedDateTime
@@ -98,9 +92,6 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field], @WindowStart) AS IsEnabled, 
 										slotno, [week], [status], venue, field, 
 										SlotStart, 
-										LEFT(DATENAME(dw, SlotStart), 3), 
-										CONCAT(LEFT(RIGHT(CONVERT(varchar(25), SlotStart, 22), 11), 5), ' ', RIGHT(CONVERT(varchar(25), SlotStart, 22), 2)), 
-										CONCAT(LEFT(RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 11), 5), ' ', RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 2)), 
 										SlotLength, 
 										reserved, divisions, 
 										SlotReservedDateTime
@@ -116,9 +107,6 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field], @WindowStart) AS IsEnabled, 
 								slotno, [week], [status], venue, field, 
 								SlotStart,
-								LEFT(DATENAME(dw, SlotStart), 3), 
-								CONCAT(LEFT(RIGHT(CONVERT(varchar(25), SlotStart, 22), 11), 5), ' ', RIGHT(CONVERT(varchar(25), SlotStart, 22), 2)), 
-								CONCAT(LEFT(RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 11), 5), ' ', RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 2)), 
 								SlotLength, 
 								reserved, divisions, 
 								SlotReservedDateTime
@@ -131,9 +119,6 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field], @WindowStart) AS IsEnabled, 
 										slotno, [week], [status], venue, field, 
 										SlotStart,
-										LEFT(DATENAME(dw, SlotStart), 3), 
-										CONCAT(LEFT(RIGHT(CONVERT(varchar(25), SlotStart, 22), 11), 5), ' ', RIGHT(CONVERT(varchar(25), SlotStart, 22), 2)), 
-										CONCAT(LEFT(RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 11), 5), ' ', RIGHT(CONVERT(varchar(25), DateAdd(minute, SlotLength, SlotStart), 22), 2)), 
 										SlotLength, 
 										reserved, divisions, 
 										SlotReservedDateTime
