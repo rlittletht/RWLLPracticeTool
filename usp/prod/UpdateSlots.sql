@@ -1,15 +1,18 @@
-USE [DB0902]
+USE [thetasoft]
 GO
-/****** Object:  StoredProcedure [dbo].[usp_UpdateSlots]    Script Date: 03/20/2013 01:59:08 ******/
+
+/****** Object:  StoredProcedure [dbo].[usp_UpdateSlots]    Script Date: 2/23/2020 10:32:49 PM ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
 
 
 
 
-ALTER proc [dbo].[usp_UpdateSlots]
+
+CREATE proc [dbo].[usp_UpdateSlots]
 (@TranType varchar(3),
 @Team  varchar(50),
 @SlotNo  varchar(50)
@@ -243,4 +246,6 @@ END
 
 
 EndProc:
+
+GO
 

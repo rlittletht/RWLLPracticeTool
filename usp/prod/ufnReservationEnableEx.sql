@@ -1,12 +1,15 @@
-USE [DB0902]
+USE [thetasoft]
 GO
-/****** Object:  UserDefinedFunction [dbo].[ufn_ReservationEnableEx]    Script Date: 2/18/2014 9:34:27 PM ******/
+
+/****** Object:  UserDefinedFunction [dbo].[ufn_ReservationEnableEx]    Script Date: 2/23/2020 10:33:10 PM ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
 
-ALTER FUNCTION [dbo].[ufn_ReservationEnableEx]
+
+CREATE FUNCTION [dbo].[ufn_ReservationEnableEx]
 	(
 	@TeamName varchar(50),
 	@Week float,
@@ -151,4 +154,6 @@ BEGIN
 		END
 	RETURN @ExtResult
 END
+
+GO
 

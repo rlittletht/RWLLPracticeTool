@@ -1,7 +1,7 @@
 USE [DB0902]
 GO
 
-/****** Object:  StoredProcedure [dbo].[usp_UpdateSlots]    Script Date: 2/9/2020 2:45:10 PM ******/
+/****** Object:  StoredProcedure [dbo].[usp_UpdateSlots]    Script Date: 2/23/2020 10:30:22 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,7 +12,7 @@ GO
 
 
 
-CREATE proc [dbo].[usp_UpdateSlots]
+ALTER proc [dbo].[usp_UpdateSlots]
 (@TranType varchar(3),
 @Team  varchar(50),
 @SlotNo  varchar(50)
