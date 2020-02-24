@@ -150,27 +150,38 @@
                 <ItemStyle HorizontalAlign="Center"></ItemStyle>
                 <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
             </asp:BoundColumn>
-            <asp:BoundColumn HeaderText="Date" ReadOnly="True" DataField="Date" SortExpression="Date">
-                <ItemStyle HorizontalAlign="Center"></ItemStyle>
-                <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+            <asp:BoundColumn HeaderText="Date" ReadOnly="True" DataField="SlotStart" SortExpression="SlotStart">
+              <ItemStyle HorizontalAlign="Center"></ItemStyle>
+              <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
             </asp:BoundColumn>
-            <asp:BoundColumn HeaderText="Weekday" ReadOnly="True" DataField="Weekday">
-                <ItemStyle HorizontalAlign="Center"></ItemStyle>
-                <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
-            </asp:BoundColumn>
-            <asp:BoundColumn HeaderText="Start Time" ReadOnly="True" SortExpression="StartTime"
-                DataField="StartTime">
-                <ItemStyle HorizontalAlign="Center"></ItemStyle>
-                <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
-            </asp:BoundColumn>
-            <asp:BoundColumn HeaderText="End Time" ReadOnly="True" DataField="EndTime">
-                <ItemStyle HorizontalAlign="Center"></ItemStyle>
-                <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
-            </asp:BoundColumn>
-            <asp:BoundColumn HeaderText="Hours" ReadOnly="True" DataField="Hours">
-                <ItemStyle HorizontalAlign="Center"></ItemStyle>
-                <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
-            </asp:BoundColumn>
+            <asp:TemplateColumn HeaderText="Weekday">
+              <ItemStyle HorizontalAlign="Center"></ItemStyle>
+              <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+              <ItemTemplate>
+                <%# WeekdayFromUtc((DateTime)Eval("SlotStart")) %>
+              </ItemTemplate>
+            </asp:TemplateColumn>
+            <asp:TemplateColumn HeaderText="Start Time" SortExpression="StartTime">
+              <ItemStyle HorizontalAlign="Center"></ItemStyle>
+              <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+              <ItemTemplate>
+                <%# SlotStartTimeFromUtc((DateTime)Eval("SlotStart")) %>
+              </ItemTemplate>
+            </asp:TemplateColumn>
+            <asp:TemplateColumn HeaderText="End Time">
+              <ItemStyle HorizontalAlign="Center"></ItemStyle>
+              <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+              <ItemTemplate>
+                <%# SlotEndTimeFromUtcLength((DateTime)Eval("SlotStart"), (int)Eval("SlotLength")) %>
+              </ItemTemplate>
+            </asp:TemplateColumn>
+            <asp:TemplateColumn HeaderText="Hours">
+              <ItemStyle HorizontalAlign="Center"></ItemStyle>
+              <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+              <ItemTemplate>
+                <%# SlotLengthFormatMinutes((int)Eval("SlotLength")) %>
+              </ItemTemplate>
+            </asp:TemplateColumn>
             <asp:BoundColumn HeaderText="Field" ReadOnly="True" SortExpression="Field" DataField="Field">
                 <ItemStyle HorizontalAlign="Center"></ItemStyle>
                 <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
@@ -184,11 +195,13 @@
                 <ItemStyle HorizontalAlign="left"></ItemStyle>
                 <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
             </asp:BoundColumn>
-            <asp:BoundColumn HeaderText="Reserved on" ReadOnly="True" SortExpression="ReservedTime"
-                DataField="ReserveDatetime">
-                <ItemStyle HorizontalAlign="left"></ItemStyle>
-                <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
-            </asp:BoundColumn>
+            <asp:TemplateColumn HeaderText="Reserved On" SortExpression="SlotReservedDateTime">
+              <ItemStyle HorizontalAlign="Center"></ItemStyle>
+              <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
+              <ItemTemplate>
+                <%# LocalDateTimeFromObject(Eval("SlotReservedDateTime")) %>
+              </ItemTemplate>
+            </asp:TemplateColumn>
         </Columns>
     </asp:DataGrid>
 </center>

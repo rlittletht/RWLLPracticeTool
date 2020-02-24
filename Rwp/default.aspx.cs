@@ -104,7 +104,9 @@ namespace Rwp
 
         private bool IsLoggedIn => m_auth.IsLoggedIn;
         private bool LoggedInAsAdmin => m_auth.CurrentPrivs.privs == Auth.UserPrivs.AdminPrivs;
-        
+
+        private string timeZoneId => m_auth.CurrentPrivs.sTimezone;
+
         private string sCurYear;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -129,22 +131,30 @@ namespace Rwp
             {
                 Message0.Text = exc.Message;
             }
-            
+
+            if (timeZoneInfo == null && timeZoneId != null)
+                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+
             m_auth.SetupLoginLogout();
         }
+
+        private TimeZoneInfo timeZoneInfo;
 
         void LoadPrivsAndSetupPage()
         {
             teamNameForAvailableSlots = teamName;
 
             if (!String.IsNullOrEmpty(SqlBase))
-                sqlStrSorted = SqlBase + ",Date";
+                sqlStrSorted = SqlBase + ",SlotStart";
 
             if (!IsPostBack)
             {
                 divCalendarFeedLink.Visible = ShowingCalLink;
 
                 Auth.UserData data = LoadPrivs();
+
+                if (timeZoneInfo == null && data.sTimezone != null)
+                    timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(data.sTimezone);
 
                 if (!IsLoggedIn)
                     SetLoggedOff();
@@ -214,6 +224,8 @@ namespace Rwp
             m_auth.LoadPrivs(DBConn);
 
             userData = m_auth.CurrentPrivs;
+            if (userData.sTimezone != null)
+                timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(userData.sTimezone);
 
             FillTeamList(userData);
 
@@ -227,7 +239,7 @@ namespace Rwp
                 SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'" + sCurYear + "-01-01'," +
                           "''";
                 if (!String.IsNullOrEmpty(SqlBase))
-                    sqlStrSorted = SqlBase + ",Date";
+                    sqlStrSorted = SqlBase + ",SlotStart";
                 ShowHideAdmin(userData);
                 BindGrid();
             }
@@ -348,6 +360,54 @@ namespace Rwp
         #endregion
 
         #region Query/Data
+
+        protected string LocalDateTimeFromObject(object o)
+        {
+            if (o is System.DBNull)
+                return "";
+
+            DateTime? dttmUTC = (DateTime?) o;
+
+            if (dttmUTC == null)
+                return "";
+
+            return TimeZoneInfo.ConvertTimeFromUtc(dttmUTC.Value, timeZoneInfo).ToString("g");
+        }
+
+        protected string LocalDateFromUtc(DateTime dttmUTC)
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(dttmUTC, timeZoneInfo).ToShortDateString();
+        }
+
+        protected string WeekdayFromUtc(DateTime dttmUTC)
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(dttmUTC, timeZoneInfo).ToString("ddd");
+        }
+
+        protected string SlotStartTimeFromUtc(DateTime dttmUTC)
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(dttmUTC, timeZoneInfo).ToString("hh:mm tt");
+        }
+
+        protected string SlotEndTimeFromUtcLength(DateTime dttmUTC, int minutes)
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(dttmUTC.AddMinutes(minutes), timeZoneInfo).ToString("hh:mm tt");
+        }
+
+        protected string SlotLengthFormatMinutes(int minutes)
+        {
+            TimeSpan ts = TimeSpan.FromMinutes(minutes);
+            return ts.ToString("hh\\:mm");
+        }
+
+        private string GetDateStringForQuery()
+        {
+            string sDateShort = monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + "2019"; //sCurYear;
+
+            DateTime dttm = DateTime.Parse(sDateShort);
+            return dttm.ToUniversalTime().ToString();
+        }
+
         protected void RunQuery(object sender, EventArgs e)
         {
             Message2.Text = "";
@@ -357,7 +417,7 @@ namespace Rwp
                 {
                     DataGrid1.Columns[0].HeaderText = "Release";
                     SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(showAllReserved.Checked ? "ShowAll" : teamName) + "',1,'00/00/00'," + "''";
-                    sqlStrSorted = SqlBase + ",Date";
+                    sqlStrSorted = SqlBase + ",SlotStart";
                 }
                 else
                 {
@@ -365,18 +425,18 @@ namespace Rwp
                     if (ShowingAvailableByField)
                     {
                         SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamNameForAvailableSlots) + "',2,'" +
-                                     monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear +
+                                     GetDateStringForQuery() +
                                      "','" +
                                      fieldMenu.SelectedItem.Value + "'";
-                        sqlStrSorted = SqlBase + ",Date";
+                        sqlStrSorted = SqlBase + ",SlotStart";
                     }
                     else
                     {
                         SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamNameForAvailableSlots) + "',2,'" +
-                                     monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear +
+                                      GetDateStringForQuery() +
                                      "'," +
                                      "''";
-                        sqlStrSorted = SqlBase + ",Date";
+                        sqlStrSorted = SqlBase + ",SlotStart";
                     }
                 }
 
@@ -487,7 +547,7 @@ namespace Rwp
                 // return to list of reserved fields
                 DataGrid1.Columns[0].HeaderText = "Release";
                 SqlBase = "exec usp_DisplaySlotsEx '" + Sql.Sqlify(teamName) + "',1,'00/00/00'," + "''";
-                sqlStrSorted = SqlBase + ",Date";
+                sqlStrSorted = SqlBase + ",SlotStart";
                 rdrMbrs.Close();
                 rdrMbrs.Dispose();
                 cmdMbrs.Dispose();
@@ -502,48 +562,66 @@ namespace Rwp
         protected void Item_Bound(object sender, DataGridItemEventArgs e)
         {
             LinkButton link;
-            string strDateField;
-            DateTime dateField;
             bool IsEnabled;
 
-            if (e.Item.Cells[0].Controls.Count > 0)
+            // do transformations here (like converting our slotstart to local time
+//            e
+//            e.Item.Cells[3].Text = LocalDateFromUtc(e.Item.Cells[3].DataB
+            if (e.Item.ItemType == ListItemType.Item
+                || e.Item.ItemType == ListItemType.AlternatingItem)
             {
-                link = (LinkButton) e.Item.Cells[0].Controls[0];
-                strDateField = e.Item.Cells[3].Text;
-                dateField = DateTime.Parse(strDateField);
-                if (e.Item.Cells[1].Text.Length == 0 || e.Item.Cells[1].Text == "&nbsp;")
-                    IsEnabled = false;
-                else
+                if (e.Item.Cells[0].Controls.Count > 0)
                 {
-                    IsEnabled = true;
-                    link.ToolTip = e.Item.Cells[1].Text;
+                    string strDateField;
+                    DateTime dateField;
+
+                    link = (LinkButton) e.Item.Cells[0].Controls[0];
+
+                    // at this point, Item.Cells[3] is the UTC slotStart
+                    strDateField = e.Item.Cells[3].Text;
+                    dateField = DateTime.Parse(strDateField);
+                    if (e.Item.Cells[1].Text.Length == 0 || e.Item.Cells[1].Text == "&nbsp;")
+                        IsEnabled = false;
+                    else
+                    {
+                        IsEnabled = true;
+                        link.ToolTip = e.Item.Cells[1].Text;
+                    }
+
+                    if (!IsLoggedIn)
+                    {
+                        link.Enabled = false;
+                        link.ToolTip = "Not logged in";
+                    }
+
+                    if (link != null
+                        && DateTime.Compare(dateField, DateTime.UtcNow.Date) <= 0
+                        && (bool) ShowingReserved)
+                    {
+                        link.Enabled = false;
+                        link.ToolTip = "date has passed: " + 
+                                       TimeZoneInfo.ConvertTimeFromUtc(dateField, timeZoneInfo) 
+                                       + " < " 
+                                       + TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneInfo).Date;
+                    }
+
+                    if (link != null
+                        && IsEnabled
+                        && !(bool) ShowingReserved)
+                    {
+                        link.Enabled = false;
+                    }
+
+                    if (ShowingReserved && showAllReserved.Checked)
+                    {
+                        link.Enabled = false;
+                        link.ToolTip = "Can't release in ShowAll";
+                    }
                 }
 
-                if (!IsLoggedIn)
-                {
-                    link.Enabled = false;
-                    link.ToolTip = "Not logged in";
-                }
-
-                if (link != null
-                    && DateTime.Compare(dateField, DateTime.UtcNow.AddHours(-8).Date) <= 0
-                    && (bool) ShowingReserved)
-                {
-                    link.Enabled = false;
-                    link.ToolTip = "date has passed: " + dateField + " < " + DateTime.UtcNow.AddHours(-8).Date;
-                }
-
-                if (link != null
-                    && IsEnabled && !(bool) ShowingReserved)
-                {
-                    link.Enabled = false;
-                }
-
-                if (ShowingReserved && showAllReserved.Checked)
-                {
-                    link.Enabled = false;
-                    link.ToolTip = "Can't release in ShowAll";
-                }
+                // finally, fixup the string to be local time
+                e.Item.Cells[3].Text = 
+                    TimeZoneInfo.ConvertTimeFromUtc(DateTime.Parse(e.Item.Cells[3].Text), timeZoneInfo).ToShortDateString();
             }
         }
         #endregion
