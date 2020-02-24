@@ -52,11 +52,8 @@ BEGIN
 			@reservedInThisWeek int,
 			@reservedInThisDay int,
 			@currentWeekNumber int,
-			@teamFieldsReleaseCount int = 0,
-			@teamCagesReleaseCount int = 0,
-			@ReleasedFieldsToday int,
-			@ReleasedCagesToday int,
-			@skipPerDayRule int = 0, -- 1 - skip rile, 0 - use rule
+			@ReleasedFieldsToday int = 0,
+			@ReleasedCagesToday int = 0,
 			@reservedInThisWeek_H5H6 int,
 			@Result int,
 			@ExtResult VARCHAR(50)
@@ -65,45 +62,38 @@ BEGIN
 
 	IF @FieldType = 'Field'
 		BEGIN
-			SELECT @teamFieldsReleaseCount =  FieldsReleaseCount, @ReleasedFieldsToday = ReleasedFieldsToday FROM rwllteams WHERE teamname = @TeamName
+			SELECT @ReleasedFieldsToday = Count(*) FROM rwllpractice WHERE ReleaseTeam=@TeamName AND [Type] = 'Field' AND DateDiff(minute, @WindowStart, SlotReleasedDateTime) >= 0 AND DateDiff(minute, @WindowStart, SlotReleasedDateTime) <= 24 * 60
 			SELECT @fieldPerDay = FieldReservationsPerDay from rwlldivisions where DivisionName = @Division
 			SELECT @fieldPerWeek = FieldReservationsPerWeek from rwlldivisions where DivisionName = @Division
-			--SET @fieldPerDay = @fieldPerDay +@teamFieldsReleaseCount
-			--SET @fieldPerWeek = @fieldPerWeek +@teamFieldsReleaseCount
+
+			if (@ReleasedFieldsToday > @fieldPerDay)
+				BEGIN
+					SET @ReleasedFieldsToday = @fieldPerDay
+				END
+
+			if (@ReleasedFieldsToday > 0)
+				BEGIN
+					SET @fieldPerDay = @fieldPerDay + @ReleasedFieldsToday
+				END
 		END
 	ELSE
 		BEGIN
-			SELECT @teamCagesReleaseCount =  CagesReleaseCount,@ReleasedCagesToday = ReleasedCagesToday FROM rwllteams WHERE teamname = @TeamName
+			SELECT @ReleasedCagesToday = Count(*) FROM rwllpractice WHERE ReleaseTeam=@TeamName AND [Type] = 'Cages' AND DateDiff(minute, @WindowStart, SlotReleasedDateTime) >= 0 AND DateDiff(minute, @WindowStart, SlotReleasedDateTime) <= 24 * 60
 			SELECT @fieldPerDay = CageReservationsPerDay from rwlldivisions where DivisionName = @Division
 			SELECT @fieldPerWeek = CageReservationsPerWeek from rwlldivisions where DivisionName = @Division
-			--SET @fieldPerDay = @fieldPerDay +@teamCagesReleaseCount
-			--SET @fieldPerWeek = @fieldPerWeek +@teamCagesReleaseCount
+
+			if (@ReleasedCagesToday > @fieldPerDay)
+				BEGIN
+					SET @ReleasedCagesToday = @fieldPerDay
+				END
+
+			if (@ReleasedCagesToday > 0)
+				BEGIN
+					SET @fieldPerDay = @fieldPerDay + @ReleasedFieldsToday
+				END
 		END
 
 	SET @ExtResult = ''
-
-	IF (@teamFieldsReleaseCount > 0) 
-		BEGIN
-			SET @ExtResult = ''
-			SET @skipPerDayRule = 1
-		END 
-	IF (@teamCagesReleaseCount > 0) 
-		BEGIN
-			SET @ExtResult = ''
-			SET @skipPerDayRule = 1
-		END 
-
-	IF (@ReleasedFieldsToday > 0) 
-		BEGIN
-			SET @ExtResult = ''
-			SET @skipPerDayRule = 1
-		END 
-
-	IF (@ReleasedCagesToday > 0) 
-		BEGIN
-			SET @ExtResult = ''
-			SET @skipPerDayRule = 1
-		END
 
 	-- Reserved in selected day
 	SELECT @reservedInThisDay = Count(*) FROM rwllpractice
@@ -123,7 +113,7 @@ BEGIN
 
 	IF @reservedInThisWeek < @fieldPerWeek
 		BEGIN
-			IF (@skipPerDayRule = 1) OR (@reservedInThisDay < @fieldPerDay)
+			IF (@reservedInThisDay < @fieldPerDay)
 				BEGIN
 					IF @Field in ('H5', 'H6', 'H5a', 'H5b', 'H6a', 'H6b')
 						BEGIN
@@ -170,7 +160,7 @@ BEGIN
 							Set @Result = 0
 						END
 				END
-			ELSE -- skipPerDayRule != 0 and resrvedInThisDay >= fieldPerDay
+			ELSE -- resrvedInThisDay >= fieldPerDay
 				BEGIN
     				Set @ExtResult = '@reservedInThisDay(' + cast(@reservedInThisDay as varchar(50)) + ') >= @fieldPerDay' + cast(@fieldPerDay as varchar(50)) + ')'
 					Set @Result = 1
