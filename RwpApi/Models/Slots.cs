@@ -127,8 +127,8 @@ namespace RwpApi
                     {
                         CalItem ci = new CalItem();
 
-                        ci.Start = StartTimeFromDateAndTime(slot.SlotStart, slot.StartTime);
-                        ci.End = StartTimeFromDateAndTime(slot.SlotStart, slot.EndTime);
+                        ci.Start = slot.SlotStart;
+                        ci.End = slot.SlotStart.AddMinutes(slot.SlotLength);
                         ci.Location = String.Format("{0}: {1}", slot.Venue, slot.Field);
                         ci.Title = String.Format("Team Practice: {0}", slot.Reserved);
                         ci.Description =
@@ -161,9 +161,6 @@ namespace RwpApi
             string m_sVenue;
             string m_sField;
             DateTime m_dttmSlotStart;
-            string m_sWeekday;
-            string m_sStartTime;
-            string m_sEndTime;
             int m_nSlotLength;
             string m_sReserved;
             string m_sDivisions;
@@ -224,24 +221,6 @@ namespace RwpApi
             {
                 get { return m_dttmSlotStart; }
                 set { m_dttmSlotStart = value; }
-            }
-
-            public string Weekday
-            {
-                get { return m_sWeekday; }
-                set { m_sWeekday = value; }
-            }
-
-            public string StartTime
-            {
-                get { return m_sStartTime; }
-                set { m_sStartTime = value; }
-            }
-
-            public string EndTime
-            {
-                get { return m_sEndTime; }
-                set { m_sEndTime = value; }
             }
 
             public int SlotLength
