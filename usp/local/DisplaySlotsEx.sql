@@ -81,7 +81,8 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 							   SlotStart, 
 							   SlotLength, 
 							   reserved, divisions, 
-							   SlotReservedDateTime
+							   SlotReservedDateTime,
+							   CONCAT(CONVERT(nvarchar(30), SlotStart, 112), ':', Venue, CONVERT(nvarchar(30), SlotStart, 114), ':', Field) AS SortKey
 							FROM   rwllpractice 
 							WHERE  reserved = 'Available' 
 								AND DateDiff(minute, @ShowDate, SlotStart) > 0
@@ -94,13 +95,17 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 										SlotStart, 
 										SlotLength, 
 										reserved, divisions, 
-										SlotReservedDateTime
+										SlotReservedDateTime,
+										CONCAT(CONVERT(nvarchar(30), SlotStart, 112), ':', Venue, CONVERT(nvarchar(30), SlotStart, 114), ':', Field) AS SortKey
 								FROM   rwllpractice 
 								WHERE  reserved = 'Available' 
 									AND DateDiff(minute, @ShowDate, SlotStart) > 0
 									AND DateDiff(minute, @ShowDate, SlotStart) <= (60 * 24)
 									AND [type] = 'Cage' 
 									AND Charindex(@Division, divisions) <> 0 
+								ORDER BY 
+									SortKey
+
 					END 
 				ELSE 
 					BEGIN 
@@ -109,7 +114,8 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 								SlotStart,
 								SlotLength, 
 								reserved, divisions, 
-								SlotReservedDateTime
+								SlotReservedDateTime,
+							    CONCAT(CONVERT(nvarchar(30), SlotStart, 112), ':', Venue, CONVERT(nvarchar(30), SlotStart, 114), ':', Field) AS SortKey
 							FROM   rwllpractice 
 							WHERE  reserved = 'Available' 
 								AND [field] = @VenueName 
@@ -121,12 +127,15 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 										SlotStart,
 										SlotLength, 
 										reserved, divisions, 
-										SlotReservedDateTime
+										SlotReservedDateTime,
+										CONCAT(CONVERT(nvarchar(30), SlotStart, 112), ':', Venue, CONVERT(nvarchar(30), SlotStart, 114), ':', Field) AS SortKey
 									FROM   rwllpractice 
 									WHERE  reserved = 'Available' 
 										AND [field] = @VenueName 
 										AND [type] = 'Cage' 
 										AND Charindex(@Division, divisions) <> 0 
+							ORDER BY
+								SortKey
 					END 
 			END 
 	END 
@@ -179,5 +188,6 @@ ELSE -- else, just do a generic query since this isn't a real team login
 		--  SELECT @SQL 
 		EXEC (@SQL) 
 END  
+
 
 
