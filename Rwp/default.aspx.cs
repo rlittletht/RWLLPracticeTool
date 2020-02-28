@@ -441,7 +441,7 @@ namespace Rwp
             string sDateShort = monthMenu.SelectedItem.Value + "/" + dayMenu.SelectedItem.Value + "/" + sCurYear;
 
             DateTime dttm = DateTime.Parse(sDateShort);
-            return dttm.ToUniversalTime().ToString();
+            return TimeZoneInfo.ConvertTimeToUtc(dttm, timeZoneInfo).ToString();
         }
 
         protected void RunQuery(object sender, EventArgs e)

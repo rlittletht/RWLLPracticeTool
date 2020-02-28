@@ -161,7 +161,7 @@
                 <%# WeekdayFromUtc((DateTime)Eval("SlotStart")) %>
               </ItemTemplate>
             </asp:TemplateColumn>
-            <asp:TemplateColumn HeaderText="Start Time" SortExpression="StartTime">
+            <asp:TemplateColumn HeaderText="Start Time" SortExpression="SlotStart">
               <ItemStyle HorizontalAlign="Center"></ItemStyle>
               <HeaderStyle BackColor="blue" ForeColor="white"></HeaderStyle>
               <ItemTemplate>
@@ -209,10 +209,10 @@
     <div class="notice">
         <h1>NOTICES:  </h1>
         <ul>
-        <li>For H5 and H6, A and B fields: A is the infield first, B is the outfield first. 
+        <li>2020 practice slots are loaded.</li>
         <li>For information on the latest changes, click on "Release Notes" above.</li>
-        <li>2017 practice slots are loaded. School fields through March 17th are now available.</li>
-        <li>Everyone is allowed to reserve 2 fields per day. Yes, there are ways to <b>cheat</b> the system. Please don't do this. If you exceed the 2 fields per day booking rules you are at risk of losing these fields arbitrarily.</li>
+        <li>For H5 and H6, A and B fields: A is the infield first, B is the outfield first. 
+        <li>Everyone is allowed to reserve 2 fields per day. Yes, there are ways to <b>cheat</b> the system. Please don't do this. If you exceed the 2 fields per day booking rules you are at risk of losing these fields arbitrarily. (NOTE: If you release fields, then you will be able to reserve up to 2 additional fields during the 24 hour period in which you released those fields)</li>
         </ul>
     </div>
     </form>
