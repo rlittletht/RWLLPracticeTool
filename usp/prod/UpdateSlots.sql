@@ -1,5 +1,3 @@
-USE [thetasoft]
-GO
 
 /****** Object:  StoredProcedure [dbo].[usp_UpdateSlots]    Script Date: 2/23/2020 10:30:22 PM ******/
 SET ANSI_NULLS ON
@@ -64,7 +62,7 @@ If @TranType = 'Rel'
 
 		IF DateDiff(minute, @CurrentDate, @ReservedFieldDate) > 0 -- if the reserved date > current date
 			BEGIN
-				UPDATE rwllpractice SET Reserved = 'Available', ReserveDatetime = null, SlotReleasedDatetime = @CurrentDate,ReleaseTeam = @team  WHERE SlotNo = @SlotNo and Reserved <> 'Available'
+				UPDATE rwllpractice SET Reserved = 'Available', SlotReservedDatetime = null, SlotReleasedDatetime = @CurrentDate,ReleaseTeam = @team  WHERE SlotNo = @SlotNo and Reserved <> 'Available'
 
 				SELECT 0
 			END
