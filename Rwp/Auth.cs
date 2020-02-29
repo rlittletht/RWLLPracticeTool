@@ -102,6 +102,7 @@ namespace Rwp
             public string sTeamName;
             public List<string> plsTeams;
             public string sDivision;
+            public string sTimezone;
         }
 
         [Serializable]
@@ -187,7 +188,7 @@ namespace Rwp
 
         public void SetLoggedOff()
         {
-            CurrentPrivs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null };
+            CurrentPrivs = new Auth.UserData { privs = Auth.UserPrivs.NotAuthenticated, sIdentity = null, sTeamName = null, sDivision = null, sTenant = null, plsTeams = null, sTimezone = null};
         }
 
         void GetTeamListAndDefaultForQuery(SqlConnection DBConn, string sqlStrLogin, string sTeamNameSelected, out List<string> plsTeams, out string sTeam, out string sAdminTeam)
@@ -384,6 +385,8 @@ namespace Rwp
             }
 
             DBConn.Close();
+
+            data.sTimezone = "Pacific Standard Time";
 
             if (string.IsNullOrEmpty(data.sTeamName))
             {

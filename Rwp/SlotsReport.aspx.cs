@@ -23,7 +23,8 @@ namespace Rwp
 
         protected void DoReport()
         {
-            HttpResponseMessage resp = m_apiInterop.CallService("api/slot/GetSlots", true);
+            // future: wire up timezone info properly. for now hardcode PST
+            HttpResponseMessage resp = m_apiInterop.CallService("api/slot/GetSlots?TimeZoneID=Pacific%20Standard%20Time", true);
             Task<Stream> tskStream = resp.Content.ReadAsStreamAsync();
             tskStream.Wait();
 

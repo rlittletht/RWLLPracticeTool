@@ -1,5 +1,4 @@
-USE [THETASOFT]
-GO
+
 /****** Object:  StoredProcedure [dbo].[usp_DisplaySlotsEx]    Script Date: 2/18/2014 9:40:41 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -13,12 +12,20 @@ GO
    @ShowDate - the date to show slots for
    @VenueName - the field to show info for
    @Sort	  - how should this be sorted? ("StartTime" | ... ) 
+   @WindowStart- this is the UTC start of the window for considering
+				the number of events reserved in a time period
+
+   NOTE for UTC: ShowDate is the the first minute of the 24 hour
+   period we want to consider. So if you want 2/2/2020 in PST (UTC-8), 
+   then you want to pass in 2/2/2020 08:00:00 UTC+0. This way we capture
+   (2/2/2020 08:00:00, 2/3/2020 08:00:00]. 
 */
 
 ALTER PROC [dbo].[usp_DisplaySlotsEx] (@TeamName  VARCHAR(50), 
                                        @ShowSlots TINYINT, 
-                                       @ShowDate  VARCHAR(10), 
+                                       @ShowDate  VARCHAR(32), 
                                        @VenueName NVARCHAR(255) = '', 
+									   @WindowStart DateTime2,
                                        @Sort      VARCHAR(20) = 'StartTime') 
 AS 
 
@@ -39,7 +46,12 @@ SELECT @TeamNameSafe = REPLACE(@TeamName, '''', '''''')
 SELECT @SQLPrefixDefaultDisabled = 'SELECT ' + CHAR(39) + 'default state is disabled' + CHAR(39);
 SELECT @SQLPrefixDefaultEnabled = 'SELECT ' + CHAR(39) + CHAR(39);
 
-SELECT @SQLSuffix = ' as IsEnabled, SlotNo,Week,Status,Venue,Field,convert(varchar(12),Date,111)as Date,Weekday,StartTime, EndTime,Hours,Reserved,Divisions,ReserveDatetime from rwllpractice ' 
+SELECT @SQLSuffix = ' as IsEnabled, SlotNo,Week,Status,Venue,Field,'
+	+'SlotStart, '
+	+'SlotLength, '
+	+'Reserved,Divisions,'
+	+'SlotReservedDatetime '
+	+'from rwllpractice ' 
 
 IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team --', '-- Admin --', '-- Baseball --', '-- Softball --' ) 
 	BEGIN 
@@ -62,43 +74,66 @@ IF @TeamName NOT IN ( 'Administrator', 'Tonya Henry', 'ShowAll', '-- Select Team
 				--EXEC @CageStatus  =  usp_ReservedByDate @TeamName,@ShowDate, 'Cage' 
 				IF @VenueName = '' 
 					BEGIN 
-						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field] ) AS IsEnabled, 
-							   slotno, [week], [status], venue, field, CONVERT(VARCHAR(12), date, 111) AS Date, 
-							   [weekday], starttime, endtime, [hours], reserved, divisions, reservedatetime 
+						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field], @WindowStart) AS IsEnabled, 
+							   slotno, [week], [status], venue, field, 
+							   SlotStart, 
+							   SlotLength, 
+							   reserved, divisions, 
+							   SlotReservedDateTime,
+							   CONCAT(CONVERT(nvarchar(30), SlotStart, 112), ':', Venue, CONVERT(nvarchar(30), SlotStart, 114), ':', Field) AS SortKey
 							FROM   rwllpractice 
 							WHERE  reserved = 'Available' 
-								AND [date] = @ShowDate 
+								AND DateDiff(minute, @ShowDate, SlotStart) > 0
+								AND DateDiff(minute, @ShowDate, SlotStart) <= (60 * 24)
 								AND [type] = 'Field' 
 								AND Charindex(@Division, divisions) <> 0 
 							UNION 
-								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field]) AS IsEnabled, 
-									slotno, [week], [status], venue, field, CONVERT(VARCHAR(12), date, 111) AS Date, 
-									[weekday], starttime, endtime, [hours], reserved, divisions, reservedatetime 
+								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field], @WindowStart) AS IsEnabled, 
+										slotno, [week], [status], venue, field, 
+										SlotStart, 
+										SlotLength, 
+										reserved, divisions, 
+										SlotReservedDateTime,
+										CONCAT(CONVERT(nvarchar(30), SlotStart, 112), ':', Venue, CONVERT(nvarchar(30), SlotStart, 114), ':', Field) AS SortKey
 								FROM   rwllpractice 
 								WHERE  reserved = 'Available' 
-									AND [date] = @ShowDate 
+									AND DateDiff(minute, @ShowDate, SlotStart) > 0
+									AND DateDiff(minute, @ShowDate, SlotStart) <= (60 * 24)
 									AND [type] = 'Cage' 
 									AND Charindex(@Division, divisions) <> 0 
+								ORDER BY 
+									SortKey
+
 					END 
 				ELSE 
 					BEGIN 
-						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field] ) AS IsEnabled, 
-								slotno, [week], [status], venue, field, CONVERT(VARCHAR(12), date, 111) AS Date, 
-								[weekday], starttime, endtime, [hours], reserved, divisions, reservedatetime 
+						SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Field', [field], @WindowStart) AS IsEnabled, 
+								slotno, [week], [status], venue, field, 
+								SlotStart,
+								SlotLength, 
+								reserved, divisions, 
+								SlotReservedDateTime,
+							    CONCAT(CONVERT(nvarchar(30), SlotStart, 112), ':', Venue, CONVERT(nvarchar(30), SlotStart, 114), ':', Field) AS SortKey
 							FROM   rwllpractice 
 							WHERE  reserved = 'Available' 
 								AND [field] = @VenueName 
 								AND [type] = 'Field' 
 								AND Charindex(@Division, divisions) <> 0 
 							UNION 
-								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field]) AS IsEnabled, 
-										slotno, [week], [status], venue, field, CONVERT(VARCHAR(12), date, 111) AS Date, 
-										[weekday], starttime, endtime, [hours], reserved, divisions, reservedatetime 
+								SELECT [dbo].Ufn_reservationenableEx(@TeamName, [week], 'Cage', [field], @WindowStart) AS IsEnabled, 
+										slotno, [week], [status], venue, field, 
+										SlotStart,
+										SlotLength, 
+										reserved, divisions, 
+										SlotReservedDateTime,
+										CONCAT(CONVERT(nvarchar(30), SlotStart, 112), ':', Venue, CONVERT(nvarchar(30), SlotStart, 114), ':', Field) AS SortKey
 									FROM   rwllpractice 
 									WHERE  reserved = 'Available' 
 										AND [field] = @VenueName 
 										AND [type] = 'Cage' 
 										AND Charindex(@Division, divisions) <> 0 
+							ORDER BY
+								SortKey
 					END 
 			END 
 	END 
@@ -134,7 +169,10 @@ ELSE -- else, just do a generic query since this isn't a real team login
 					BEGIN 
 						IF @VenueName = '' 
 							BEGIN 
-								SELECT @SQL = @SQL + ' and Date = ''' + @ShowDate + '''' 
+								SELECT @SQL = @SQL
+									+ ' AND DateDiff(minute, ''' + @ShowDate + ''', SlotStart) > 0 '
+									+ ' AND DateDiff(minute, ''' + @ShowDate + ''', SlotStart) <= (60 * 24)'
+
 							END 
 						ELSE 
 							BEGIN 
@@ -147,6 +185,5 @@ ELSE -- else, just do a generic query since this isn't a real team login
 
 		--  SELECT @SQL 
 		EXEC (@SQL) 
-	END  
-
+END  
 

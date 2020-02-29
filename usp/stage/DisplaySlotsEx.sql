@@ -189,5 +189,3 @@ ELSE -- else, just do a generic query since this isn't a real team login
 		EXEC (@SQL) 
 END  
 
-
-
