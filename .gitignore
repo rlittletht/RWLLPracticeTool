@@ -8,6 +8,8 @@ SecretSettings_Staging.config
 SecretAppSettings_Prod.config
 SecretAppSettings_Staging.config
 SecretAppSettings_Local.config
+Prod-RwllPractice-Web.pubxml
+Staging-Thetasoft2-Web.pubxml
 SecretSettings.config
 
 # User-specific files
