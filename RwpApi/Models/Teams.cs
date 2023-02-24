@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Data.Sql;
-using NUnit.Framework.Constraints;
+using NUnit.Framework;
 using TCore;
 
 // ================================================================================
@@ -292,6 +292,99 @@ namespace RwpApi.Models
                 public string Division;
             }
 
+            private static readonly Random s_random = new Random();
+
+            static string GetCharactersFromBase52Number(int number, int digits)
+            {
+                if (number >= Math.Pow(52, digits))
+                    throw new ArgumentException($"{number} is too large for {digits} digits");
+
+                StringBuilder sb = new StringBuilder(digits);
+
+                while (digits > 0)
+                {
+                    int charIndex = number % 52;
+                    char ch = (char)(charIndex <= 25 ? ('a' + charIndex) : ('A' + (charIndex - 26)));
+                    sb.Insert(0, ch);
+
+                    number /= 52;
+                    digits--;
+                }
+
+                return sb.ToString();
+            }
+
+            [TestCase(0, 1, "a")]
+            [TestCase(25, 1, "z")]
+            [TestCase(26, 1, "A")]
+            [TestCase(51, 1, "Z")]
+            [TestCase(0, 2, "aa")]
+            [TestCase(25, 2, "az")]
+            [TestCase(26, 2, "aA")]
+            [TestCase(51, 2, "aZ")]
+            [TestCase(0, 3, "aaa")]
+            [TestCase(25, 3, "aaz")]
+            [TestCase(26, 3, "aaA")]
+            [TestCase(51, 3, "aaZ")]
+            [TestCase(0, 4, "aaaa")]
+            [TestCase(25, 4, "aaaz")]
+            [TestCase(26, 4, "aaaA")]
+            [TestCase(51, 4, "aaaZ")]
+            [TestCase(0, 2, "aa")]
+            [TestCase(52, 2, "ba")]
+            [TestCase(53, 2, "bb")]
+            [TestCase(0, 3, "aaa")]
+            [TestCase(52, 3, "aba")]
+            [TestCase(53, 3, "abb")]
+            [TestCase(0, 4, "aaaa")]
+            [TestCase(52, 4, "aaba")]
+            [TestCase(53, 4, "aabb")]
+            [TestCase(52, 2, "ba")]
+            [TestCase(53, 2, "bb")]
+            [TestCase(52, 3, "aba")]
+            [TestCase(53, 3, "abb")]
+            [TestCase(52, 4, "aaba")]
+            [TestCase(53, 4, "aabb")]
+            [TestCase(52 * 52, 3, "baa")]
+            [TestCase(52 * 52 + 1, 3, "bab")]
+            [TestCase(52 * 52 * 52 - 1, 4, "aZZZ")]
+            [TestCase(52 * 52 * 52, 4, "baaa")]
+            [TestCase(52 * 52 * 52 + 1, 4, "baab")]
+            [Test]
+            public static void TestGetCharactersFromBase52Number(int numberIn, int digitsIn, string sExpected)
+            {
+                string sActual = GetCharactersFromBase52Number(numberIn, digitsIn);
+
+                Assert.AreEqual(sExpected, sActual);
+            }
+
+
+            /*----------------------------------------------------------------------------
+                %%Function: GenerateInvitiationCode
+                %%Qualified: RwpApi.Models.Teams.RwpTeam.GenerateInvitiationCode
+
+                Generate a 4 letter, 4 digit invitation code and make sure it doesn't
+                already exist
+            ----------------------------------------------------------------------------*/
+            string GenerateInvitiationCode(TCore.Sql sql)
+            {
+                int tries = 100;
+
+                while (true)
+                {
+                    string str = GetCharactersFromBase52Number(s_random.Next(0, 52 * 52 * 52 * 52 - 1), 4);
+                    int num = s_random.Next(0, 9999);
+                    string invitation = $"{str}{num:D4}";
+
+
+                    if (Sql.NExecuteScalar(sql, $"select count(*) from rwllteams where PW='{invitation}'", null, 0) == 0)
+                        return invitation;
+
+                    if (tries-- == 0)
+                        throw new Exception("can't get a unique invitation");
+                }
+            }
+
             /* P R E F L I G H T */
             /*----------------------------------------------------------------------------
                 %%Function: Preflight
@@ -308,7 +401,13 @@ namespace RwpApi.Models
                 CheckLength(m_sName, "TeamName", 50, plsFail);
                 CheckLength(m_sDivision, "Division", 10, plsFail);
 
-                if (!Guid.TryParse(m_sTenant, out Guid g))
+                if ((m_sTenant == null && m_sIdentity != null)
+                    || (m_sTenant != null && m_sIdentity == null))
+                {
+                    plsFail.Add("tenant and identity must be specified or must both be null");
+                }
+
+                if (m_sTenant != null && !Guid.TryParse(m_sTenant, out Guid g))
                     plsFail.Add($"not a valid guid: {m_sTenant}");
 
                 // check to see if the team already exists
@@ -332,8 +431,14 @@ namespace RwpApi.Models
                 }
 
                 // check to see if the auth already exists
-                if (Sql.NExecuteScalar(sql, $"select count(*) from rwllauth where PrimaryIdentity='{m_sIdentity}' AND Tenant='{m_sTenant}' AND TeamID='{m_sName}'", null, 0) != 0)
+                if (m_sTenant != null && Sql.NExecuteScalar(sql, $"select count(*) from rwllauth where PrimaryIdentity='{m_sIdentity}' AND Tenant='{m_sTenant}' AND TeamID='{m_sName}'", null, 0) != 0)
                     fAuthExists = true;
+
+                if (fAuthExists == false)
+                {
+                    // generate an invitation code
+                    m_sPassword = GenerateInvitiationCode(sql);
+                }
 
                 if (plsFail.Count > 0)
                     return SRFromPls($"preflight failed for team {m_sName}", plsFail);
@@ -581,7 +686,8 @@ namespace RwpApi.Models
                     // now, add to the auth table (again checking to see if this already exists)
                     if (!fAuthExists)
                     {
-                        InsertAuthUser(rwpt.Identity, rwpt.Name, Guid.Parse(rwpt.Tenant), sql);
+                        if (rwpt.Identity != null && rwpt.Tenant != null)
+                            InsertAuthUser(rwpt.Identity, rwpt.Name, Guid.Parse(rwpt.Tenant), sql);
                     }
                 }
             }
