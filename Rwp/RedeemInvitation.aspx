@@ -8,7 +8,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Redeem Invitation Code</title>
+    <title>Redeem Invitation</title>
     <link rel="stylesheet" href="rwp.css"/>
 </head>
 <body>
@@ -33,7 +33,7 @@
                 <td><asp:TextBox ID="txtInvitationCode" runat="server" Width="72"/></td>
             </tr>
             <tr>
-                <td colspan="2" align="right"><asp:Button runat="server" ID="btnRedeam" Text="Redeem Code" OnClick="DoRedeem"/></td>
+                <td colspan="2" align="right"><asp:Button runat="server" ID="btnRedeem" Text="Redeem Code" OnClick="DoRedeem"/></td>
             </tr>
             <tr>
                 <td colspan=2>

@@ -81,5 +81,15 @@ namespace RwpApi.Controllers
             return Ok(sr);
         }
 
+        [HttpGet]
+        [Route("api/team/DeleteAuthentications")]
+        public IHttpActionResult DeleteAuthentications()
+        {
+            RSR sr;
+
+            sr = Teams.ClearAuth();
+            return Ok(sr);
+        }
+
     }
 }

@@ -39,7 +39,15 @@
                         <asp:Button ID="btnClearTeams" runat="server" Text="Delete Team Logins" OnClick="DoDeleteTeams" Enabled="False" />
                     </td>
                     <td>
-                        <p>Clear out all of the team logins.  This will NOT delete the Administrator login</p>
+                        <p>Clear out all of the team logins.  This will <b>NOT</b> delete the Administrator login</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <asp:Button ID="btnClearAuth" runat="server" Text="Delete Auth" OnClick="DoDeleteAuth" Enabled="False"/>
+                    </td>
+                    <td>
+                        <p>Clear out all authentication information. This will <b>NOT</b> delete Administrator auth.</p>
                     </td>
                 </tr>
                 <tr>

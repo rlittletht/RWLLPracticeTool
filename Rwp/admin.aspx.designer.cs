@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Rwp {
-    
-    
-    public partial class AdminPage {
-        
+namespace Rwp
+{
+
+
+    public partial class AdminPage
+    {
+
         /// <summary>
         /// form1 control.
         /// </summary>
@@ -20,7 +22,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
-        
+
         /// <summary>
         /// GoHome control.
         /// </summary>
@@ -29,7 +31,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ImageButton GoHome;
-        
+
         /// <summary>
         /// LoginOutButton control.
         /// </summary>
@@ -38,7 +40,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ImageButton LoginOutButton;
-        
+
         /// <summary>
         /// ipClient control.
         /// </summary>
@@ -47,7 +49,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl ipClient;
-        
+
         /// <summary>
         /// btnDownloadTeams control.
         /// </summary>
@@ -56,7 +58,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnDownloadTeams;
-        
+
         /// <summary>
         /// btnClearTeams control.
         /// </summary>
@@ -65,7 +67,16 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnClearTeams;
-        
+
+        /// <summary>
+        /// btnClearAuth control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnClearAuth;
+
         /// <summary>
         /// fuTeams control.
         /// </summary>
@@ -74,7 +85,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.FileUpload fuTeams;
-        
+
         /// <summary>
         /// btnUploadTeams control.
         /// </summary>
@@ -83,7 +94,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnUploadTeams;
-        
+
         /// <summary>
         /// btnDownloadSlots control.
         /// </summary>
@@ -92,7 +103,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnDownloadSlots;
-        
+
         /// <summary>
         /// btnClearAllSlots control.
         /// </summary>
@@ -101,7 +112,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnClearAllSlots;
-        
+
         /// <summary>
         /// btnClearLastYear control.
         /// </summary>
@@ -110,7 +121,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnClearLastYear;
-        
+
         /// <summary>
         /// fuSlots control.
         /// </summary>
@@ -119,7 +130,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.FileUpload fuSlots;
-        
+
         /// <summary>
         /// btnUploadSlots control.
         /// </summary>
@@ -128,7 +139,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnUploadSlots;
-        
+
         /// <summary>
         /// btnAddUser control.
         /// </summary>
@@ -137,7 +148,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnAddUser;
-        
+
         /// <summary>
         /// rowAddUser control.
         /// </summary>
@@ -146,7 +157,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlTableRow rowAddUser;
-        
+
         /// <summary>
         /// btnDoAddUser control.
         /// </summary>
@@ -155,7 +166,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnDoAddUser;
-        
+
         /// <summary>
         /// btnCancelAddUser control.
         /// </summary>
@@ -164,7 +175,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnCancelAddUser;
-        
+
         /// <summary>
         /// chkAddTeam control.
         /// </summary>
@@ -173,7 +184,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkAddTeam;
-        
+
         /// <summary>
         /// txtAddIdenity control.
         /// </summary>
@@ -182,7 +193,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAddIdenity;
-        
+
         /// <summary>
         /// txtAddTenant control.
         /// </summary>
@@ -191,7 +202,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAddTenant;
-        
+
         /// <summary>
         /// txtAddTeamName control.
         /// </summary>
@@ -200,7 +211,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAddTeamName;
-        
+
         /// <summary>
         /// txtAddDivision control.
         /// </summary>
@@ -209,7 +220,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAddDivision;
-        
+
         /// <summary>
         /// txtAddEmail control.
         /// </summary>
@@ -218,7 +229,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAddEmail;
-        
+
         /// <summary>
         /// divError control.
         /// </summary>

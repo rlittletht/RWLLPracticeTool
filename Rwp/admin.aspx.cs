@@ -143,6 +143,7 @@ namespace Rwp
             btnClearAllSlots.Enabled = fAdmin;
             btnClearLastYear.Enabled = fAdmin;
             btnUploadSlots.Enabled = fAdmin;
+            btnClearAuth.Enabled = fAdmin;
         }
 
         /* D O  D E L E T E  S L O T S */
@@ -217,6 +218,20 @@ namespace Rwp
 			ReportSr(sr, "Delete Teams");
 		}
 
+        protected void DoDeleteAuth(object sender, EventArgs e)
+        {
+            RSR sr = CheckAdmin();
+
+            if (!sr.Result)
+            {
+                ReportSr(sr, "ipc");
+                return;
+            }
+
+            // first download the current data...
+            sr = m_apiInterop.CallService<RSR>("api/team/DeleteAuthentications", true);
+            ReportSr(sr, "Delete Authentications");
+        }
         /*----------------------------------------------------------------------------
         	%%Function: DoUploadTeams
         	%%Qualified: Rwp.AdminPage.DoUploadTeams

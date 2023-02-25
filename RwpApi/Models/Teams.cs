@@ -711,6 +711,15 @@ namespace RwpApi.Models
                 Startup._sResourceConnString));
         }
 
+        public static RSR ClearAuth()
+        {
+            return RSR.FromSR(
+                Sql.ExecuteNonQuery(
+                    "DELETE FROM rwllauth WHERE TeamID <> 'Administrator'",
+                    Startup._sResourceConnString));
+        }
+
+
         /*----------------------------------------------------------------------------
             %%Function: RedeemInvitation
             %%Qualified: RwpApi.Models.Teams.RedeemInvitation
