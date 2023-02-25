@@ -20,9 +20,10 @@
         </font>
     </p>
     <font face="Verdana" size="3">
+        <div runat="server" ID="divMessage1"/>
         <asp:Label ID="Message1" align="Center" runat="server" />
     </font>
-     
+    <asp:Button runat="server" ID="RedeemCode" Text="Redeem Invitation" Visible="False" OnClick="GoRedeemCode"/>
 <center>
     <table border="0">
         <tr>

@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Rwp {
-    
-    
-    public partial class default1 {
-        
+namespace Rwp
+{
+
+
+    public partial class default1
+    {
+
         /// <summary>
         /// Form1 control.
         /// </summary>
@@ -20,7 +22,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm Form1;
-        
+
         /// <summary>
         /// LoginOutButton control.
         /// </summary>
@@ -29,7 +31,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ImageButton LoginOutButton;
-        
+
         /// <summary>
         /// Message0 control.
         /// </summary>
@@ -38,7 +40,16 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label Message0;
-        
+
+        /// <summary>
+        /// divMessage1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divMessage1;
+
         /// <summary>
         /// Message1 control.
         /// </summary>
@@ -47,7 +58,16 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label Message1;
-        
+
+        /// <summary>
+        /// RedeemCode control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button RedeemCode;
+
         /// <summary>
         /// ShowReservedButton control.
         /// </summary>
@@ -56,7 +76,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button ShowReservedButton;
-        
+
         /// <summary>
         /// showAllReserved control.
         /// </summary>
@@ -65,7 +85,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox showAllReserved;
-        
+
         /// <summary>
         /// ShowICalFeedLinkButton control.
         /// </summary>
@@ -74,7 +94,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button ShowICalFeedLinkButton;
-        
+
         /// <summary>
         /// teamMenu control.
         /// </summary>
@@ -83,7 +103,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList teamMenu;
-        
+
         /// <summary>
         /// monthMenu control.
         /// </summary>
@@ -92,7 +112,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList monthMenu;
-        
+
         /// <summary>
         /// dayMenu control.
         /// </summary>
@@ -101,7 +121,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList dayMenu;
-        
+
         /// <summary>
         /// ShowAvailableButton control.
         /// </summary>
@@ -110,7 +130,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button ShowAvailableButton;
-        
+
         /// <summary>
         /// fieldMenu control.
         /// </summary>
@@ -119,7 +139,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList fieldMenu;
-        
+
         /// <summary>
         /// ShowAvaliableByFieldButton control.
         /// </summary>
@@ -128,7 +148,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button ShowAvaliableByFieldButton;
-        
+
         /// <summary>
         /// divAdminFunctions control.
         /// </summary>
@@ -137,7 +157,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl divAdminFunctions;
-        
+
         /// <summary>
         /// divCalendarFeedLink control.
         /// </summary>
@@ -146,7 +166,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl divCalendarFeedLink;
-        
+
         /// <summary>
         /// txtCalendarFeedLink control.
         /// </summary>
@@ -155,7 +175,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtCalendarFeedLink;
-        
+
         /// <summary>
         /// HideCalendarFeedLinkBotton control.
         /// </summary>
@@ -164,7 +184,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button HideCalendarFeedLinkBotton;
-        
+
         /// <summary>
         /// Message2 control.
         /// </summary>
@@ -173,7 +193,7 @@ namespace Rwp {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label Message2;
-        
+
         /// <summary>
         /// DataGrid1 control.
         /// </summary>

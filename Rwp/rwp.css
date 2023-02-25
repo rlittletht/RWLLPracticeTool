@@ -37,3 +37,12 @@ div.notice { text-align: left }
     margin: 0;
     margin-left: .25in;
 }
+
+table.layout {
+    border: none;
+    border-collapse: collapse;
+}
+
+table.layout td {
+     border: none;
+}

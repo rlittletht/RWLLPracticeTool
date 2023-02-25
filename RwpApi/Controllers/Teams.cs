@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Microsoft.Owin.Security.Notifications;
 using Microsoft.Owin.Security.OAuth;
 using RwpApi.Models;
 
@@ -67,6 +68,16 @@ namespace RwpApi.Controllers
                 Email = Identity;
 
             sr = Teams.AddTeamUser(Identity, Tenant, TeamName, Division, Email, AddTeam);
+            return Ok(sr);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("api/team/RedeemInvitation")]
+        public IHttpActionResult RedeemInvitation([FromUri] string Identity, [FromUri] string Tenant, [FromUri] string InvitationCode)
+        {
+            RSR sr = Teams.RedeemInvitation(Identity, Tenant, InvitationCode);
+
             return Ok(sr);
         }
 

@@ -181,7 +181,7 @@ namespace Rwp
 
         protected void OnBeforeSignout(object sender, EventArgs e)
         {
-            Message1.Text = "";
+            divMessage1.InnerHtml = "";
             SetLoggedOff();
             RunQuery(sender, e);
         }
@@ -231,9 +231,8 @@ namespace Rwp
 
             if (m_auth.IsLoggedIn)
             {
-                Message1.Text = $"Welcome to RedmondWest Practice Tool ({m_auth.Identity()})";
+                divMessage1.InnerHtml = $"<span style='color: green'>Welcome to RedmondWest Practice Tool ({m_auth.Identity()})</span>";
 
-                Message1.ForeColor = System.Drawing.Color.Green;
                 Message2.Text = "";
                 DataGrid1.Columns[0].HeaderText = "Release";
                 SqlBase = "exec usp_DisplaySlotsEx '"
@@ -252,12 +251,18 @@ namespace Rwp
             else
             {
                 SetLoggedOff();
-                Message1.Text = $"User '{m_auth.Tenant()}\\{m_auth.Identity()} not authorized! If you believe this is incorrect, please copy this entire message and sent it to your administrator.";
-                Message1.ForeColor = System.Drawing.Color.Red;
+                divMessage1.InnerHtml = $"<span style='color: red'>User '{m_auth.Tenant()}\\{m_auth.Identity()} not authorized!<br/>If you believe this is incorrect, please copy this entire message and sent it to your administrator.<br/>If you have an invitation code, click the Redeem Code button.</span>";
+                RedeemCode.Visible = true;
             }
 
             return userData;
         }
+
+        public void GoRedeemCode(object sender, EventArgs args)
+        {
+            Response.Redirect($"{Startup.s_sFullRoot}/RedeemInvitation.aspx?PrimaryIdentity={m_auth.Identity()}&Tenant={m_auth.Tenant()}");
+        }
+
         #endregion
 
         #region Bindings

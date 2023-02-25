@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Data.Sql;
+using System.EnterpriseServices;
 using NUnit.Framework;
 using TCore;
 
@@ -708,6 +709,46 @@ namespace RwpApi.Models
         {
             return RSR.FromSR(Sql.ExecuteNonQuery("DELETE FROM rwllteams WHERE TeamName <> 'Administrator'",
                 Startup._sResourceConnString));
+        }
+
+        /*----------------------------------------------------------------------------
+            %%Function: RedeemInvitation
+            %%Qualified: RwpApi.Models.Teams.RedeemInvitation
+
+            Find the invitation code in the teams table, that tells you who they
+            are associated with...
+        ----------------------------------------------------------------------------*/
+        public static RSR RedeemInvitation(string identity, string tenant, string invitationCode)
+        {
+            Sql.OpenConnection(out Sql sql, Startup._sResourceConnString);
+            RSR rsr = RSR.Failed("unknown");
+
+            try
+            {
+                identity = Sql.Sqlify(identity);
+                Guid guidTenant = Guid.Parse(tenant);
+                invitationCode = Sql.Sqlify(invitationCode);
+
+                // figure out the team for this invitation code
+                string team = sql.SExecuteScalar($"select TeamName from rwllteams where PW='{invitationCode}'");
+                if (team == null)
+                    return RSR.Failed($"Invitation \"{invitationCode}\" does not exist or has expired");
+
+                // now that we have the team, add the association
+                rsr = InsertAuthUser(identity, team, guidTenant, sql);
+            }
+            catch (Exception e)
+            {
+                rsr = RSR.Failed(e);
+            }
+            finally
+            {
+                if (sql.InTransaction)
+                    sql.Rollback();
+
+                sql.Close();
+            }
+            return rsr;
         }
 
         public static RSR AddTeamUser(string sIdentity, string sTenant, string sTeamName, string sDivision,

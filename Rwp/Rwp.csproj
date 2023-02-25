@@ -131,6 +131,7 @@
     <Content Include="icsfeed.aspx" />
     <Content Include="icsfeed_howto.html" />
     <Content Include="NewCalendarDialog.png" />
+    <Content Include="RedeemInvitation.aspx" />
     <Content Include="ReleaseNotes.aspx" />
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\IxStaging.pubxml" />
@@ -193,6 +194,10 @@
     </Compile>
     <Compile Include="MSALSessionCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedeemInvitation.aspx.cs">
+      <DependentUpon>RedeemInvitation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="ReleaseNotes.aspx.cs">
       <DependentUpon>ReleaseNotes.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
