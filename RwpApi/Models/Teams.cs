@@ -734,8 +734,19 @@ namespace RwpApi.Models
                 if (team == null)
                     return RSR.Failed($"Invitation \"{invitationCode}\" does not exist or has expired");
 
+                sql.BeginTransaction();
+
                 // now that we have the team, add the association
                 rsr = InsertAuthUser(identity, team, guidTenant, sql);
+
+                // and remove the invitation code (comment this out if we want invitation codes to
+                // be good for more that one usage)
+                Sql.ExecuteNonQuery(
+                    sql,
+                    $"update rwllteams set PW = '' where TeamName='{team}' and PW='{invitationCode}'",
+                    null);
+                
+                sql.Commit();
             }
             catch (Exception e)
             {
