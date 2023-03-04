@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using Microsoft.Owin;
 using System.Collections.Generic;
 using System.Configuration;
@@ -7,6 +8,7 @@ using System.Data.SqlClient;
 using System.EnterpriseServices;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Microsoft.Owin.Security;
@@ -21,6 +23,7 @@ using System.Xml.Serialization;
 using Microsoft.Owin.Security.Notifications;
 using Owin;
 using TCore;
+using Exception = System.Exception;
 
 namespace Rwp
 {
@@ -52,6 +55,12 @@ namespace Rwp
 
         #region Persisted ViewState
 
+        string Division
+        {
+            get {  return TGetState<string>("division", null); }
+            set { SetState("division", value); }
+        }
+
         private string SqlBase
         {
             get { return TGetState<string>("sqlStrBase", null); }
@@ -63,7 +72,7 @@ namespace Rwp
             get { return GetTeamName(); }
         }
         private string teamNameForAvailableSlots;
-        
+
         // team name used to query for reserved and available slots
         private bool ShowingReserved
         {
@@ -109,6 +118,51 @@ namespace Rwp
 
         private string sCurYear;
 
+        void UpdateNotices()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("<ul>");
+
+            try
+            {
+                DBConn.Open();
+
+                using (SqlCommand cmd = DBConn.CreateCommand())
+                {
+                    cmd.CommandText =
+                        $"select ContentHtml from rwllnotices where (CharIndex('Z', DivisionsVisible) + CharIndex('{Division}', DivisionsVisible) > 0)";
+
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            sb.Append("<li>");
+                            sb.Append(Notices.ConvertSqlStringToHtml(rdr.GetString(0)));
+                            sb.Append("</li>");
+                        }
+
+                        rdr.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.Append("<li>Could not load notices");
+#if !PRODHOST
+                sb.Append(": ");
+                sb.Append(ex.Message);
+#endif
+                sb.Append("</li>");
+            }
+            finally
+            {
+                DBConn.Close();
+            }
+
+            sb.Append("</ul");
+            divNotices.InnerHtml = sb.ToString();
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
             m_auth = new Auth(LoginOutButton, Request, Session, Context.GetOwinContext().Environment["System.Web.HttpContextBase"] as HttpContextBase, ViewState, $"{s_sRoot}/default.aspx", null, null, OnBeforeSignout, null);
@@ -136,6 +190,7 @@ namespace Rwp
                 timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
 
             m_auth.SetupLoginLogout();
+            UpdateNotices();
         }
 
         private TimeZoneInfo timeZoneInfo;
@@ -152,6 +207,8 @@ namespace Rwp
                 divCalendarFeedLink.Visible = ShowingCalLink;
 
                 Auth.UserData data = LoadPrivs();
+
+                Division = data.sDivision;
 
                 if (timeZoneInfo == null && data.sTimezone != null)
                     timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(data.sTimezone);
@@ -191,6 +248,7 @@ namespace Rwp
             m_auth.SetLoggedOff();
 
             SqlBase = "";
+            Division = "";
         }
 
         void FillTeamList(Auth.UserData data)

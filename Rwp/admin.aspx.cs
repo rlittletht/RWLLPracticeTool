@@ -12,6 +12,9 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
+using System.Windows.Forms;
+using TextBox = System.Web.UI.WebControls.TextBox;
+using TCore;
 
 namespace Rwp
 {
@@ -88,7 +91,11 @@ namespace Rwp
             m_auth.SetupLoginLogout();
             GoHome.Click += DoGoHome;
             if (!IsPostBack)
+            {
                 rowAddUser.Visible = false;
+                addNoticeTable.Visible = false;
+                BindGrid();
+            }
         }
 
         public void DoGoHome(object sender, ImageClickEventArgs args)
@@ -140,10 +147,13 @@ namespace Rwp
             btnClearTeams.Enabled = fAdmin;
             btnUploadTeams.Enabled = fAdmin;
             btnDownloadSlots.Enabled = fAdmin;
-            btnClearAllSlots.Enabled = fAdmin;
             btnClearLastYear.Enabled = fAdmin;
             btnUploadSlots.Enabled = fAdmin;
-            btnClearAuth.Enabled = fAdmin;
+            btnAddNotice.Enabled = fAdmin;
+            btnAddUser.Enabled = fAdmin;
+            
+            //            btnClearAllSlots.Enabled = fAdmin;
+            //            btnClearAuth.Enabled = fAdmin;
         }
 
         /* D O  D E L E T E  S L O T S */
@@ -295,6 +305,7 @@ namespace Rwp
                 }
 
             btnClearTeams.Enabled = true;
+            btnClearAuth.Enabled = true;
         }
 
 		protected void EnableDeleteSlots(object sender, EventArgs e)
@@ -365,5 +376,225 @@ namespace Rwp
             rowAddUser.Visible = false;
         }
 
+        // DataGrid support
+        protected void DoAddNotice(object sender, EventArgs e)
+        {
+            RSR sr = CheckAdmin();
+
+            if (!sr.Result)
+            {
+                ReportSr(sr, "ipc");
+                return;
+            }
+
+            addID.InnerText = Guid.NewGuid().ToString();
+            addCreatedBy.InnerText = m_auth.Identity();
+            addCreationDate.InnerText = DateTime.Now.ToString();
+            txtDivisionsVisible.Text = "Z";
+            txtContentHtml.Text = "";
+            addNoticeTable.Visible = true;
+        }
+
+        void ClearAndHideAddNotice()
+        {
+            addNoticeTable.Visible = false;
+            txtDivisionsVisible.Text = "";
+            txtContentHtml.Text = "";
+        }
+
+        protected void DoAddNoticeCancel(object sender, EventArgs e)
+        {
+            ClearAndHideAddNotice();
+        }
+
+        delegate void OnSuccessfulSqlExecution();
+        delegate void OnFailedSqlExecution();
+        delegate void AfterSqlExecution();
+        
+        void DoSqlCommandAndReport(string sql, AfterSqlExecution delAfter, OnSuccessfulSqlExecution delSuccess, OnFailedSqlExecution delFailed)
+        {
+            RSR sr = CheckAdmin();
+
+            if (!sr.Result)
+            {
+                ReportSr(sr, "ipc");
+                return;
+            }
+
+            try
+            {
+                DBConn.Open();
+
+                using (SqlCommand cmdMbrs = DBConn.CreateCommand())
+                {
+                    cmdMbrs.CommandText = sql;
+
+                    int rows = cmdMbrs.ExecuteNonQuery();
+
+                    if (rows != 1)
+                    {
+                        if (delFailed != null)
+                            delFailed();
+                    }
+                    else
+                    {
+                        if (delSuccess != null)
+                            delSuccess();
+                    }
+
+                    if (delAfter != null)
+                        delAfter();
+                }
+            }
+            catch (Exception ex)
+            {
+                divError.InnerText = ex.Message;
+            }
+            finally
+            {
+                DBConn.Close();
+            }
+        }
+        protected void DoAddNoticeSave(object sender, EventArgs e)
+        {
+            DateTime dttm = DateTime.Parse(addCreationDate.InnerText);
+
+            string sql = $"insert into rwllnotices (ID,CreatedBy,CreationDate,DivisionsVisible,ContentHtml) VALUES ("
+                + $"'{Sqlify(addID.InnerText)}',"
+                + $"'{Sqlify(addCreatedBy.InnerText)}',"
+                + $"'{dttm:M/d/yyyy HH:mm}',"
+                + $"'{Sqlify(txtDivisionsVisible.Text)}',"
+                + $"'{Sqlify(txtContentHtml.Text)}'"
+                + ")";
+
+            DoSqlCommandAndReport(
+                sql,
+                ClearAndHideAddNotice,
+                null,
+                () => { divError.InnerText= "failed to add new notice"; });
+
+            BindGrid();
+        }
+
+        protected void DataGrid_Delete(object sender, GridViewDeleteEventArgs e)
+        {
+            ItemData data = GetItemDataFromItem(Notices.Rows[e.RowIndex].Cells);
+
+            string sql = $"delete from rwllnotices where ID='{data.Id}'";
+
+            DoSqlCommandAndReport(
+                sql,
+                null,
+                null,
+                () => { divError.InnerText = "failed to delete notice"; });
+
+            BindGrid();
+        }
+
+        protected void DataGrid_Edit(object sender, GridViewEditEventArgs e)
+        {
+            Notices.EditIndex = e.NewEditIndex;
+            BindGrid();
+        }
+
+        class ItemData
+        {
+            public string Id { get; set; }
+            public string CreatedBy { get; set; }
+            public string CreationDate { get; set; }
+            public string DivisionsVisible { get; set; }
+            public string ContentHtml { get; set; }
+        }
+
+        public static string Sqlify(string s)
+        {
+            return s.Replace("'", "''");
+        }
+
+        string GetTextFromControlOrCell(TableCell cell)
+        {
+            if (cell.Controls != null && cell.Controls.Count > 0)
+            {
+                return ((TextBox)cell.Controls[0]).Text;
+            }
+
+            return cell.Text;
+        }
+
+        ItemData GetItemDataFromItem(TableCellCollection cells)
+        {
+            ItemData itemData = new ItemData();
+            
+            itemData.Id =                GetTextFromControlOrCell(cells[1]);
+            itemData.CreatedBy =         GetTextFromControlOrCell(cells[2]);
+            itemData.CreationDate =      GetTextFromControlOrCell(cells[3]);
+            itemData.DivisionsVisible  = GetTextFromControlOrCell(cells[4]);
+            itemData.ContentHtml =       GetTextFromControlOrCell(cells[5]);
+
+            return itemData;
+        }
+
+        protected void DataGrid_Update(object sender, GridViewUpdateEventArgs e)
+        {
+            ItemData data = GetItemDataFromItem(Notices.Rows[e.RowIndex].Cells);
+
+            if (e.NewValues.Contains("ContentHtml"))
+                data.ContentHtml = (string)e.NewValues["ContentHtml"];
+
+            if (e.NewValues.Contains("DivisionsVisible"))
+                data.DivisionsVisible = (string)e.NewValues["DivisionsVisible"];
+
+            string sql =
+                $"update rwllnotices set ContentHtml='{Sqlify(data.ContentHtml)}', DivisionsVisible='{Sqlify(data.DivisionsVisible)}' where ID = '{Sqlify(data.Id)}'";
+
+            DoSqlCommandAndReport(
+                sql,
+                null,
+                () => { Notices.EditIndex = -1; },
+                () => { divError.InnerText = $"failed to update notice {data.Id}"; });
+
+            BindGrid();
+        }
+
+        protected void DataGrid_Command(object sender, DataGridCommandEventArgs e)
+        {
+        }
+
+        protected void DataGrid_Cancel(object sender, GridViewCancelEditEventArgs e)
+        {
+            Notices.EditIndex = -1;
+            BindGrid();
+        }
+
+        protected void SortCommand(object sender, DataGridSortCommandEventArgs e)
+        {
+        }
+
+        protected void BindGrid()
+        {
+            if (!CheckAdmin().Succeeded)
+                return;
+
+            DBConn.Open();
+
+            using (SqlCommand cmdMbrs = DBConn.CreateCommand())
+            {
+                cmdMbrs.CommandText =
+                    "select ID, CreatedBy, CreationDate, ContentHtml, DivisionsVisible from rwllnotices";
+
+                using (SqlDataReader rdrMbrs = cmdMbrs.ExecuteReader())
+                {
+                    Notices.DataSource = rdrMbrs;
+                    Notices.DataBind();
+                    rdrMbrs.Close();
+                }
+            }
+
+            DBConn.Close();
+        }
+
+        protected void Notices_OnDataBound(object sender, EventArgs e)
+        {
+        }
     }
 }

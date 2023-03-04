@@ -193,6 +193,7 @@
       <DependentUpon>icsfeed.aspx</DependentUpon>
     </Compile>
     <Compile Include="MSALSessionCache.cs" />
+    <Compile Include="Notices.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedeemInvitation.aspx.cs">
       <DependentUpon>RedeemInvitation.aspx</DependentUpon>

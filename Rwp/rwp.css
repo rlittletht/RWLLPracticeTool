@@ -46,3 +46,25 @@ table.layout {
 table.layout td {
      border: none;
 }
+
+table.formTable {
+    border: none;
+    border-collapse: collapse;
+}
+
+table.formTable tr td {
+    padding-left: 2pt;
+    padding-right: 2pt;
+    border: none;
+    font-family: Verdana;
+    font-size: 8pt;
+}
+
+table.formTable tr th {
+    border: none;
+    font-family: Verdana;
+    font-size: 8pt;
+    font-weight: bold;
+    background: blue;
+    color: white;
+}

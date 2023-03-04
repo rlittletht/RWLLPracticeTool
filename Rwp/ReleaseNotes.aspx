@@ -11,7 +11,14 @@
     <form id="form1" runat="server">
     <div>
         <div class="masthead">release notes</div>
-        <ul><li>2/27/2020@23:23</li><ul><li>Changed all backend dates to UTC</li><li>Changed reset time from midnight PST to noon PST</li></ul>
+        <ul>
+            <li>2/25/2023@15:32</li>
+            <ul>
+                <li>implemented invitation redemption</li>
+                <li>dynamic notices</li>
+                <li>more admin functions</li>
+            </ul>
+            <li>2/27/2020@23:23</li><ul><li>Changed all backend dates to UTC</li><li>Changed reset time from midnight PST to noon PST</li></ul>
             <li>2/26/2017@13:45</li>
                 <ul><li>Updated front page to reflect school slots available</li></ul>
             <li>2/25/2017</li>

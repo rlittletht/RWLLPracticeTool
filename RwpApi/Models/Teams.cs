@@ -402,6 +402,12 @@ namespace RwpApi.Models
                 CheckLength(m_sName, "TeamName", 50, plsFail);
                 CheckLength(m_sDivision, "Division", 10, plsFail);
 
+                if (String.IsNullOrEmpty(m_sTenant))
+                    m_sTenant = null;
+
+                if (String.IsNullOrEmpty(m_sIdentity))
+                    m_sIdentity = null;
+
                 if ((m_sTenant == null && m_sIdentity != null)
                     || (m_sTenant != null && m_sIdentity == null))
                 {
@@ -442,7 +448,7 @@ namespace RwpApi.Models
                 }
 
                 if (plsFail.Count > 0)
-                    return SRFromPls($"preflight failed for team {m_sName}", plsFail);
+                    return SRFromPls($"preflight failed for team {m_sName}: ", plsFail);
 
                 return RSR.Success();
             }
