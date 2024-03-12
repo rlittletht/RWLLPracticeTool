@@ -22,6 +22,16 @@ namespace RwpApi
         List<RwpSlot> m_plrwps;
         TimeZoneInfo m_tzi;
 
+        private Dictionary<int, RwpSlot> m_mapSlots = new Dictionary<int, RwpSlot>();
+
+        public RwpSlot GetSlotFromNumber(int number)
+        {
+            if (m_mapSlots.ContainsKey(number)) 
+                return m_mapSlots[number];
+
+            return null;
+        }
+
         public RwpSlots()
         {
             m_plrwps = new List<RwpSlot>();
@@ -150,6 +160,111 @@ namespace RwpApi
             }
         }
 
+        private Dictionary<string, List<RwpSlot>> m_mapDayFieldSlots;
+
+        string GetDayFieldFromSlot(RwpSlot slot)
+        {
+            return $"{slot.SlotStart:yy-MM-dd}{slot.Field}";
+        }
+
+        void PopulateDayFieldSlots()
+        {
+            m_mapDayFieldSlots = new Dictionary<string, List<RwpSlot>>();
+
+            foreach (RwpSlot slot in Slots)
+            {
+                AddSlotToDayFieldSlots(slot);
+            }
+        }
+
+        void AddSlotToDayFieldSlots(RwpSlot slot)
+        {
+            if (m_mapDayFieldSlots == null)
+                PopulateDayFieldSlots();
+
+            string dayField = GetDayFieldFromSlot(slot);
+
+            if (!m_mapDayFieldSlots.TryGetValue(dayField, out List<RwpSlot> slots))
+            {
+                slots = new List<RwpSlot>();
+                m_mapDayFieldSlots[dayField] = slots;
+            }
+
+            slots.Add(slot);
+        }
+
+        public static bool FSlotsOverlap(RwpSlot left, RwpSlot right)
+        {
+            if (left.SlotStart <= right.SlotStart)
+            {
+                if (left.SlotStart.AddMinutes(left.SlotLength) > right.SlotStart)
+                {
+                    // left overlaps right
+                    return true;
+                }
+            }
+            else if (right.SlotStart <= left.SlotStart)
+            {
+                if (right.SlotStart.AddMinutes(right.SlotLength) > left.SlotStart)
+                    return true;
+            }
+
+            return false;
+        }
+
+        [Test]
+        [TestCase("3/4/2024 17:00", 90, "3/4/2024 19:00", 90, false)]
+        [TestCase("3/4/2024 17:00", 90, "3/4/2024 18:30", 90, false)]
+        [TestCase("3/4/2024 17:00", 90, "3/4/2024 18:29", 90, true)]
+        [TestCase("3/4/2024 17:00", 90, "3/4/2024 15:30", 90, false)]
+        [TestCase("3/4/2024 17:00", 90, "3/4/2024 15:31", 90, true)]
+        [TestCase("3/4/2024 17:00", 90, "3/4/2024 15:00", 90, false)]
+        [TestCase("3/4/2024 17:00", 90, "3/4/2024 17:30", 30, true)]
+        [TestCase("3/4/2024 18:00", 120, "3/4/2024 19:30", 120, true)]
+        public static void TestFSlotsOverlap(string leftIn, int leftLen, string rightIn, int rightLen, bool expected)
+        {
+            RwpSlot left = new RwpSlot();
+            RwpSlot right = new RwpSlot();
+
+            left.SlotStart = DateTime.Parse(leftIn);
+            left.SlotLength = leftLen;
+            right.SlotStart = DateTime.Parse(rightIn);
+            right.SlotLength = rightLen;
+
+            bool actual = FSlotsOverlap(left, right);
+            Assert.AreEqual(expected, actual);
+        }
+
+        bool CheckAndAddOverlapping(RwpSlot slot, out RwpSlot overlappingSlot, TimeZoneInfo tzi)
+        {
+            RwpSlot slotAdjusted = new RwpSlot(slot, tzi);
+
+            overlappingSlot = null;
+
+            if (m_mapDayFieldSlots == null)
+                PopulateDayFieldSlots();
+
+            string dayField = GetDayFieldFromSlot(slotAdjusted);
+
+            if (!m_mapDayFieldSlots.TryGetValue(dayField, out List<RwpSlot> slots))
+            {
+                AddSlotToDayFieldSlots(slotAdjusted);
+                return true;
+            }
+
+            foreach (RwpSlot check in slots)
+            {
+                if (FSlotsOverlap(slotAdjusted, check))
+                {
+                    overlappingSlot = check;
+                    return false;
+                }
+            }
+
+            AddSlotToDayFieldSlots(slotAdjusted);
+            return true;
+        }
+
         // ================================================================================
         // R W P  S L O T S
         // ================================================================================
@@ -263,6 +378,25 @@ namespace RwpApi
             {
                 get { return m_sReleaseTeam; }
                 set { m_sReleaseTeam = value; }
+            }
+
+            public RwpSlot(RwpSlot slot, TimeZoneInfo tzi)
+            {
+                m_nSlot = slot.m_nSlot;
+                m_flWeek = slot.m_flWeek;
+                m_sStatus = slot.m_sStatus;
+                m_sVenue = slot.m_sVenue;
+                m_sField = slot.m_sField;
+                m_dttmSlotStart = slot.m_dttmSlotStart;
+                m_nSlotLength = slot.m_nSlotLength;
+                m_sReserved = slot.m_sReserved;
+                m_sDivisions = slot.m_sDivisions;
+                m_dttmReserved = slot.m_dttmReserved;
+                m_sType = slot.m_sType;
+                m_dttmReleased = slot.m_dttmReleased;
+                m_sReleaseTeam = slot.m_sReleaseTeam;
+
+                AdjustSlotForTimezone(this, tzi);
             }
 
             /* R W P  S L O T */
@@ -404,8 +538,10 @@ namespace RwpApi
                 %%Qualified: RwpSvc.Practice:Teams:RwpTeam.Preflight
                 %%Contact: rlittle
 
+                THIS HAS A SIDEAFFECT of adding this slot to the current list of slots
+                
             ----------------------------------------------------------------------------*/
-            public RSR Preflight(TCore.Sql sql)
+            public RSR Preflight(RwpSlots slots, TimeZoneInfo tzi)
             {
                 List<string> plsFail = new List<string>();
 
@@ -415,8 +551,16 @@ namespace RwpApi
                 CheckLength(m_sReserved, "Reserved", 255, plsFail);
                 CheckLength(m_sDivisions, "Divisions", 15, plsFail);
                 CheckLength(m_sType, "Type", 50, plsFail);
+                if (m_nSlot == 0)
+                    plsFail.Add($"Slot {m_nSlot} is not valid");
+                if (m_flWeek < 1.0)
+                    plsFail.Add($"Week {m_flWeek} is not valid");
                 if (!s_plsTypes.Contains(m_sType.ToUpper()))
                     plsFail.Add(String.Format("Type '{0}' is not valid", m_sType));
+
+                // check to see if this slot overlaps an existing slot for the current field
+                if (!slots.CheckAndAddOverlapping(this, out RwpSlot overlapping, tzi))
+                    plsFail.Add($"Slot {m_nSlot} overlaps with slot {overlapping.Slot}: {this.Field}/{this.SlotStart}/{this.SlotLength} ~= {overlapping.Field}/{overlapping.SlotStart}/{overlapping.SlotLength}");
 
                 if (plsFail.Count > 0)
                     return SRFromPls("preflight failed", plsFail);
@@ -493,37 +637,31 @@ namespace RwpApi
                 %%Contact: rlittle
 
             ----------------------------------------------------------------------------*/
-            public RSR LoadRwpsFromCsv(string sLine, Sql sql, out RwpSlot rwps, out bool fAdd, out List<string> plsDiff, TimeZoneInfo tzi)
+            public RSR LoadRwpsFromCsv(string sLine, RwpSlots slots, out RwpSlot rwps, out bool fAdd, out List<string> plsDiff, TimeZoneInfo tzi, ref int nextSlot)
             {
                 string[] rgs = LineToArray(sLine);
-                SqlWhere sw = new SqlWhere();
                 fAdd = true;
                 plsDiff = new List<string>();
                 rwps = null;
 
-                if (rgs[0] == "")
+                if (sLine == "")
                     return RSR.Success();
 
                 rwps = new RwpSlot();
 
-                sw.AddAliases(RwpSlot.s_mpAliases);
                 try
                 {
                     rwps.Slot = GetIntVal(rgs, "SLOTNO");
+                    if (rwps.Slot == 0)
+                        rwps.Slot = nextSlot++;
 
-                    sw.Add(String.Format("$$rwllpractice$$.SlotNo = {0}", rwps.Slot), SqlWhere.Op.And);
-                    SqlReader sqlr = new SqlReader(sql);
-                    if (sqlr.FExecuteQuery(sw.GetWhere(RwpSlot.s_sSqlQueryString), Startup._sResourceConnString)
-                        && sqlr.Reader.Read())
+                    RwpSlot existing = slots.GetSlotFromNumber(rwps.Slot);
+                    if (existing != null)
                     {
-                        sqlr.Close();
                         // found a match.  for now, this is an error
                         throw new Exception(String.Format("slot {0} already exists", rwps.Slot));
                     }
 
-                    sqlr.Close();
-
-                    rwps.Slot = GetIntVal(rgs, "SLOTNO");
                     rwps.Week = GetDoubleVal(rgs, "WEEK");
                     rwps.Status = GetStringVal(rgs, "STATUS");
                     rwps.Venue = GetStringVal(rgs, "VENUE");
@@ -542,10 +680,20 @@ namespace RwpApi
                     return RSR.Failed(e);
                 }
 
-                return RSR.Success();
+                RSR rsr = RSR.Success();
+                rsr.Reason = "Extra Message";
+
+                return rsr;
             }
         }
 
+
+        public static void AdjustSlotForTimezone(RwpSlot slot, TimeZoneInfo tzi)
+        {
+            slot.SlotStart = TimeZoneInfo.ConvertTimeFromUtc(slot.SlotStart, tzi);
+            slot.Released = slot.Released != null ? TimeZoneInfo.ConvertTimeFromUtc((DateTime)slot.Released, tzi) : (DateTime?)null;
+            slot.ReservedDate = slot.ReservedDate != null ? TimeZoneInfo.ConvertTimeFromUtc((DateTime)slot.ReservedDate, tzi) : (DateTime?)null;
+        }
 
         /* F  A D D  R E S U L T  R O W */
         /*----------------------------------------------------------------------------
@@ -559,13 +707,19 @@ namespace RwpApi
             RwpSlot slot = new RwpSlot(sqlr.Reader);
 
             // convert UTC dates to the local timezone of the user
-            slot.SlotStart = TimeZoneInfo.ConvertTimeFromUtc(slot.SlotStart, m_tzi);
-            slot.Released = slot.Released != null ? TimeZoneInfo.ConvertTimeFromUtc((DateTime)slot.Released, m_tzi) : (DateTime?)null ;
-            slot.ReservedDate = slot.ReservedDate != null ? TimeZoneInfo.ConvertTimeFromUtc((DateTime)slot.ReservedDate, m_tzi) : (DateTime?)null;
+            AdjustSlotForTimezone(slot, m_tzi);
 
             m_plrwps.Add(slot);
-
+            m_mapSlots.Add(slot.Slot, slot);
             return true;
+        }
+
+
+        public SR GetCurrentSlots()
+        {
+            SqlWhere sw = new SqlWhere();
+            sw.AddAliases(RwpSlot.s_mpAliases);
+            return Sql.ExecuteQuery(sw.GetWhere(RwpSlot.s_sSqlQueryString), this, Startup._sResourceConnString);
         }
 
         /* G E T  C S V */
@@ -578,16 +732,14 @@ namespace RwpApi
         public SR GetCsv(Stream stm, TimeZoneInfo tzi)
         {
             CsvSlots csvs = new CsvSlots();
-            SqlWhere sw = new SqlWhere();
             TextWriter tw = new StreamWriter(stm);
 
             m_tzi = tzi;
 
-            sw.AddAliases(RwpSlot.s_mpAliases);
-
             m_plrwps = new List<RwpSlot>();
 
-            SR sr = Sql.ExecuteQuery(sw.GetWhere(RwpSlot.s_sSqlQueryString), this, Startup._sResourceConnString);
+            GetCurrentSlots();
+
             tw.WriteLine(csvs.Header());
             foreach (RwpSlot rwps in m_plrwps)
                 tw.WriteLine(csvs.CsvMake(rwps));
@@ -616,6 +768,8 @@ namespace RwpApi
             if (!sr.Result)
                 return sr;
 
+            int nextSlot = sql.NExecuteScalar("select MAX(SlotNo) FROM rwllpractice") + 1;
+
             sr = RSR.FromSR(sql.BeginTransaction());
             if (!sr.Result)
             {
@@ -629,6 +783,11 @@ namespace RwpApi
             RwpSlot rwps;
             bool fAdd;
             List<string> plsDiff;
+
+            // read the current slots so we can check for conflicts
+            RwpSlots slots = new RwpSlots();
+            slots.m_tzi = tzi;
+            slots.GetCurrentSlots();
 
             try
             {
@@ -648,15 +807,16 @@ namespace RwpApi
                         continue;
                     }
 
-                    sr = csv.LoadRwpsFromCsv(sLine, sql, out rwps, out fAdd, out plsDiff, tzi);
+                    sr = csv.LoadRwpsFromCsv(sLine, slots, out rwps, out fAdd, out plsDiff, tzi, ref nextSlot);
                     if (!sr.Result)
                         throw new Exception(String.Format("Failed to process line {0}: {1}", iLine - 1, sr.Reason));
 
                     if (rwps == null) // this means it was an empty csv line
                         continue;
 
-                    // at this point, rwps is a fully loaded team; check for errors and generate a passowrd if necessary
-                    sr = rwps.Preflight(sql);
+                    // at this point, rwps is fully loaded
+
+                    sr = rwps.Preflight(slots, tzi);
                     if (!sr.Result)
                         throw new Exception(String.Format("Failed to preflight line {0}: {1}", iLine - 1, sr.Reason));
 
@@ -674,7 +834,7 @@ namespace RwpApi
                 sql.Rollback();
                 sql.Close();
 
-                return RSR.Failed(e);
+                return RSR.Failed($"{e.Message}: {e.StackTrace}");
             }
 
             sql.Commit();

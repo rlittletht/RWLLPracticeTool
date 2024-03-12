@@ -7,6 +7,7 @@ using System.Text;
 using System.Web;
 using System.Data.Sql;
 using System.EnterpriseServices;
+using System.Web.Http.ValueProviders;
 using NUnit.Framework;
 using TCore;
 
@@ -287,10 +288,11 @@ namespace RwpApi.Models
                 return RSR.Failed(s);
             }
 
-            struct TeamInfo
+            public struct TeamInfo
             {
                 public string TeamName;
                 public string Division;
+                public string InvitationCode;
             }
 
             private static readonly Random s_random = new Random();
@@ -367,7 +369,7 @@ namespace RwpApi.Models
                 Generate a 4 letter, 4 digit invitation code and make sure it doesn't
                 already exist
             ----------------------------------------------------------------------------*/
-            string GenerateInvitiationCode(TCore.Sql sql)
+            public static string GenerateInvitiationCode(TCore.Sql sql)
             {
                 int tries = 100;
 
@@ -426,9 +428,10 @@ namespace RwpApi.Models
                         {
                             ti.TeamName = sqlr.Reader.GetString(0);
                             ti.Division = sqlr.Reader.GetString(1);
+                            ti.InvitationCode = sqlr.Reader.GetString(2);
                         });
 
-                    Sql.ExecuteQuery(sql, $"SELECT TeamName, Division FROM rwllteams WHERE TeamName='{m_sName}'",
+                    Sql.ExecuteQuery(sql, $"SELECT TeamName, Division, PW FROM rwllteams WHERE TeamName='{m_sName}'",
                         readLine, null);
 
                     if (String.Compare(m_sDivision, readLine.Value.Division) != 0)
@@ -774,6 +777,126 @@ namespace RwpApi.Models
 
                 sql.Close();
             }
+            return rsr;
+        }
+
+        public static RSR CreateUpdateTeam(
+            string sTeamName, 
+            string sDivision, 
+            bool generateInvitationCode, 
+            bool showInvitation, 
+            bool updateInformation)
+        {
+            if (string.IsNullOrWhiteSpace(sTeamName))
+                return RSR.Failed($"'{sTeamName}' is not a valid team name");
+
+            if (string.IsNullOrWhiteSpace(sDivision))
+                return RSR.Failed($"'{sDivision} is not a valid division");
+
+            Sql sql = null;
+            Sql.OpenConnection(out sql, Startup._sResourceConnString);
+            RSR rsr = RSR.Failed("unknown");
+
+            sTeamName = Sql.Sqlify(sTeamName);
+            sDivision = Sql.Sqlify(sDivision);
+
+            try
+            {
+                // check if the team is already in the table
+                Teams teams = new Teams();
+
+                SqlQueryReadLine<RwpTeam.TeamInfo> readLine = new SqlQueryReadLine<RwpTeam.TeamInfo>(
+                    (SqlReader sqlr, ref RwpTeam.TeamInfo ti) =>
+                    {
+                        ti.TeamName = sqlr.Reader.GetString(0);
+                        ti.Division = sqlr.Reader.GetString(1);
+                        ti.InvitationCode = sqlr.Reader.IsDBNull(2) ? null : sqlr.Reader.GetString(2);
+                    });
+
+                Sql.ExecuteQuery(
+                    sql,
+                    $"SELECT TeamName, Division, PW FROM rwllteams WHERE TeamName='{sTeamName}'",
+                    readLine,
+                    null);
+
+                RwpTeam.TeamInfo existingTeam;
+                bool fNoTeam = false;
+                try
+                {
+                    existingTeam = readLine.Value;
+                }
+                catch (SqlExceptionNoResults)
+                {
+                    fNoTeam = true;
+                }
+
+                if (!fNoTeam && string.Compare(readLine.Value.TeamName, sTeamName, StringComparison.CurrentCultureIgnoreCase) == 0)
+                {
+                    // the team already exists
+                    if (updateInformation == false)
+                    {
+                        if (string.Compare(readLine.Value.Division, sDivision, StringComparison.OrdinalIgnoreCase) == 0
+                            && generateInvitationCode
+                            && string.IsNullOrWhiteSpace(readLine.Value.InvitationCode))
+                        {
+                            // everything else matches, they are just trying to create an invitation code after-the-fact
+                            // so make this an update
+                            updateInformation = true;
+                        }
+                        else
+                        {
+                            return RSR.Failed($"team {sTeamName} already exists and <updateInformation> was not true");
+                        }
+                    }
+                }
+                else if (fNoTeam)
+                {
+                    if (updateInformation)
+                        return RSR.Failed($"team {sTeamName} does not exist and <updateInformation> is true");
+                }
+
+                // it this point, updateInformation can be trusted to determine insert/update
+                string sInvitationCode = null;
+
+                if (generateInvitationCode)
+                    sInvitationCode = RwpTeam.GenerateInvitiationCode(sql);
+
+                sql.BeginTransaction();
+                string sQuery = "";
+
+                if (updateInformation)
+                {
+                    sQuery = $"UPDATE rwllteams SET Division = '{sDivision}', PW = '{sInvitationCode}' WHERE TeamName='{sTeamName}'";
+                }
+                else
+                {
+                    sQuery =
+                        $@"INSERT INTO rwllteams (TeamName, Division, PW, DateCreated, DateUpdated, FieldsReleaseCount, CagesReleaseCount, ReleasedFieldsToday, ReleasedFieldsDate, ReleasedCagesToday, ReleasedCagesDate)
+                        VALUES ('{sTeamName}', '{sDivision}', {Sql.Nullable(sInvitationCode)}, '{DateTime.Now}', '{DateTime.Now}', 0, 0, 0, '1/1/2013', 0, '1/1/2013')";
+                }
+
+                rsr = RSR.FromSR(Sql.ExecuteNonQuery(sql, sQuery, null));
+                if (!rsr.Succeeded)
+                    throw new Exception($"{rsr.Reason} ({sQuery})");
+
+                if (showInvitation)
+                {
+                    rsr.Reason = $"Invitation Code: '{sInvitationCode}'";
+                }
+                sql.Commit();
+            }
+            catch (Exception exc)
+            {
+                rsr = RSR.Failed(exc);
+            }
+            finally
+            {
+                if (sql.InTransaction)
+                    sql.Rollback();
+
+                sql.Close();
+            }
+
             return rsr;
         }
 

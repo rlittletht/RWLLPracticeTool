@@ -93,6 +93,7 @@ namespace Rwp
             if (!IsPostBack)
             {
                 rowAddUser.Visible = false;
+                rowCreateTeam.Visible = false;
                 addNoticeTable.Visible = false;
                 BindGrid();
             }
@@ -119,7 +120,7 @@ namespace Rwp
                 }
             else
                 {
-                divError.InnerText = String.Format("{0} returned no errors.", sOperation);
+                divError.InnerText = $"{sOperation} returned no errors. {sr.Reason}";
                 }
         }
 
@@ -143,8 +144,10 @@ namespace Rwp
         {
             bool fAdmin = m_userData.privs == Auth.UserPrivs.AdminPrivs;
 
+            fuTeams.Enabled = fAdmin;
+            fuSlots.Enabled = fAdmin;
             btnDownloadTeams.Enabled = fAdmin;
-            btnClearTeams.Enabled = fAdmin;
+            btnCreateTeam.Enabled = fAdmin;
             btnUploadTeams.Enabled = fAdmin;
             btnDownloadSlots.Enabled = fAdmin;
             btnClearLastYear.Enabled = fAdmin;
@@ -154,6 +157,7 @@ namespace Rwp
             
             //            btnClearAllSlots.Enabled = fAdmin;
             //            btnClearAuth.Enabled = fAdmin;
+            //            btnClearTeams.Enabled = fAdmin;
         }
 
         /* D O  D E L E T E  S L O T S */
@@ -319,8 +323,22 @@ namespace Rwp
 		        }
 
 		    btnClearAllSlots.Enabled = true;
-			btnClearLastYear.Enabled = true;
+//			btnClearLastYear.Enabled = true;
 		}
+
+        protected void DoShowCreateTeam(object sender, EventArgs e)
+        {
+            if (rowCreateTeam.Visible == false)
+            {
+                chkCreateInvitationCode.Checked = true;
+                chkShowInvitationCode.Checked = true;
+                chkUpdateTeam.Checked = false;
+                txtCreateTeamName.Text = "";
+                txtCreateTeamDivision.Text = "";
+            }
+
+            rowCreateTeam.Visible = !rowCreateTeam.Visible;
+        }
 
         protected void DoShowAddUser(object sender, EventArgs e)
         {
@@ -335,6 +353,39 @@ namespace Rwp
 
             }
             rowAddUser.Visible = !rowAddUser.Visible;
+        }
+
+        protected void DoCreateTeam(object sender, EventArgs e)
+        {
+            RSR sr = CheckAdmin();
+
+            if (!sr.Result)
+            {
+                ReportSr(sr, "ipc");
+                return;
+            }
+
+            string sTeamName = txtCreateTeamName.Text;
+            string sDivision = txtCreateTeamDivision.Text;
+            bool fCreateInvitation = chkCreateInvitationCode.Checked;
+            bool fUpdateTeam = chkUpdateTeam.Checked;
+            bool fShowInvitationCode = chkShowInvitationCode.Checked;
+
+            string sQuery = $"api/team/CreateUpdateTeam?"
+                + $"TeamName={sTeamName}"
+                + $"&Division={sDivision}"
+                + $"&GenerateInvitationCode={fCreateInvitation}"
+                + $"&ShowInvitationCode={fShowInvitationCode}"
+                + $"&UpdateInformation={fUpdateTeam}";
+
+            sr = m_apiInterop.CallService<RSR>(sQuery, true);
+            if (sr.Succeeded)
+            {
+                rowAddUser.Visible = false;
+                ReportSr(sr, "CreateUpdateTeam");
+            }
+
+            ReportSr(sr, "CreateUpdateTeam");
         }
 
         protected void DoAddUser(object sender, EventArgs e)
@@ -369,6 +420,11 @@ namespace Rwp
             }
 
             ReportSr(sr, "AddTeamUser");
+        }
+
+        protected void CancelCreateTeam(object sender, EventArgs e)
+        {
+            rowCreateTeam.Visible = false;
         }
 
         protected void CancelAddUser(object sender, EventArgs e)

@@ -71,6 +71,21 @@ namespace RwpApi.Controllers
             return Ok(sr);
         }
 
+        [HttpGet]
+        [Route("api/team/CreateUpdateTeam")]
+        public IHttpActionResult CreateUpdateTeam(
+            [FromUri] string TeamName, 
+            [FromUri] string Division, 
+            [FromUri] bool GenerateInvitationCode,
+            [FromUri] bool ShowInvitationCode,
+            [FromUri] bool UpdateInformation)
+        {
+            RSR sr;
+
+            sr = Teams.CreateUpdateTeam(TeamName, Division, GenerateInvitationCode, ShowInvitationCode, UpdateInformation);
+            return Ok(sr);
+        }
+
         [AllowAnonymous]
         [HttpGet]
         [Route("api/team/RedeemInvitation")]
